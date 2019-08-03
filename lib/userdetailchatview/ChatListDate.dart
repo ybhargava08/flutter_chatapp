@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-class GeneralNotificationWidget extends StatelessWidget {
+class ChatListDate extends StatelessWidget {
 
   final String text;
 
-  GeneralNotificationWidget(this.text);
+  ChatListDate(this.text);
 
     @override
   Widget build(BuildContext context) {

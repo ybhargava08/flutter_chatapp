@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:chatapp/blocs/SingleUserBloc.dart';
+import 'package:chatapp/blocs/UserListener.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/login/LoginHandler.dart';
 import 'package:chatapp/model/UserModel.dart';
@@ -15,41 +15,9 @@ class UserBloc {
 
   StreamController<List<UserModel>> _controller;
 
-  //Map<String, StreamController<ChatModel>> _lastChatController = Map();
-
   List<UserModel> _list = List();
 
   UserModel _currUser;
-
-  /*initLastChatController(String toUserId) {
-    if (_isLastChatControllerClosed(toUserId)) {
-      _lastChatController[toUserId] = StreamController.broadcast();
-    }
-  }
-
-  closeLastChatController(String toUserId) {
-    if (!_isLastChatControllerClosed(toUserId)) {
-      _lastChatController[toUserId].close();
-    }
-  }
-
-  _isLastChatControllerClosed(String toUserId) {
-    if (null != _lastChatController[toUserId] &&
-        !_lastChatController[toUserId].isClosed) {
-      return false;
-    }
-    return true;
-  }
-
-  addToLastChatController(String toUserId, ChatModel chat) {
-    if (!_isLastChatControllerClosed(toUserId)) {
-      getLastChatControllerStream(toUserId).sink.add(chat);
-    }
-  }
-
-  StreamController<ChatModel> getLastChatControllerStream(String toUserId) {
-    return _lastChatController[toUserId];
-  }*/
 
   initUserController() {
     closeUserController();
@@ -93,21 +61,11 @@ class UserBloc {
     } else {
       _list[index] = user;
     }
-    SingleUserBloc().addToController(user.id, user);
   }
 
-  UserModel findUser(UserModel user) {
-    return _list.firstWhere((item) => item.id == user.id);
+  UserModel findUser(String  userId) {
+    return _list.firstWhere((item) => item.id == userId);
   }
-
-  /* _findUserAndRemove(UserModel user) {
-    print('removing user '+user.toString()+' list is  '+_list.toString());
-    int index = _list.indexWhere((item) => item.id == user.id);
-    if (index >= 0) {
-      _list.removeAt(index);
-      _addInUserController(_list);
-    }
-  } */
 
   reorderList(String toUserId) {
     if (_list.length > 1) {
@@ -123,27 +81,8 @@ class UserBloc {
 
   void setInitUserAvtivityCS(List<UserModel> list, bool isAddController) {
     _setInitList(list, isAddController);
-    _listenForUserActivity();
   }
 
-  _listenForUserActivity() async {
-    Firebase().getAllUserCollection().snapshots().listen((data) async {
-      if (null != data) {
-        data.documentChanges.forEach((change) async {
-          if (change.type == DocumentChangeType.added ||
-              change.type == DocumentChangeType.modified) {
-            UserModel newUser = UserModel.fromDocSnapShot(data.documents[0]);
-            LoginHandler().getUserDetailsFromContacts(newUser);
-            /*print('got new user '+newUser.toString());
-            if (newUser != null && newUser.name != null) {
-              print('listen for user activity '+newUser.toString());
-              addUpdateUser(newUser);
-            }*/
-          }
-        });
-      }
-    });
-  }
 
   setCurrUser(UserModel user) {
     _currUser = user;

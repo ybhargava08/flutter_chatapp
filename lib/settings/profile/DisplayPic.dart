@@ -154,7 +154,7 @@ class _DisplayPicState extends State<DisplayPic> {
 
     if (image != null) {
       UserModel u = UserModel(_user.id, _user.name, image.path,
-          _user.lastSeenTime, _user.fcmToken, _user.ph);
+          _user.lastSeenTime, _user.fcmToken, _user.ph,_user.localId);
       BaseModel base = BaseModel(null, u, true);
 
       Navigator.pushNamed(context, RouteConstants.IMAGE_VIEW,

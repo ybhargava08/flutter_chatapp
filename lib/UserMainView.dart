@@ -1,7 +1,7 @@
 import 'package:chatapp/RouteConstants.dart';
 import 'package:chatapp/blocs/ConnectivityListener.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
-import 'package:chatapp/blocs/SingleUserBloc.dart';
+import 'package:chatapp/blocs/UserListener.dart';
 import 'package:chatapp/blocs/VerificationBloc.dart';
 import 'package:chatapp/firebase/ChatListener.dart';
 import 'package:chatapp/firebase/Firebase.dart';
@@ -23,7 +23,6 @@ class UserMainView extends StatefulWidget {
 }
 
 class _UserMainViewState extends State<UserMainView> {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -48,7 +47,7 @@ class _UserMainViewState extends State<UserMainView> {
     UserBloc().closeUserController();
     NotificationBloc().closeNotificationController();
     ChatListener().closeAllListeners();
-    SingleUserBloc().closeControllers();
+    UserListener().closeControllers();
     ConnectivityListener().closeListener();
     super.dispose();
   }

@@ -11,6 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Firebase {
   static Firestore _firestore = Firestore.instance;
 
+
   static Firebase _firebase;
 
   static const String CHAT_COL_COMPLETE = 'complete';
@@ -98,6 +99,8 @@ class Firebase {
         batch.commit().then((val) {
           FirebaseRealtimeDB().setUserLastActivityTime(chat);
           SembastDatabase().deleteFromStore(chat);
+          String userSearchId = (chat.fromUserId == UserBloc().getCurrUser().id)?chat.toUserId:chat.fromUserId;
+          SembastDatabase().upsertInUserContactStore(UserBloc().findUser(userSearchId), {'lastActivityTime':chat.fbId});
           localChat.delStat = ChatModel.DELIVERED_TO_SERVER;
           NotificationBloc().addToNotificationController(localChat.id, ChatModel.DELIVERED_TO_SERVER);
         });
@@ -137,15 +140,6 @@ class Firebase {
       }
     });
     batch.commit();
-    /* .then((val) {
-      if (shouldUpdateCount) {
-        print('count decrement ' +
-            chats.length.toString() +
-            ' against id ' +
-            otherUserId);
-        updateUnreadCount('dec', chats.length, otherUserId, null,batch);
-      }
-    }); */
   }
 
   CollectionReference unreadChatReference(String id) {
@@ -157,21 +151,11 @@ class Firebase {
 
   updateUnreadCount(
       String type, int count, String id, ChatModel chat, WriteBatch batch) {
-    /*print('updating count for ' +
-        UserBloc().getCurrUser().id +
-        ' against id ' +
-        id);
-    if (lastMessage != null) {
-      print('update count last message ' + lastMessage);
-    }*/
     CollectionReference ref;
     var increment;
     if (type == 'inc') {
       ref = unreadChatReference(id);
       increment = FieldValue.increment(count);
-      /*ref
-          .document(UserBloc().getCurrUser().id)
-          .setData({'count': increment, 'msg': lastMessage}, merge: true);*/
           String msg = (chat.chatType == ChatModel.CHAT)
             ? chat.chat
             : (chat.chatType == ChatModel.VIDEO)
@@ -185,7 +169,6 @@ class Firebase {
       ref = unreadChatReference(UserBloc().getCurrUser().id);
       increment = FieldValue.increment(-count);
       batch.setData(ref.document(id), {'count': increment}, merge: true);
-      /* ref.document(id).setData({'count': increment}, merge: true); */
     }
   }
 }

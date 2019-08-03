@@ -39,7 +39,7 @@ class _ChatMediaWidgetState extends State<ChatMediaWidget> {
   @override
   void initState() {
     _scrollController = widget.scrollController;
-    if(widget.chat.delStat!=ChatModel.READ_BY_USER) {
+    if(UserBloc().getCurrUser().id == widget.chat.toUserId && widget.chat.delStat!=ChatModel.READ_BY_USER) {
            widget.chat.delStat = ChatModel.READ_BY_USER;
            List<ChatModel> _markedChatAsRead = List();
 _markedChatAsRead.add(widget.chat);

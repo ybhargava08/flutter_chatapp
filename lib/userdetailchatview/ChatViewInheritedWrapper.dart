@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:chatapp/blocs/ChatBloc.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/blocs/ProgressBloc.dart';
-import 'package:chatapp/blocs/SingleUserBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
+import 'package:chatapp/blocs/UserListener.dart';
 import 'package:chatapp/database/DBConstants.dart';
 import 'package:chatapp/database/SembastDatabase.dart';
 import 'package:chatapp/firebase/Firebase.dart';
@@ -55,8 +55,8 @@ class _ChatViewInheritedWrapperState extends State<ChatViewInheritedWrapper> {
 
     init();
 
-    if(SingleUserBloc().getController(_toUser.id)!=null) {
-         _singleUserListener= SingleUserBloc().getController(_toUser.id).stream.listen((data){
+    if(UserListener().getController(_toUser.id)!=null) {
+         _singleUserListener= UserListener().getController(_toUser.id).stream.listen((data){
                 if(this.mounted && (_toUser == null || _toUser!=data)) {
                       setState(() {
                        _toUser = data;

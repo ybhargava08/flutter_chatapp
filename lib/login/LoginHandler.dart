@@ -1,6 +1,7 @@
 import 'package:chatapp/RouteConstants.dart';
 import 'package:chatapp/UserMainView.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
+import 'package:chatapp/database/SembastDatabase.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/firebase/FirebaseNotifications.dart';
 import 'package:chatapp/firebase/FirebaseRealtimeDB.dart';
@@ -34,31 +35,31 @@ class LoginHandler {
           UserModel userFromDb = await getUserData(user.uid);
           if(null==userFromDb) {
                 UserBloc().setCurrUser(
-              UserModel(user.uid, null, null, null, fcmToken, user.phoneNumber));
+              UserModel(user.uid, null, null, null, fcmToken, user.phoneNumber,DateTime.now().microsecondsSinceEpoch));
 
           await Firebase().addUpdateUser(UserBloc().getCurrUser());
           }else if(null!=userFromDb && userFromDb.fcmToken.compareTo(fcmToken)!=0) {
                   UserBloc().setCurrUser(
-              UserModel(userFromDb.id, userFromDb.name, userFromDb.photoUrl, userFromDb.lastSeenTime, fcmToken, userFromDb.ph));
+              UserModel(userFromDb.id, userFromDb.name, userFromDb.photoUrl, userFromDb.lastSeenTime, fcmToken, userFromDb.ph
+              ,userFromDb.localId));
               await Firebase().addUpdateUser(UserBloc().getCurrUser());
           }else{
               UserBloc().setCurrUser(
-              UserModel(userFromDb.id, userFromDb.name, userFromDb.photoUrl, userFromDb.lastSeenTime, userFromDb.fcmToken, userFromDb.ph));
+              UserModel(userFromDb.id, userFromDb.name, userFromDb.photoUrl, userFromDb.lastSeenTime, userFromDb.fcmToken
+              , userFromDb.ph,userFromDb.localId));
           }
           
 
           int startTime = DateTime.now().millisecondsSinceEpoch;
-          List<UserModel> userList = await getDataFromContactList(true);
-          int diff = DateTime.now().millisecondsSinceEpoch - startTime;
-          print('total time taken in preparing contact list ' +
-              diff.toString() +
-              ' ms');
-              int startTimeSorting = DateTime.now().millisecondsSinceEpoch;
+          List<UserModel> userList = await SembastDatabase().getAllContacts();
+          if(null == userList) {
+                 userList = await getDataFromContactList(true);
+              
           userList = await sortUserList(userList);
-int diffSort = DateTime.now().millisecondsSinceEpoch - startTimeSorting;
-          print('total time taken in sorting contact list ' +
-              diffSort.toString() +
-              ' ms');
+          }
+          int diff = DateTime.now().millisecondsSinceEpoch - startTime;
+          print('total time taken preparing contact list '+diff.toString()+' ms'); 
+          
           UserBloc().setInitUserAvtivityCS(userList, false);
 
           Navigator.pushNamedAndRemoveUntil(context, RouteConstants.USER_VIEW,
@@ -82,10 +83,10 @@ int diffSort = DateTime.now().millisecondsSinceEpoch - startTimeSorting;
       await Future.wait(futures);
       int start = DateTime.now().millisecondsSinceEpoch;
       userList.sort((a, b) {
-        if(a.time < b.time) {
-            return a.time.compareTo(b.time);
+        if(a.lastActivityTime < b.lastActivityTime) {
+            return a.lastActivityTime.compareTo(b.lastActivityTime);
         }else{
-           return b.time.compareTo(a.time);
+           return b.lastActivityTime.compareTo(a.lastActivityTime);
         }
         
       });
@@ -105,21 +106,9 @@ int diffSort = DateTime.now().millisecondsSinceEpoch - startTimeSorting;
       int diff = DateTime.now().millisecondsSinceEpoch - start;
       print('time taken in getting time '+diff.toString()+' ms') ; 
     if (time > 0) {
-      user.time = time;
+      user.lastActivityTime = time;
     }
-  }
-
-  Future<void> getUserDetailsFromContacts(UserModel user) async {
-    Iterable<Contact> contacts = await ContactsService.getContactsForPhone(
-        user.ph,
-        withThumbnails: false);
-    if (contacts != null && contacts.length > 0) {
-      contacts.forEach((contact) {
-        print('in contact list found user with name ' + contact.displayName);
-        user.name = contact.displayName;
-        UserBloc().addUpdateUser(user);
-      });
-    }
+    SembastDatabase().upsertInUserContactStore(user,null);
   }
 
   Future<List<UserModel>> getDataFromContactList(bool checkinFirebase) async {
@@ -139,7 +128,8 @@ int diffSort = DateTime.now().millisecondsSinceEpoch - startTimeSorting;
           /* false, */
           null,
           null,
-          null);
+          null,
+          0);
       contact.phones.forEach((phone) {
         if (phone.label.toLowerCase().contains('mobile')) {
           /*  print(
@@ -152,7 +142,6 @@ int diffSort = DateTime.now().millisecondsSinceEpoch - startTimeSorting;
         }
       });
       if (null != user.name && null != user.ph) {
-        //  print('checking query for name ' + user.name + ' ph ' + user.ph);
         if (checkinFirebase) {
           futureList.add(checkIfContactRegistered(user, contactList));
         } else {
@@ -164,7 +153,6 @@ int diffSort = DateTime.now().millisecondsSinceEpoch - startTimeSorting;
       await Future.wait(futureList, eagerError: false);
     }
 
-    //  print('before converting to set list ' + contactList.toString());
     return contactList.toSet().toList();
   }
 
@@ -179,12 +167,12 @@ int diffSort = DateTime.now().millisecondsSinceEpoch - startTimeSorting;
       print('got snap for ph ' + docSnap['ph']);
       user.id = docSnap['id'];
       user.fcmToken = docSnap['fcmToken'];
-      /*  user.isOnline = docSnap['isOnline']; */
       user.lastSeenTime = docSnap['lastSeenTime'];
       user.photoUrl = docSnap['photoUrl'];
-      // print('before adding to list user is ' + user.toString());
+      user.localId = docSnap['localId'];
       if (user != null) {
         list.add(user);
+        
       }
     }
   }

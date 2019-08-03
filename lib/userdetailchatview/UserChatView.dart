@@ -1,4 +1,4 @@
-import 'package:chatapp/blocs/SingleUserBloc.dart';
+import 'package:chatapp/blocs/UserListener.dart';
 import 'package:chatapp/userdetailchatview/UserChatViewLastSeen.dart';
 import 'package:chatapp/userdetailchatview/UserChatViewList.dart';
 import 'package:flutter/material.dart';
@@ -17,8 +17,7 @@ class UserChatView extends StatelessWidget {
     return ChatViewInheritedWrapper(
       toUser: user,
       child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        resizeToAvoidBottomPadding: false,
+        backgroundColor: Colors.orange[50],
         appBar: AppBar(
             automaticallyImplyLeading: false,
             centerTitle: false,
@@ -64,27 +63,21 @@ class UserChatView extends StatelessWidget {
                 )
               ],
             )),
-        body: ConstrainedBox(
-          constraints: BoxConstraints(
-              minHeight: 0,
-              minWidth: 0,
-              maxHeight: double.maxFinite,
-              maxWidth: double.maxFinite),
-          child: Container(
-            decoration: BoxDecoration(color: Colors.orange[100]),
-            child: Flex(
-              direction: Axis.vertical,
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Flexible(flex: 9, child: UserChatViewList(user.id)),
-                //ChatViewOfflineMsg(),
-                Container(
-                  child: UserChatViewInput(),
-                )
-              ],
+        body: Flex(
+          direction: Axis.vertical,
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Flexible(
+              flex: 8,
+              child: UserChatViewList(user.id),
             ),
-          ),
+            //ChatViewOfflineMsg(),
+            Container(
+              margin: EdgeInsets.only(top: 15),
+              child: UserChatViewInput(),
+            )
+          ],
         ),
       ),
     );
@@ -94,7 +87,7 @@ class UserChatView extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder(
       initialData: toUser,
-      stream: SingleUserBloc().getController(toUser.id).stream,
+      stream: UserListener().getController(toUser.id).stream,
       builder: (BuildContext context, AsyncSnapshot<UserModel> snap) {
         if (snap != null && snap.hasData) {
           return buildContent(snap.data, context);
