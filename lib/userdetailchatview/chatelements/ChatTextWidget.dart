@@ -23,11 +23,8 @@ class ChatTextWidget extends StatefulWidget {
 
 class _ChatTextWidgetState extends State<ChatTextWidget> {
 
-    ScrollController _scrollController;
-
     @override
   void initState() {
-    _scrollController = widget.scrollController;
     if(UserBloc().getCurrUser().id == widget.chat.toUserId && widget.chat.delStat!=ChatModel.READ_BY_USER) {
            widget.chat.delStat = ChatModel.READ_BY_USER;
            List<ChatModel> _markedChatAsRead = List();
@@ -35,7 +32,7 @@ _markedChatAsRead.add(widget.chat);
 print('marking chat as read for '+widget.chat.id.toString());
            Firebase().markChatsAsReadOrDelivered((widget.chat.fromUserId == UserBloc().getCurrUser().id?widget.chat.toUserId
            :widget.chat.fromUserId),
-                      _markedChatAsRead, true, ChatModel.READ_BY_USER);
+                      _markedChatAsRead, true, (widget.index == widget.totalLength-1),ChatModel.READ_BY_USER);
                  
     }
     super.initState();

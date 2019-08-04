@@ -27,6 +27,7 @@ class _UserMainViewState extends State<UserMainView> {
   @override
   void initState() {
     VerificationBloc().closeController();
+    UserListener().initLisener();
     UserBloc().initUserController();
     NotificationBloc().openNotificationController();
     ConnectivityListener().initListener();
@@ -52,10 +53,24 @@ class _UserMainViewState extends State<UserMainView> {
     super.dispose();
   }
 
-  Widget getDivider(int index, int length) {
-    print('index is ' + index.toString() + ' length ' + length.toString());
-    if (index < length - 1) {
-      return Container(
+  Widget buildContent(List<UserModel> list) {
+    return Container(
+        //  margin: EdgeInsets.only(top: 20),
+        child: ListView.separated(
+      itemBuilder: (BuildContext context, int index) {
+        UserModel user = list[index];
+        if (user.id != UserBloc().getCurrUser().id) {
+          ChatListener().createListener(user.id);
+          return Column(
+            children: <Widget>[
+              UserView(ValueKey(user.id), user),
+            ],
+          );
+        }
+        return Container(width: 0, height: 0);
+      },
+      separatorBuilder: (BuildContext context,int index) {
+        return Container(
         alignment: Alignment.centerRight,
         margin: EdgeInsets.only(right: 10),
         child: SizedBox(
@@ -66,29 +81,6 @@ class _UserMainViewState extends State<UserMainView> {
           ),
         ),
       );
-    }
-    return Container(
-      width: 0,
-      height: 0,
-    );
-  }
-
-  Widget buildContent(List<UserModel> list) {
-    return Container(
-        //  margin: EdgeInsets.only(top: 20),
-        child: ListView.builder(
-      itemBuilder: (BuildContext context, int index) {
-        UserModel user = list[index];
-        if (user.id != UserBloc().getCurrUser().id) {
-          ChatListener().createListener(user.id);
-          return Column(
-            children: <Widget>[
-              UserView(ValueKey(user.id), user),
-              getDivider(index, list.length)
-            ],
-          );
-        }
-        return Container(width: 0, height: 0);
       },
       itemCount: list.length,
     ));

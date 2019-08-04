@@ -176,7 +176,7 @@ class ChatListener {
       list.add(chat);
 
       Firebase().markChatsAsReadOrDelivered(
-          toUserId, list, false, ChatModel.DELIVERED_TO_USER);
+          toUserId, list, false, false,ChatModel.DELIVERED_TO_USER);
     }
   }
 }

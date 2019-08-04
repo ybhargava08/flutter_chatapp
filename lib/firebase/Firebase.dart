@@ -120,7 +120,7 @@ class Firebase {
   }
 
   markChatsAsReadOrDelivered(String otherUserId, List<ChatModel> chats,
-      bool shouldUpdateCount, String type) async {
+      bool shouldUpdateCount,bool setUnreadCountToZero, String type) async {
     WriteBatch batch = _firestore.batch();
     chats.forEach((chat) {
       DocumentReference docRef = getChatCollectionRef(
@@ -135,11 +135,18 @@ class Firebase {
         data = {'delStat': ChatModel.DELIVERED_TO_USER, 'fbId': chat.fbId};
       }
       batch.setData(docRef, data, merge: true);
-      if (shouldUpdateCount) {
+      if(setUnreadCountToZero) {
+         updateUnreadCount('set to zero', chats.length, otherUserId, null, batch);
+      }
+      else if (shouldUpdateCount) {
         updateUnreadCount('dec', chats.length, otherUserId, null, batch);
       }
     });
     batch.commit();
+  }
+
+  setUnreadCountToZero(WriteBatch batch) {
+       
   }
 
   CollectionReference unreadChatReference(String id) {
@@ -165,10 +172,13 @@ class Firebase {
       batch.setData(ref.document(UserBloc().getCurrUser().id),
           {'count': increment, 'msg': msg},
           merge: true);
-    } else {
+    } else if(type == 'dec'){
       ref = unreadChatReference(UserBloc().getCurrUser().id);
       increment = FieldValue.increment(-count);
       batch.setData(ref.document(id), {'count': increment}, merge: true);
+    }else{
+        ref = unreadChatReference(UserBloc().getCurrUser().id);
+        batch.setData(ref.document(id), {'count': 0}, merge: true);
     }
   }
 }

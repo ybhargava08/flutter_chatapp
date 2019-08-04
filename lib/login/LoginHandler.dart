@@ -141,7 +141,7 @@ class LoginHandler {
           }
         }
       });
-      if (null != user.name && null != user.ph) {
+      if (null != user.name && null != user.ph && user.ph !=UserBloc().getCurrUser().ph) {
         if (checkinFirebase) {
           futureList.add(checkIfContactRegistered(user, contactList));
         } else {

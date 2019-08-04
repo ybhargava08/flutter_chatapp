@@ -12,37 +12,63 @@ class UserListener {
 
   factory UserListener() => _singleUserBloc ??= UserListener._();
 
-  StreamSubscription _subs;
+  StreamSubscription _subsLess;
+
+  StreamSubscription _subsGreater;
   UserListener._();
 
   Map<String, StreamController<UserModel>> _map = Map();
 
+  initLisener() {
+      _listenForUserActivityLess();
+      _listenForUserActivityGreater();
+  }
+
   openController(String id) {
     if (_isControllerClosed(id)) {
-      _listenForUserActivity();
       _map[id] = StreamController.broadcast();
     }
   }
 
-  _listenForUserActivity() {
-    if (_subs == null) {
-      _subs =
-          Firebase().getAllUserCollection().snapshots().listen((data) async {
+  _listenForUserActivityLess() {
+      _subsLess =
+          Firebase().getAllUserCollection().where('ph',isLessThan: UserBloc().getCurrUser().ph)
+          .snapshots().listen((data) async {
         if (null != data) {
           data.documentChanges.forEach((change) async {
             if (change.type == DocumentChangeType.added ||
                 change.type == DocumentChangeType.modified) {
               UserModel newUser = UserModel.fromDocSnapShot(data.documents[0]);
+              print('got user added in listen for user activity '+newUser.toString());
               checkUserInContactList(newUser);
             }
           });
         }
       });
-    }
+    
+  }
+
+  _listenForUserActivityGreater() {
+      _subsGreater =
+          Firebase().getAllUserCollection().where('ph',isGreaterThan: UserBloc().getCurrUser().ph)
+          .snapshots().listen((data) async {
+        if (null != data) {
+          data.documentChanges.forEach((change) async {
+            if (change.type == DocumentChangeType.added ||
+                change.type == DocumentChangeType.modified) {
+              UserModel newUser = UserModel.fromDocSnapShot(data.documents[0]);
+              print('got user added in listen for user activity '+newUser.toString());
+              checkUserInContactList(newUser);
+            }
+          });
+        }
+      });
+    
   }
 
   checkUserInContactList(UserModel user) async {
-    Iterable<Contact> contacts = await ContactsService.getContactsForPhone(
+    if(user.ph!=UserBloc().getCurrUser().ph) {
+          Iterable<Contact> contacts = await ContactsService.getContactsForPhone(
         user.ph,
         withThumbnails: false);
     if (contacts != null && contacts.length > 0) {
@@ -52,8 +78,11 @@ class UserListener {
         addToController(user.id, user);
       });
     } else {
+      print('did not find user in contact '+user.toString());
       SembastDatabase().deleteContactFromUserContactStore(user);
     }
+    }
+    
   }
 
   _isControllerClosed(String id) {
@@ -84,10 +113,11 @@ class UserListener {
         _map[k].close();
       }
     });
-    if (_subs != null) {
-      _subs.cancel().then((val) {
-        _subs = null;
-      });
+    if (_subsLess != null) {
+      _subsLess.cancel();
+    }
+    if(_subsGreater!=null) {
+         _subsGreater.cancel();
     }
   }
 }

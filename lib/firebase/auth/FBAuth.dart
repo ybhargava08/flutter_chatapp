@@ -54,7 +54,6 @@ class FBAuth {
         FirebaseUser user = await FirebaseAuth.instance.currentUser();
         if (user == null) {
           user = await FirebaseAuth.instance.signInWithCredential(credential);
-          user.linkWithCredential(credential);
           print('user cred ' + user.uid);
         }
         printIfNotNull(user.uid);

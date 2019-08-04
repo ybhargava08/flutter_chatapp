@@ -116,9 +116,12 @@ class SembastDatabase {
   }
 
   Future upsertInUserContactStore(UserModel user,Map<String,dynamic> data) async {
-    Map<String,dynamic> dataToStore = (data!=null)?data:user.toJson();
+    if(null!=user && user.ph!=UserBloc().getCurrUser().ph) {
+        Map<String,dynamic> dataToStore = (data!=null)?data:user.toJson();
     Map<String,dynamic> snap = await _userContactStore.record(user.localId).put(await _getDatabase(), dataToStore,merge: true);
    print('after upserting contactUserStore data is '+snap.toString());
+    }
+    
   }
 
   Future<List<UserModel>> getAllContacts() async {
