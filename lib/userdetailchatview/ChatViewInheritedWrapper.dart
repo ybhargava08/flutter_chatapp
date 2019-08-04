@@ -6,6 +6,7 @@ import 'package:chatapp/blocs/ProgressBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/blocs/UserListener.dart';
 import 'package:chatapp/database/DBConstants.dart';
+import 'package:chatapp/database/SembastChat.dart';
 import 'package:chatapp/database/SembastDatabase.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/model/ChatModel.dart';
@@ -130,7 +131,8 @@ class _ChatViewInheritedWrapperState extends State<ChatViewInheritedWrapper> {
 
     int chatLength =
         _prefs.getInt(_toUser.id) ?? DBConstants.DATA_RETREIVE_COUNT;
-    QuerySnapshot chatComplete = await Firebase()
+    if(_toUser.id!=ChatBloc().getChatLoadedUserId() && ChatBloc().getChatListLength() < chatLength) {
+          QuerySnapshot chatComplete = await Firebase()
         .getChatCollectionRef(
             Utils().getChatCollectionId(UserBloc().getCurrUser().id, _toUser.id),
             Firebase.CHAT_COL_COMPLETE)
@@ -148,13 +150,17 @@ class _ChatViewInheritedWrapperState extends State<ChatViewInheritedWrapper> {
     print(
         'init list from firebase after compare id ' + completeList.toString());
     List<ChatModel> localList =
-        await SembastDatabase().getDataFromStore(_toUser.id);
+        await SembastChat().getChatDataFromStore(_toUser.id);
     if (null != localList && localList.length > 0) {
       completeList.addAll(localList);
     }
     if (null != completeList && completeList.length > 0) {
-      ChatBloc().setInitList(completeList);
+      ChatBloc().setInitList(completeList,_toUser.id);
     }
+    }else{
+      print('chat loaded for user '+_toUser.id+' from memory');
+    }    
+    
   }
 
   @override

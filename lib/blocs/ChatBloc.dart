@@ -23,6 +23,18 @@ class ChatBloc {
 
   static int _minChatId = 0;
 
+  static String _chatLoadedUserId = '';
+
+  setChatLoadedUserId(String id) {
+       if(null!=id && id.length > 0 && id!=_chatLoadedUserId) {
+            _chatLoadedUserId = id;
+       }
+  }
+
+  String getChatLoadedUserId() {
+       return _chatLoadedUserId;
+  }
+
   int getChatListLength() {
     return _oneToOneList.length;
   }
@@ -58,7 +70,8 @@ class ChatBloc {
     return _chatController.stream;
   }
 
-  setInitList(List<ChatModel> list) {
+  setInitList(List<ChatModel> list,String toUserId) {
+    _oneToOneList.clear();
     list.forEach((chat) {
       if (chat.fromUserId == UserBloc().getCurrUser().id) {
         chat.compareId = chat.id;
@@ -72,6 +85,7 @@ class ChatBloc {
 
     _chatController.sink.add(_oneToOneList);
     _minChatId = _oneToOneList[_oneToOneList.length-1].id;
+    setChatLoadedUserId(toUserId);
   }
 
   addInChatController(ChatModel cm) {

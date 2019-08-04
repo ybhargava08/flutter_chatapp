@@ -1,7 +1,9 @@
 import 'package:chatapp/blocs/ChatBloc.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
+import 'package:chatapp/database/SembastChat.dart';
 import 'package:chatapp/database/SembastDatabase.dart';
+import 'package:chatapp/database/SembastUser.dart';
 import 'package:chatapp/firebase/FirebaseRealtimeDB.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/model/UserModel.dart';
@@ -98,9 +100,9 @@ class Firebase {
 
         batch.commit().then((val) {
           FirebaseRealtimeDB().setUserLastActivityTime(chat);
-          SembastDatabase().deleteFromStore(chat);
+          SembastChat().deleteFromChatStore(chat);
           String userSearchId = (chat.fromUserId == UserBloc().getCurrUser().id)?chat.toUserId:chat.fromUserId;
-          SembastDatabase().upsertInUserContactStore(UserBloc().findUser(userSearchId), {'lastActivityTime':chat.fbId});
+          SembastUser().upsertInUserContactStore(UserBloc().findUser(userSearchId), {'lastActivityTime':chat.fbId});
           localChat.delStat = ChatModel.DELIVERED_TO_SERVER;
           NotificationBloc().addToNotificationController(localChat.id, ChatModel.DELIVERED_TO_SERVER);
         });

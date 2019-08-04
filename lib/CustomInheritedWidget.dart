@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:chatapp/blocs/UserListener.dart';
+import 'package:chatapp/database/SembastChat.dart';
 import 'package:chatapp/database/SembastDatabase.dart';
 import 'package:chatapp/firebase/ChatListener.dart';
 import 'package:chatapp/firebase/Firebase.dart';
@@ -79,7 +80,7 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
 
   listenForNewChats() async {
     ChatModel localLastChat =
-        await SembastDatabase().getLastChatForUser(_toUser.id);
+        await SembastChat().getLastChatForUser(_toUser.id);
     if (null != localLastChat && localLastChat.chatType != ChatModel.CHAT) {
       print('got last chat from local ' + localLastChat.toString());
 

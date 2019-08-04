@@ -2,6 +2,7 @@ import 'package:chatapp/RouteConstants.dart';
 import 'package:chatapp/UserMainView.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/database/SembastDatabase.dart';
+import 'package:chatapp/database/SembastUser.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/firebase/FirebaseNotifications.dart';
 import 'package:chatapp/firebase/FirebaseRealtimeDB.dart';
@@ -51,7 +52,7 @@ class LoginHandler {
           
 
           int startTime = DateTime.now().millisecondsSinceEpoch;
-          List<UserModel> userList = await SembastDatabase().getAllContacts();
+          List<UserModel> userList = await SembastUser().getAllContacts();
           if(null == userList) {
                  userList = await getDataFromContactList(true);
               
@@ -108,7 +109,7 @@ class LoginHandler {
     if (time > 0) {
       user.lastActivityTime = time;
     }
-    SembastDatabase().upsertInUserContactStore(user,null);
+    SembastUser().upsertInUserContactStore(user,null);
   }
 
   Future<List<UserModel>> getDataFromContactList(bool checkinFirebase) async {

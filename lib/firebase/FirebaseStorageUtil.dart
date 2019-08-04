@@ -30,7 +30,7 @@ class FirebaseStorageUtil {
     _ref = FirebaseStorage.instance.ref();
   }
 
-  Future<String> getThumbnail(ChatModel chat) async {
+  Future<String> createThumbnail(ChatModel chat) async {
     if (null == chat.thumbnailPath || "" == chat.thumbnailPath) {
       chat.thumbnailPath = await Thumbnails.getThumbnail(
           videoFile: chat.localPath, imageType: ThumbFormat.PNG, quality: 11);
