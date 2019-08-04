@@ -29,7 +29,6 @@ class _UserChatViewInput extends State<UserChatViewInput> {
 
     return Container(
       alignment: Alignment.bottomCenter,
-      color: Colors.orange[100],
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[

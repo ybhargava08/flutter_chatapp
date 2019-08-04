@@ -5,7 +5,6 @@ import 'package:chatapp/database/DBConstants.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/widgets.dart';
 
 import '../utils.dart';
 
@@ -15,8 +14,6 @@ class ChatBloc {
   factory ChatBloc() => _chatBloc ??= ChatBloc._();
 
   ChatBloc._();
-
-  Map<String, double> _scrollPos = Map();
 
   List<ChatModel> _oneToOneList = List();
 
@@ -28,17 +25,6 @@ class ChatBloc {
 
   int getChatListLength() {
     return _oneToOneList.length;
-  }
-
-  addScrollPos(String id, double pos) {
-    _scrollPos[id] = pos;
-  }
-
-  getScrollPos(String id) {
-    if (_scrollPos.containsKey(id)) {
-      return _scrollPos[id];
-    }
-    return 10000.0;
   }
 
   addOpenScreenId(String id) {
@@ -80,14 +66,12 @@ class ChatBloc {
         chat.compareId = chat.fbId;
       }
     });
-    list.sort((a, b) {
-      return a.compareId.compareTo(b.compareId);
-    });
+    _sortList(list);
 
     _oneToOneList = list;
 
     _chatController.sink.add(_oneToOneList);
-    _minChatId = _oneToOneList[0].id;
+    _minChatId = _oneToOneList[_oneToOneList.length-1].id;
   }
 
   addInChatController(ChatModel cm) {
@@ -102,11 +86,11 @@ class ChatBloc {
         } else {
           cm.compareId = cm.fbId;
         }
-        _oneToOneList.add(cm);
+        _oneToOneList.insert(0,cm);
 
         _chatController.sink.add(_oneToOneList);
 
-        _minChatId = _oneToOneList[0].id;
+        _minChatId = _oneToOneList[_oneToOneList.length-1].id;
       } else {
         print('cm found in list ' + cm.toString());
       }
@@ -114,9 +98,9 @@ class ChatBloc {
   }
 
   setMoreData(List<ChatModel> moreData) { 
-    _oneToOneList.insertAll(0, moreData);
+    _oneToOneList.addAll(moreData);
     _chatController.sink.add(_oneToOneList);
-    _minChatId = _oneToOneList[0].id;
+    _minChatId = _oneToOneList[_oneToOneList.length-1].id;
   }
 
   closeChatController() {
@@ -126,12 +110,13 @@ class ChatBloc {
   }
 
   getMoreData(String toUserId) async {
+    print('min chat id '+_minChatId.toString());
     QuerySnapshot moreData = await Firebase()
         .getChatCollectionRef(
             Utils().getChatCollectionId(UserBloc().getCurrUser().id, toUserId),
             Firebase.CHAT_COL_COMPLETE)
-        .where("fbId", isLessThan: _minChatId)
-        .orderBy("fbId", descending: true)
+        .where("id", isLessThan: _minChatId)
+        .orderBy("id", descending: true)
         .limit(DBConstants.DATA_RETREIVE_COUNT)
         .getDocuments();
 
@@ -146,15 +131,18 @@ class ChatBloc {
           chat.compareId = chat.fbId;
         }
       });
-      list.sort((a, b) {
-        if(a.id > b.id){
-             return b.compareId.compareTo(a.compareId);
-        }else{
-              return a.compareId.compareTo(b.compareId);
-        }
-        
-      });
+      _sortList(list);
       setMoreData(list);
     }
+  }
+
+  _sortList(List<ChatModel> list) {
+        list.sort((a, b) {
+      if(a.compareId > b.compareId) {
+          return b.compareId.compareTo(a.compareId);
+      }else{
+          return a.compareId.compareTo(b.compareId);
+      }
+    });
   }
 }

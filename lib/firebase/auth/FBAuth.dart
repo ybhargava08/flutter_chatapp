@@ -19,6 +19,7 @@ class FBAuth {
   bool doAutoVerification = true;
 
   FBAuth._();
+  
 
   Future<FirebaseUser> getCurrentUser() async {
     return await FirebaseAuth.instance.currentUser();
@@ -49,7 +50,7 @@ class FBAuth {
           phoneNumber +
           ' ');
 
-      if (doAutoVerification) {
+    //  if (doAutoVerification) {
         FirebaseUser user = await FirebaseAuth.instance.currentUser();
         if (user == null) {
           user = await FirebaseAuth.instance.signInWithCredential(credential);
@@ -73,7 +74,7 @@ class FBAuth {
           VerificationBloc().addToController(
               VerificaitionModel(false, VerificaitionModel.AFTER_VER_ERR));
         }
-      }
+    //  }
     };
 
     final PhoneVerificationFailed verficationFailed = (AuthException excp) {
@@ -96,10 +97,10 @@ class FBAuth {
       doAutoVerification = false;
       String routeName = ModalRoute.of(context).settings.name;
       print('current route '+routeName);
-      if (routeName != RouteConstants.SMS_CODE) {
+      //if (routeName != RouteConstants.SMS_CODE) {
         Navigator.pushNamed(context, RouteConstants.SMS_CODE,
             arguments: SMSCodeArgs(phoneNumber));
-      }
+      //}
     };
 
     final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =

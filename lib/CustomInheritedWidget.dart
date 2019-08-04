@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:chatapp/blocs/SingleUserBloc.dart';
+import 'package:chatapp/blocs/UserListener.dart';
 import 'package:chatapp/database/SembastDatabase.dart';
 import 'package:chatapp/firebase/ChatListener.dart';
 import 'package:chatapp/firebase/Firebase.dart';
@@ -31,8 +31,6 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
 
   StreamSubscription _unreadChatSubs;
 
-  StreamSubscription _chatNotSubs;
-
   StreamSubscription _chatListenerSubs;
 
   @override
@@ -44,16 +42,14 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
     print('got to user in custom inerited widget '+_toUser.toString());
 
     setInitData();
-
-   // UserBloc().initLastChatController(_toUser.id);
     
     if(ChatListener().getLatestChat(_toUser.id)!=null) {
          _chatModel = ChatListener().getLatestChat(_toUser.id);
     }
-    SingleUserBloc().openController(_toUser.id);
-    if(SingleUserBloc().getController(_toUser.id)!=null) {
+    UserListener().openController(_toUser.id);
+    if(UserListener().getController(_toUser.id)!=null) {
       print('opening single user bloc stream '+_toUser.id);
-         SingleUserBloc().getController(_toUser.id).stream.listen((data){
+         UserListener().getController(_toUser.id).stream.listen((data){
            print('got single user bloc data '+data.toString());
                 if(this.mounted && (_toUser == null || _toUser!=data)) {
                       setState(() {
@@ -102,18 +98,6 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
                 });
         });
     }
-
-    /*UserBloc().getLastChatControllerStream(_toUser.id).stream.listen((data) {
-      print('got data from last chat controller ' + data.toString());
-      if (_chatModel == null ||
-          data.fbId > _chatModel.fbId ||
-          (data.fbId == _chatModel.fbId &&
-              data.delStat != _chatModel.delStat)) {
-        setState(() {  
-          _chatModel = data;
-        });
-      }
-    });*/
   }
 
 
@@ -139,18 +123,8 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
 
   @override
   void dispose() {
-   // UserBloc().closeLastChatController(_toUser.id);
-    /* if (_userSubs != null) {
-      _userSubs.cancel();
-    } */
     if (_unreadChatSubs != null) {
       _unreadChatSubs.cancel();
-    }
-    /* if (_chatReceiveSubs != null) {
-      _chatReceiveSubs.cancel();
-    } */
-    if (_chatNotSubs != null) {
-      _chatNotSubs.cancel();
     }
     if(_chatListenerSubs!=null) {
         _chatListenerSubs.cancel();

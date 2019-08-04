@@ -18,7 +18,6 @@ class ImageEnlargedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var w = MediaQuery.of(context).size.width;
-    var h = MediaQuery.of(context).size.height;
 
     String name = "";
     if (null != baseModel &&
@@ -95,6 +94,7 @@ class ImageEnlargedView extends StatelessWidget {
           ),
           title: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
              Text(name,
                       style: TextStyle(color: Colors.white, fontSize: 22.0)),

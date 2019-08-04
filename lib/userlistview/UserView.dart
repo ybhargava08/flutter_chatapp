@@ -45,7 +45,7 @@ class UserView extends StatelessWidget {
               trailing: UserChatViewUnreadMsg(),
               onTap: () {
                 Navigator.pushNamed(context, '/chatDetail',
-                    arguments: UserChatViewArgs(UserBloc().findUser(toUser)));
+                    arguments: UserChatViewArgs(UserBloc().findUser(toUser.id)));
               }),
         )
       ],

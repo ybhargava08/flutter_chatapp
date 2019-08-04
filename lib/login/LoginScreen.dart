@@ -83,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
               loggedInUser.photoUrl,
              /*  true, */
               "",
-              fcmToken,""));
+              fcmToken,"",0));
           await Firebase().addUpdateUser(UserBloc().getCurrUser());
           List<UserModel> userList =
               /*await UserBloc().initFirebaseUserActivity()*/List();
