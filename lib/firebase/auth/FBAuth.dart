@@ -95,8 +95,8 @@ class FBAuth {
       _verificationId = verificationId;
       _forceResendingToken = forceResendingToken;
       doAutoVerification = false;
-      String routeName = ModalRoute.of(context).settings.name;
-      print('current route '+routeName);
+     // String routeName = ModalRoute.of(context).settings.name;
+     // print('current route '+routeName);
       //if (routeName != RouteConstants.SMS_CODE) {
         Navigator.pushNamed(context, RouteConstants.SMS_CODE,
             arguments: SMSCodeArgs(phoneNumber));
@@ -131,12 +131,16 @@ class FBAuth {
   Future<void> signInWithPhoneNumber(
       String smsCode, BuildContext context) async {
     doAutoVerification = true;
+    try {
     final AuthCredential authCredential = PhoneAuthProvider.getCredential(
         verificationId: _verificationId, smsCode: smsCode);
 
     FirebaseUser user =
-        await FirebaseAuth.instance.signInWithCredential(authCredential);
-    try {
+        await FirebaseAuth.instance.signInWithCredential(authCredential).catchError((e){
+            print('got error singwin cred '+e.toString());
+                   throw Exception(e);
+        });
+    
       await LoginHandler().doAfterLogin(user, context);
     } on Exception catch (e) {
       print('error while login in ' + e.toString());

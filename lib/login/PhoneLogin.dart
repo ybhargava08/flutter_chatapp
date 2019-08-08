@@ -1,6 +1,9 @@
+import 'package:chatapp/RouteConstants.dart';
 import 'package:chatapp/blocs/VerificationBloc.dart';
 import 'package:chatapp/firebase/auth/FBAuth.dart';
+import 'package:chatapp/model/VerificaitionModel.dart';
 import 'package:chatapp/snackbars/MessageSnackbar.dart';
+import 'package:chatapp/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -31,6 +34,21 @@ class _PhoneLoginState extends State<PhoneLogin>
     super.initState();
   }
 
+  doPhoneAuth (String phNo) async {
+     /* try{
+        Utils().runSafe(() async {*/
+        FBAuth().doPhoneAuth(phNo, context, false);
+    /*});
+    }on Exception catch(e) {
+            print('error while login in ' + e.toString());
+      Navigator.popUntil(context, (currentRoute){
+             return currentRoute.settings.name == RouteConstants.PHONE_AUTH;
+      });
+      VerificationBloc().addToController(
+          VerificaitionModel(false, VerificaitionModel.AFTER_VER_ERR));
+    }*/
+  }
+ 
   @override
   void dispose() {
     if (null != _textEditingController) {
@@ -44,7 +62,8 @@ class _PhoneLoginState extends State<PhoneLogin>
       _showLoader = true;
     });
     FocusScope.of(context).unfocus();
-    FBAuth().doPhoneAuth(phNo, context, false);
+    doPhoneAuth(phNo);
+    
   }
 
   bool isValidateNumber(String ph) {

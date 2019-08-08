@@ -31,7 +31,7 @@ class CustomMediaPicker extends StatelessWidget {
           if(null!=val.chat) {
                 val.chat.firebaseStorage = null;
           print('upserting to sembast ' + val.chat.id.toString() + ' ' + val.chat.chatType);
-          SembastChat().upsertInChatStore(val.chat);
+          SembastChat().upsertInChatStore(val.chat,true,'addImage');
           } 
           
         } else {
@@ -57,7 +57,7 @@ class CustomMediaPicker extends StatelessWidget {
         if (val != null && val is BaseModel && val.chat!=null) {
           val.chat.thumbnailPath = await FirebaseStorageUtil().createThumbnail(val.chat);
           val.chat.firebaseStorage = null;
-          SembastChat().upsertInChatStore(val.chat);
+          SembastChat().upsertInChatStore(val.chat,true,'addVideo');
         } else {
           getVideo(context, toUser, source);
         }

@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:chatapp/blocs/ChatReceiptListener.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
+import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/userdetailchatview/chatelements/AnimatedRead.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +31,8 @@ class _ChatDeliveryNotificationState extends State<ChatDeliveryNotification>
 
     _deliveryState = widget.chat.delStat;
     if (widget.chat.delStat != ChatModel.READ_BY_USER) {
+      String toUserId = (UserBloc().getCurrUser().id == widget.chat.fromUserId)?widget.chat.toUserId:widget.chat.fromUserId;
+      ChatReceiptListener().initChatReceiptListeners(widget.chat.id, widget.chat.delStat, toUserId);
       listenForNotificationChanges();
     }
   }
@@ -62,6 +66,7 @@ class _ChatDeliveryNotificationState extends State<ChatDeliveryNotification>
     if (null != _delSubs) {
       _delSubs.cancel();
     }
+    ChatReceiptListener().closeChatReceiptListeners(widget.chat.id);
   }
 
   Widget getDoneAllRead() {

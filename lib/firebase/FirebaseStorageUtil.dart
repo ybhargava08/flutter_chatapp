@@ -155,8 +155,8 @@ class FirebaseStorageUtil {
 
       ProgressBloc().addToProgressController(
           ProgressModel(chat.id.toString(), ProgressModel.START));
-          NotificationBloc().addToNotificationController(
-              chat.id, ChatModel.DELIVERED_TO_LOCAL);
+         /* NotificationBloc().addToNotificationController(
+              chat.id, ChatModel.DELIVERED_TO_LOCAL);*/
 
       task.events.listen((data) async {
         if (data.type == StorageTaskEventType.failure) {
@@ -183,8 +183,8 @@ class FirebaseStorageUtil {
           ProgressBloc().addToProgressController(
               ProgressModel(chat.id.toString(), ProgressModel.END));
           ProgressBloc().removeFromInProgressMap(chat.id.toString());
-          NotificationBloc().addToNotificationController(
-              chat.id, ChatModel.DELIVERED_TO_SERVER);
+         /* NotificationBloc().addToNotificationController(
+              chat.id, ChatModel.DELIVERED_TO_SERVER);*/
           
         }
       });

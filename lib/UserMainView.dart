@@ -3,7 +3,7 @@ import 'package:chatapp/blocs/ConnectivityListener.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/blocs/UserListener.dart';
 import 'package:chatapp/blocs/VerificationBloc.dart';
-import 'package:chatapp/firebase/ChatListener.dart';
+import 'package:chatapp/blocs/ChatListener.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/settings/profile/UserDisplayPicPage.dart';
 import 'package:chatapp/utils.dart';

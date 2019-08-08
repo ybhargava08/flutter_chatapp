@@ -96,13 +96,13 @@ class _UserChatViewInput extends State<UserChatViewInput> {
                         "",
                         "",
                         "",
-                        '',
+                        ChatModel.DELIVERED_TO_LOCAL,
                         0
                         );
                         Firebase()
                         .addUpdateChat(chat, Firebase.CHAT_COL_COMPLETE, true);
                     _textEditingcontroller.clear();
-                    Utils().playSound('sounds/Tick.mp3');
+                    //Utils().playSound('sounds/Tick.mp3');
                   }
                 },
               ),

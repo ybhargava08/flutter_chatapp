@@ -2,7 +2,6 @@ import 'package:chatapp/blocs/ChatBloc.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/database/SembastChat.dart';
-import 'package:chatapp/database/SembastDatabase.dart';
 import 'package:chatapp/database/SembastUser.dart';
 import 'package:chatapp/firebase/FirebaseRealtimeDB.dart';
 import 'package:chatapp/model/ChatModel.dart';
@@ -77,7 +76,6 @@ class Firebase {
       ChatModel chat, String collection, bool shouldUpdateCount) async {
         ChatModel localChat;
     chat.fbId = DateTime.now().microsecondsSinceEpoch;
-    chat.delStat = ChatModel.DELIVERED_TO_SERVER; 
     print('chat data before persist ' + chat.toJson().toString());
     
     try {
@@ -86,6 +84,10 @@ class Firebase {
         chat.localPath, chat.thumbnailPath, chat.fileName, chat.firebaseStorage, ChatModel.DELIVERED_TO_LOCAL, chat.fbId);
         ChatBloc().addInChatController(localChat);
       }
+
+      chat.delStat = ChatModel.DELIVERED_TO_SERVER; 
+      print('chat after creating local chat '+chat.toJson().toString());
+      SembastChat().upsertInChatStore(chat,false,'addUpdateChatBefore');
 
       if (shouldUpdateCount) {
         print('should update count called for chat id '+chat.id.toString());
@@ -96,15 +98,22 @@ class Firebase {
             .document(chat.id.toString());
         batch.setData(chatRef, chat.toJson(),merge: true);
         
-        updateUnreadCount('inc', 1, chat.toUserId, chat, batch);
+       // updateUnreadCount('inc', 1, chat.toUserId, chat, batch);
 
         batch.commit().then((val) {
+          
+          FirebaseRealtimeDB().incDecUnreadChatCount(chat.fromUserId, chat.toUserId,
+          prepareDataForCountUpdate(chat) , 'inc', 1);
           FirebaseRealtimeDB().setUserLastActivityTime(chat);
-          SembastChat().deleteFromChatStore(chat);
           String userSearchId = (chat.fromUserId == UserBloc().getCurrUser().id)?chat.toUserId:chat.fromUserId;
           SembastUser().upsertInUserContactStore(UserBloc().findUser(userSearchId), {'lastActivityTime':chat.fbId});
-          localChat.delStat = ChatModel.DELIVERED_TO_SERVER;
+          if(null!=localChat) {
+              localChat.delStat = ChatModel.DELIVERED_TO_SERVER;
           NotificationBloc().addToNotificationController(localChat.id, ChatModel.DELIVERED_TO_SERVER);
+          }else{
+            NotificationBloc().addToNotificationController(chat.id, ChatModel.DELIVERED_TO_SERVER);
+          }
+          
         });
       } else {
         getChatCollectionRef(
@@ -123,7 +132,8 @@ class Firebase {
 
   markChatsAsReadOrDelivered(String otherUserId, List<ChatModel> chats,
       bool shouldUpdateCount,bool setUnreadCountToZero, String type) async {
-    WriteBatch batch = _firestore.batch();
+    if(chats.length > 0)  {
+        WriteBatch batch = _firestore.batch();
     chats.forEach((chat) {
       DocumentReference docRef = getChatCollectionRef(
               Utils().getChatCollectionId(
@@ -137,14 +147,18 @@ class Firebase {
         data = {'delStat': ChatModel.DELIVERED_TO_USER, 'fbId': chat.fbId};
       }
       batch.setData(docRef, data, merge: true);
-      if(setUnreadCountToZero) {
+      /*if(setUnreadCountToZero) {
          updateUnreadCount('set to zero', chats.length, otherUserId, null, batch);
       }
       else if (shouldUpdateCount) {
         updateUnreadCount('dec', chats.length, otherUserId, null, batch);
-      }
+      }*/
     });
-    batch.commit();
+    batch.commit().then((val) {
+            ChatModel cm = chats[0];
+            FirebaseRealtimeDB().incDecUnreadChatCount(cm.fromUserId, cm.toUserId, null, 'dec', chats.length);
+    });
+    }   
   }
 
   setUnreadCountToZero(WriteBatch batch) {
@@ -182,5 +196,17 @@ class Firebase {
         ref = unreadChatReference(UserBloc().getCurrUser().id);
         batch.setData(ref.document(id), {'count': 0}, merge: true);
     }
+  }
+
+  Map<String,dynamic> prepareDataForCountUpdate(ChatModel chat) {
+         UserModel fromUser = (chat.fromUserId == UserBloc().getCurrUser().id)?UserBloc().getCurrUser():
+         UserBloc().findUser(chat.fromUserId);
+         UserModel toUser = (chat.toUserId == UserBloc().getCurrUser().id)?UserBloc().getCurrUser()
+         :UserBloc().findUser(chat.toUserId);
+         String name = (fromUser.name == null)?fromUser.ph:fromUser.name;
+         String msg = (chat.chatType == ChatModel.CHAT)?chat.chat:(chat.chatType == ChatModel.VIDEO)?'Sent a Video':'Sent an Image';
+         Map<String,dynamic> data = {'nm':name,'msg':msg,'fcm':toUser.fcmToken};
+
+         return data;
   }
 }

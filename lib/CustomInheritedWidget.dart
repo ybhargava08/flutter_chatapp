@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:chatapp/blocs/ChatCountBloc.dart';
 import 'package:chatapp/blocs/UserListener.dart';
 import 'package:chatapp/database/SembastChat.dart';
-import 'package:chatapp/database/SembastDatabase.dart';
-import 'package:chatapp/firebase/ChatListener.dart';
+import 'package:chatapp/blocs/ChatListener.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -62,7 +62,9 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
     }
     listenForNewChats();
 
-    _unreadChatSubs = Firebase()
+    
+
+   /* _unreadChatSubs = Firebase()
         .unreadChatReference(UserBloc().getCurrUser().id)
         .document(_toUser.id)
         .snapshots()
@@ -75,7 +77,21 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
           });
         }
       }
-    });
+    });*/
+  }
+
+  listenForChatCounts() {
+ChatCountBloc().openChatCountController();
+ChatListener().listenForChatCounts(UserBloc().getCurrUser().id, _toUser.id);
+    if(null!=ChatCountBloc().getChatCountController()) {
+        _unreadChatSubs=ChatCountBloc().getChatCountController().stream.where((item) => item.toUserId == _toUser.id).listen((data){
+                    if(_unreadMsg!=data.count) {
+                         setState(() {
+                            _unreadMsg = data.count; 
+                         });
+                    }
+          });
+    }
   }
 
   listenForNewChats() async {
