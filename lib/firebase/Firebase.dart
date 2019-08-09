@@ -87,7 +87,7 @@ class Firebase {
 
       chat.delStat = ChatModel.DELIVERED_TO_SERVER; 
       print('chat after creating local chat '+chat.toJson().toString());
-      SembastChat().upsertInChatStore(chat,false,'addUpdateChatBefore');
+      SembastChat().upsertInChatStore(localChat,false,'addUpdateChatBefore');
 
       if (shouldUpdateCount) {
         print('should update count called for chat id '+chat.id.toString());
@@ -100,7 +100,7 @@ class Firebase {
         
        // updateUnreadCount('inc', 1, chat.toUserId, chat, batch);
 
-        batch.commit().then((val) {
+        batch.commit().whenComplete(() {
           
           FirebaseRealtimeDB().incDecUnreadChatCount(chat.fromUserId, chat.toUserId,
           prepareDataForCountUpdate(chat) , 'inc', 1);
@@ -147,16 +147,12 @@ class Firebase {
         data = {'delStat': ChatModel.DELIVERED_TO_USER, 'fbId': chat.fbId};
       }
       batch.setData(docRef, data, merge: true);
-      /*if(setUnreadCountToZero) {
-         updateUnreadCount('set to zero', chats.length, otherUserId, null, batch);
-      }
-      else if (shouldUpdateCount) {
-        updateUnreadCount('dec', chats.length, otherUserId, null, batch);
-      }*/
     });
     batch.commit().then((val) {
-            ChatModel cm = chats[0];
+           if(type == ChatModel.READ_BY_USER) {
+                  ChatModel cm = chats[0];
             FirebaseRealtimeDB().incDecUnreadChatCount(cm.fromUserId, cm.toUserId, null, 'dec', chats.length);
+           }
     });
     }   
   }

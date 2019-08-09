@@ -68,7 +68,7 @@ class ChatBloc {
       } else {
         chat.compareId = chat.fbId;
       }
-      if(chat.delStat != ChatModel.DELIVERED_TO_LOCAL && chat.id > maxId) {
+      if(chat.fromUserId!=UserBloc().getCurrUser().id && chat.delStat != ChatModel.DELIVERED_TO_LOCAL && chat.id > maxId) {
            maxId = chat.id;
       }
     });
@@ -77,7 +77,7 @@ class ChatBloc {
     _oneToOneList = list;
 
     _chatController.sink.add(_oneToOneList);
-    _minChatId = _oneToOneList[_oneToOneList.length - 1].id;
+    _setMinChatId(_oneToOneList[_oneToOneList.length - 1]);
     return maxId;
   }
 
@@ -97,7 +97,7 @@ class ChatBloc {
 
         _chatController.sink.add(_oneToOneList);
 
-        _minChatId = _oneToOneList[_oneToOneList.length - 1].id;
+        _setMinChatId(_oneToOneList[_oneToOneList.length - 1]);
       } else {
         print('cm found in list ' + cm.toString());
       }
@@ -107,7 +107,7 @@ class ChatBloc {
   setMoreData(List<ChatModel> moreData) {
     _oneToOneList.addAll(moreData);
     _chatController.sink.add(_oneToOneList);
-    _minChatId = _oneToOneList[_oneToOneList.length - 1].id;
+    _setMinChatId(_oneToOneList[_oneToOneList.length - 1]);
   }
 
   closeChatController() {
@@ -147,8 +147,11 @@ class ChatBloc {
 
       SembastChat().bulkUpsertInChatStore(list);
     }
-    _sortList(list);
+    if(null!=list && list.length > 0) {
+_sortList(list);
       setMoreData(list);
+    }
+    
   }
 
   _sortList(List<ChatModel> list) {
@@ -159,5 +162,9 @@ class ChatBloc {
         return a.compareId.compareTo(b.compareId);
       }
     });
+  }
+
+  _setMinChatId(ChatModel chat) {
+    _minChatId = chat.id;
   }
 }

@@ -1,18 +1,13 @@
 import 'dart:async';
 
 import 'package:chatapp/blocs/ChatBloc.dart';
-import 'package:chatapp/blocs/ChatCountBloc.dart';
-import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/database/DBConstants.dart';
 import 'package:chatapp/database/SembastChat.dart';
 import 'package:chatapp/firebase/Firebase.dart';
-import 'package:chatapp/firebase/FirebaseRealtimeDB.dart';
-import 'package:chatapp/model/ChatCountModel.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatListener {
@@ -30,8 +25,6 @@ class ChatListener {
   Map<String, int> _lastIdMap = Map();
 
   StreamSubscription /*_deliverySubs,*/ _newChatSubs;
-
-  Map<String, StreamSubscription> _chatCountChangedListeners = Map();
 
   static SharedPreferences _prefs;
 
@@ -190,28 +183,6 @@ class ChatListener {
     }
   }
 
- /* listenForChatDelivery(String toUserId) {
-    _deliverySubs = Firebase()
-        .getChatCollectionRef(
-            Utils().getChatCollectionId(UserBloc().getCurrUser().id, toUserId),
-            Firebase.CHAT_COL_COMPLETE)
-        .where('fromUserId', isEqualTo: UserBloc().getCurrUser().id)
-        .where('delStat', isLessThanOrEqualTo: ChatModel.READ_BY_USER)
-        .snapshots()
-        .listen((data) {
-      data.documentChanges.forEach((change) {
-        if (change.type == DocumentChangeType.modified) {
-          data.documents.forEach((snapshot) {
-            ChatModel c = ChatModel.fromDocumentSnapshot(snapshot);
-            print('got data from chat delivery listener ' + c.toString());
-            SembastChat().upsertInChatStore(c,false,'chatDelivery');
-            NotificationBloc().addToNotificationController(c.id, c.delStat);
-          });
-        }
-      });
-    });
-  }*/
-
   listenForNewAddedChats(String toUserId,int maxChatId) {
     print('listenForNewAddedChats '+maxChatId.toString());
     _newChatSubs = Firebase()
@@ -219,7 +190,7 @@ class ChatListener {
             Utils().getChatCollectionId(UserBloc().getCurrUser().id, toUserId),
             Firebase.CHAT_COL_COMPLETE)
         .where('toUserId', isEqualTo: UserBloc().getCurrUser().id)
-        .where('delStat', isEqualTo: ChatModel.DELIVERED_TO_SERVER)
+        .where('delStat', isGreaterThanOrEqualTo: ChatModel.DELIVERED_TO_SERVER)
         .where('id',isGreaterThan: maxChatId)
         .snapshots()
         .listen((data) {
@@ -243,28 +214,17 @@ class ChatListener {
     });
   }
 
-  listenForChatCounts(String fromUserId,String toUserId) {
-        String path = 'ChatActivity/' + fromUserId + '/UnreadChat/' + toUserId;
-        if(!_chatCountChangedListeners.containsKey(toUserId) && _chatCountChangedListeners[toUserId]  ==null) {
-            _chatCountChangedListeners[toUserId]= FirebaseRealtimeDB().getChatCountReference(path).onChildChanged.listen((Event event) {
-                     ChatCountBloc().addToChatCountController(ChatCountModel(toUserId, event.snapshot.value['ct']));
-        
-        });
-        }
-  }
-
-  
-
  Future<int> getInitChatList(String toUserId) async {
     
     if (null == _prefs) {
       _prefs = await SharedPreferences.getInstance();
     }
 
-    int chatLimit = _prefs.getInt(toUserId) ?? DBConstants.DATA_RETREIVE_COUNT;
+    int chatLimit = _prefs.getInt(toUserId);
+    chatLimit = (chatLimit == null || chatLimit <= DBConstants.DATA_RETREIVE_COUNT)?DBConstants.DATA_RETREIVE_COUNT:chatLimit;
       List<ChatModel> completeList = List();
       completeList = await SembastChat().getChatsForUserFromSembast(toUserId,chatLimit);
-      if (completeList == null) {
+      if (completeList == null || completeList.length == 0) {
         QuerySnapshot chatComplete = await Firebase()
             .getChatCollectionRef(
                 Utils()
@@ -314,12 +274,6 @@ class ChatListener {
         }
       });
       _closeController(key);
-      
-      _chatCountChangedListeners.forEach((k,v){
-              if(_chatCountChangedListeners[k]!=null) {
-                  _chatCountChangedListeners[k].cancel();
-              }
-      });
     });
   }
 

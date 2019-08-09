@@ -71,7 +71,7 @@ class FirebaseRealtimeDB {
     await _database.reference().child('UserActivity').remove();
   }
 
-  DatabaseReference getChatCountReference(String path) {
+  DatabaseReference getDBPathReference(String path) {
         return _database.reference().child(path);
   }
 }

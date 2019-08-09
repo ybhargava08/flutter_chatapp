@@ -52,7 +52,7 @@ class _UserChatViewInput extends State<UserChatViewInput> {
                     Expanded(
                       flex: 7,
                       child: TextField(
-                        autofocus: false,
+                        autofocus: true,
                         style: TextStyle(fontSize: 17.0, color: Colors.black),
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
