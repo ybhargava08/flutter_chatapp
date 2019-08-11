@@ -78,6 +78,7 @@ class ChatBloc {
 
     _chatController.sink.add(_oneToOneList);
     _setMinChatId(_oneToOneList[_oneToOneList.length - 1]);
+    print('setting max id '+maxId.toString());
     return maxId;
   }
 

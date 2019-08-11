@@ -31,10 +31,6 @@ class Utils {
     return ChatModel.fromJson(map);
   }
 
-  getChatId(String id) {
-    return id + DateTime.now().microsecondsSinceEpoch.abs().toString();
-  }
-
   String getDateInFormat() {
     return DateFormat('yyyyMMdd HH:mm:ss').format(DateTime.now());
   }

@@ -59,7 +59,6 @@ class _ChatViewInheritedWrapperState extends State<ChatViewInheritedWrapper> {
   init() async {
    int maxChatId = await ChatListener().getInitChatList(_toUser.id);
     ChatListener().listenForNewAddedChats(_toUser.id,maxChatId);
-    //ChatListener().listenForChatDelivery(_toUser.id);
   }
 
   @override

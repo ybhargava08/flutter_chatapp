@@ -27,7 +27,7 @@ dependencies:
   cached_network_image: ^1.1.1
   intl: ^0.15.8
   cloud_firestore: ^0.12.7+1
-  image_picker: ^0.5.3+2
+  image_picker: ^0.6.1+2
   firebase_storage: ^3.0.2
   percent_indicator: "^1.0.15"
   video_player: ^0.10.0+5

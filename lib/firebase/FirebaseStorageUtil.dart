@@ -194,18 +194,17 @@ class FirebaseStorageUtil {
   Future<File> getFileFromFirebaseStorage(ChatModel chat) async {
     try {
       return await Utils().runSafe(() async {
-        if (chat.fromUserId == UserBloc().getCurrUser().id &&
-            chat.localPath != null &&
-            chat.localPath != '') {
-          return File(chat.localPath);
-        }
+        
         String dirPath =
             await createDirIfNotExists(PathConstants.CHATAPP_MEDIA);
         if (chat.localPath == null || "" == chat.localPath) {
           chat.localPath = dirPath + '/' + chat.id.toString() + '.jpg';
         }
 
-        bool isFileExists = await checkIfFileExists(chat.localPath);
+        print('start checking file exists for '+chat.id.toString());
+        bool isFileExists = await checkIfFileExists(chat.localPath).catchError((e) {
+                     throw Exception(e);  
+        });
         print('file exists ' +
             isFileExists.toString() +
             ' for chat id ' +

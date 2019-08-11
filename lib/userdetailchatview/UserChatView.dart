@@ -1,4 +1,7 @@
+import 'package:chatapp/RouteConstants.dart';
 import 'package:chatapp/blocs/UserListener.dart';
+import 'package:chatapp/enlargedview/ImageEnlargedView.dart';
+import 'package:chatapp/model/BaseModel.dart';
 import 'package:chatapp/userdetailchatview/UserChatViewLastSeen.dart';
 import 'package:chatapp/userdetailchatview/UserChatViewList.dart';
 import 'package:flutter/material.dart';
@@ -33,24 +36,34 @@ class UserChatView extends StatelessWidget {
                     Navigator.pop(context);
                   },
                 ),
-                (user.photoUrl != null)
-                    ? Container(
-                        margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                        padding: EdgeInsets.all(0.0),
-                        child: CircleAvatar(
-                            backgroundImage:
-                                CachedNetworkImageProvider(user.photoUrl)))
-                    : Container(
-                        width: 40,
-                        height: 40,
-                        margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                                image: AssetImage(
-                                    'assets/images/placeholder_acc.png'))),
-                      ),
+                GestureDetector(
+                  child: Hero(
+                    child: (user.photoUrl != null)
+                        ? Container(
+                            margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                            padding: EdgeInsets.all(0.0),
+                            child: CircleAvatar(
+                                backgroundImage:
+                                    CachedNetworkImageProvider(user.photoUrl)))
+                        : Container(
+                            width: 40,
+                            height: 40,
+                            margin: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                    image: AssetImage(
+                                        'assets/images/placeholder_acc.png'))),
+                          ),
+                    tag: toUser.id,
+                  ),
+                  onTap: () {
+                    Navigator.pushNamed(context, RouteConstants.IMAGE_VIEW,
+                        arguments: ImageEnlargedViewArgs(
+                            BaseModel(null, toUser, true), false));
+                  },
+                ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[

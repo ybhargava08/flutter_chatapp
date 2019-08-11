@@ -36,7 +36,7 @@ class LoginHandler {
           UserModel userFromDb = await getUserData(user.uid);
           if(null==userFromDb) {
                 UserBloc().setCurrUser(
-              UserModel(user.uid, null, null, null, fcmToken, user.phoneNumber,DateTime.now().microsecondsSinceEpoch));
+              UserModel(user.uid, null, null, null, fcmToken, user.phoneNumber,DateTime.now().millisecondsSinceEpoch));
 
           await Firebase().addUpdateUser(UserBloc().getCurrUser());
           }else if(null!=userFromDb && userFromDb.fcmToken.compareTo(fcmToken)!=0) {
@@ -123,7 +123,7 @@ class LoginHandler {
     contacts.forEach((contact) async {
       String name = contact.displayName;
       UserModel user = UserModel(
-          DateTime.now().microsecondsSinceEpoch.toString(),
+          DateTime.now().millisecondsSinceEpoch.toString(),
           name,
           null,
           /* false, */

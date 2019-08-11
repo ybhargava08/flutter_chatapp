@@ -34,9 +34,6 @@ class ChatReceiptListener {
                   .getChatCollectionId(UserBloc().getCurrUser().id, toUserId),
               Firebase.CHAT_COL_COMPLETE)
           .where('id', isEqualTo: chatId)
-          .where('delStat', isGreaterThan: delStat)
-          .where('delStat',
-              isGreaterThanOrEqualTo: ChatModel.DELIVERED_TO_SERVER)
           .snapshots()
           .listen((data) {
         data.documentChanges.forEach((change) {
@@ -55,9 +52,6 @@ class ChatReceiptListener {
                   .getChatCollectionId(UserBloc().getCurrUser().id, toUserId),
               Firebase.CHAT_COL_COMPLETE)
           .where('id', isEqualTo: chatId)
-          .where('delStat', isLessThan: delStat)
-          .where('delStat',
-              isGreaterThanOrEqualTo: ChatModel.DELIVERED_TO_SERVER)
           .snapshots()
           .listen((data) {
         data.documentChanges.forEach((change) {

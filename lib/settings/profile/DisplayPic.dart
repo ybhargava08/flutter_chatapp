@@ -123,7 +123,7 @@ class _DisplayPicState extends State<DisplayPic> {
               Flexible(
                 flex: 5,
                 child: IconButton(
-                  icon: Icon(Icons.camera),
+                  icon: Icon(Icons.camera_alt),
                   color: Colors.black,
                   iconSize: 40,
                   onPressed: () {
@@ -135,7 +135,7 @@ class _DisplayPicState extends State<DisplayPic> {
               Flexible(
                 flex: 5,
                 child: IconButton(
-                  icon: Icon(Icons.camera_alt),
+                  icon: Icon(Icons.camera),
                   color: Colors.black,
                   iconSize: 40,
                   onPressed: () {

@@ -86,7 +86,7 @@ class _UserChatViewInput extends State<UserChatViewInput> {
                   var txt = _textEditingcontroller.text;
                   if (null != txt && txt != "") {
                     ChatModel chat = ChatModel(
-                        DateTime.now().microsecondsSinceEpoch,
+                        DateTime.now().millisecondsSinceEpoch,
                         currUser.id,
                         toUser.id,
                         txt,

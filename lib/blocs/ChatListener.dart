@@ -120,7 +120,7 @@ class ChatListener {
       bool isReceivedChat = cm.fromUserId != UserBloc().getCurrUser().id;
       if (isReceivedChat &&
           cm.delStat.compareTo(ChatModel.DELIVERED_TO_USER) < 0) {
-        cm.fbId = DateTime.now().microsecondsSinceEpoch;
+        cm.fbId = DateTime.now().millisecondsSinceEpoch;
       }
       if (isReceivedChat) {
         cm.compareId = cm.fbId;
@@ -178,8 +178,8 @@ class ChatListener {
       List<ChatModel> list = List();
       list.add(chat);
 
-      Firebase().markChatsAsReadOrDelivered(
-          toUserId, list, false, false, ChatModel.DELIVERED_TO_USER);
+      /*Firebase().markChatsAsReadOrDelivered(
+          toUserId, list, false, false, ChatModel.DELIVERED_TO_USER);*/
     }
   }
 
@@ -190,7 +190,6 @@ class ChatListener {
             Utils().getChatCollectionId(UserBloc().getCurrUser().id, toUserId),
             Firebase.CHAT_COL_COMPLETE)
         .where('toUserId', isEqualTo: UserBloc().getCurrUser().id)
-        .where('delStat', isGreaterThanOrEqualTo: ChatModel.DELIVERED_TO_SERVER)
         .where('id',isGreaterThan: maxChatId)
         .snapshots()
         .listen((data) {
@@ -203,7 +202,7 @@ class ChatListener {
               print('got to user chat ' + c.toString());
               if (c.toUserId == UserBloc().getCurrUser().id &&
                   c.delStat != ChatModel.READ_BY_USER) {
-                c.fbId = DateTime.now().microsecondsSinceEpoch;
+                c.fbId = DateTime.now().millisecondsSinceEpoch;
               }
               ChatBloc().addInChatController(c);
               SembastChat().upsertInChatStore(c,false,'newAddedChat');

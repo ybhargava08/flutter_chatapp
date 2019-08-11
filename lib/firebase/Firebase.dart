@@ -75,7 +75,7 @@ class Firebase {
   Future<void> addUpdateChat(
       ChatModel chat, String collection, bool shouldUpdateCount) async {
         ChatModel localChat;
-    chat.fbId = DateTime.now().microsecondsSinceEpoch;
+    chat.fbId = DateTime.now().millisecondsSinceEpoch;
     print('chat data before persist ' + chat.toJson().toString());
     
     try {
@@ -86,11 +86,9 @@ class Firebase {
       }
 
       chat.delStat = ChatModel.DELIVERED_TO_SERVER; 
-      print('chat after creating local chat '+chat.toJson().toString());
       SembastChat().upsertInChatStore(localChat,false,'addUpdateChatBefore');
 
       if (shouldUpdateCount) {
-        print('should update count called for chat id '+chat.id.toString());
         WriteBatch batch = _firestore.batch();
         DocumentReference chatRef = getChatCollectionRef(
                 Utils().getChatCollectionId(chat.fromUserId, chat.toUserId),
@@ -168,7 +166,7 @@ class Firebase {
         .collection('unreadCount');
   }
 
-  updateUnreadCount(
+  /*updateUnreadCount(
       String type, int count, String id, ChatModel chat, WriteBatch batch) {
     CollectionReference ref;
     var increment;
@@ -192,7 +190,7 @@ class Firebase {
         ref = unreadChatReference(UserBloc().getCurrUser().id);
         batch.setData(ref.document(id), {'count': 0}, merge: true);
     }
-  }
+  }*/
 
   Map<String,dynamic> prepareDataForCountUpdate(ChatModel chat) {
          UserModel fromUser = (chat.fromUserId == UserBloc().getCurrUser().id)?UserBloc().getCurrUser():
@@ -201,7 +199,7 @@ class Firebase {
          :UserBloc().findUser(chat.toUserId);
          String name = (fromUser.name == null)?fromUser.ph:fromUser.name;
          String msg = (chat.chatType == ChatModel.CHAT)?chat.chat:(chat.chatType == ChatModel.VIDEO)?'Sent a Video':'Sent an Image';
-         Map<String,dynamic> data = {'nm':name,'msg':msg,'fcm':toUser.fcmToken};
+         Map<String,dynamic> data = {'nm':name,'msg':msg,'fcm':toUser.fcmToken,'id':chat.id};
 
          return data;
   }

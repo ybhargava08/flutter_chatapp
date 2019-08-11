@@ -97,7 +97,9 @@ class _UserMainViewState extends State<UserMainView> {
 
   Widget getPopMenu() {
     return PopupMenuButton<int>(
-      child: Icon(Icons.more_vert),
+      child: Container(
+        margin: EdgeInsets.only(right: 15), 
+        child:Icon(Icons.more_vert)),
       onSelected: (value) {
         if (value == 1) {
           Navigator.pushNamed(context, RouteConstants.SETTINGS,
