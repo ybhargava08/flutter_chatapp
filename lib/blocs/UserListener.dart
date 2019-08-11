@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/database/SembastDatabase.dart';
+import 'package:chatapp/database/SembastUser.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/model/UserModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -79,7 +80,7 @@ class UserListener {
       });
     } else {
       print('did not find user in contact '+user.toString());
-      SembastDatabase().deleteContactFromUserContactStore(user);
+      SembastUser().deleteContactFromUserContactStore(user);
     }
     }
     
@@ -99,7 +100,7 @@ class UserListener {
         _isControllerClosed(id).toString());
     UserBloc().addUpdateUser(user);
     openController(id);
-    SembastDatabase().upsertInUserContactStore(user, null);
+    SembastUser().upsertInUserContactStore(user, null);
     _map[id].sink.add(user);
   }
 

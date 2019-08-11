@@ -12,7 +12,7 @@ class ChatModel {
   String thumbnailPath;
   String fileName;
   String firebaseStorage;
-  String delStat;
+  String delStat = DELIVERED_TO_LOCAL;
   int fbId;
   int compareId = 0;
   

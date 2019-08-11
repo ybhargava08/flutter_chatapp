@@ -1,4 +1,7 @@
+import 'package:chatapp/RouteConstants.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
+import 'package:chatapp/enlargedview/ImageEnlargedView.dart';
+import 'package:chatapp/model/BaseModel.dart';
 import 'package:chatapp/userlistview/UserChatViewUnreadMsg.dart';
 import 'package:chatapp/userlistview/UserEnlargedImgDialog.dart';
 import 'package:chatapp/userlistview/UserViewLastMsg.dart';
@@ -25,16 +28,23 @@ class UserView extends StatelessWidget {
                   minWidth: 0.0, maxWidth: 60, minHeight: 0.0, maxHeight: 60),
               child: Stack(
                 children: <Widget>[
-                  UserViewAvatar(),
+                  Hero(
+                     child: UserViewAvatar(),
+                     tag: toUser.id,
+                  )
+                  ,
                  // UserViewOnlineInd(),
                 ],
               )),
           onTap: ()  {
-                showDialog(
+               /* showDialog(
                     context: context,
                     builder: (BuildContext context) => UserEnlargedImgDialog()
                         .getDialog(toUser, MediaQuery.of(context).size.width,
-                            MediaQuery.of(context).size.height));
+                            MediaQuery.of(context).size.height));*/
+                   Navigator.pushNamed(context, RouteConstants.IMAGE_VIEW,
+            arguments:
+                ImageEnlargedViewArgs(BaseModel(null, toUser, true), false));         
               },
         ),
         Flexible(

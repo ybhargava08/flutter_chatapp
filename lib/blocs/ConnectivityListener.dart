@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:chatapp/database/SembastDatabase.dart';
+import 'package:chatapp/database/SembastChat.dart';
 import 'package:chatapp/firebase/FirebaseStorageUtil.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:connectivity/connectivity.dart';
@@ -21,7 +21,7 @@ class ConnectivityListener {
         Connectivity().onConnectivityChanged.listen((connectivityResult) async {
       if (connectivityResult == ConnectivityResult.mobile ||
           connectivityResult == ConnectivityResult.wifi) {
-        List<ChatModel> list = await SembastDatabase().getAllData();
+        List<ChatModel> list = await SembastChat().getMediaDataNotUploaded();
         if (list != null && list.length > 0) {
           print('got connectivity ' + list.length.toString());
           list.forEach((chat) async {

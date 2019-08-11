@@ -1,9 +1,11 @@
 import 'package:chatapp/RouteConstants.dart';
 import 'package:chatapp/blocs/ConnectivityListener.dart';
+import 'package:chatapp/blocs/LastChatListener.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
+import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/blocs/UserListener.dart';
 import 'package:chatapp/blocs/VerificationBloc.dart';
-import 'package:chatapp/firebase/ChatListener.dart';
+import 'package:chatapp/blocs/ChatListener.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/settings/profile/UserDisplayPicPage.dart';
 import 'package:chatapp/utils.dart';
@@ -50,6 +52,8 @@ class _UserMainViewState extends State<UserMainView> {
     ChatListener().closeAllListeners();
     UserListener().closeControllers();
     ConnectivityListener().closeListener();
+    LastChatListener().closeAllListeners();
+    UserLatestChatBloc().closeChatCountController();
     super.dispose();
   }
 
@@ -93,7 +97,9 @@ class _UserMainViewState extends State<UserMainView> {
 
   Widget getPopMenu() {
     return PopupMenuButton<int>(
-      child: Icon(Icons.more_vert),
+      child: Container(
+        margin: EdgeInsets.only(right: 15), 
+        child:Icon(Icons.more_vert)),
       onSelected: (value) {
         if (value == 1) {
           Navigator.pushNamed(context, RouteConstants.SETTINGS,

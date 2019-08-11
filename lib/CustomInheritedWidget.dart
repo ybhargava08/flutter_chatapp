@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:chatapp/blocs/LastChatListener.dart';
+import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/blocs/UserListener.dart';
-import 'package:chatapp/database/SembastDatabase.dart';
-import 'package:chatapp/firebase/ChatListener.dart';
+import 'package:chatapp/database/SembastChat.dart';
+import 'package:chatapp/blocs/ChatListener.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/model/ChatModel.dart';
+import 'package:chatapp/model/UserLatestChatModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -39,29 +42,25 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
 
     _toUser = widget.toUser;
 
-    print('got to user in custom inerited widget '+_toUser.toString());
-
     setInitData();
-    
-    if(ChatListener().getLatestChat(_toUser.id)!=null) {
-         _chatModel = ChatListener().getLatestChat(_toUser.id);
+
+    if (ChatListener().getLatestChat(_toUser.id) != null) {
+      _chatModel = ChatListener().getLatestChat(_toUser.id);
     }
     UserListener().openController(_toUser.id);
-    if(UserListener().getController(_toUser.id)!=null) {
-      print('opening single user bloc stream '+_toUser.id);
-         UserListener().getController(_toUser.id).stream.listen((data){
-           print('got single user bloc data '+data.toString());
-                if(this.mounted && (_toUser == null || _toUser!=data)) {
-                      setState(() {
-                       _toUser = data;
-                  });
-                }
-                  
+    if (UserListener().getController(_toUser.id) != null) {
+      UserListener().getController(_toUser.id).stream.listen((data) {
+        if (this.mounted && (_toUser == null || _toUser != data)) {
+          setState(() {
+            _toUser = data;
           });
+        }
+      });
     }
     listenForNewChats();
+    listenForChatCounts();
 
-    _unreadChatSubs = Firebase()
+    /* _unreadChatSubs = Firebase()
         .unreadChatReference(UserBloc().getCurrUser().id)
         .document(_toUser.id)
         .snapshots()
@@ -74,14 +73,37 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
           });
         }
       }
-    });
+    });*/
+  }
+
+  listenForChatCounts() {
+    
+    UserLatestChatBloc().openChatCountController();
+    
+    print('opening chat count listener for ' + _toUser.id);
+    if (null != UserLatestChatBloc().getChatCountController()) {
+      print('listening to UserLatestChatBloc controller ' + _toUser.id);
+      _unreadChatSubs = UserLatestChatBloc()
+          .getChatCountController()
+          .stream
+          .where((item) => item.toUserId.trim() == _toUser.id.trim())
+          .listen((data) {
+        print('got chat count data in listener ' + data.toString());
+        if (UserLatestChatModel.COUNT == data.key && _unreadMsg != data.value) {
+          setState(() {
+            _unreadMsg = data.value;
+          });
+        }
+      });
+    }
+    LastChatListener()
+        .initLatestChatListeners(UserBloc().getCurrUser().id, _toUser.id);
   }
 
   listenForNewChats() async {
     ChatModel localLastChat =
-        await SembastDatabase().getLastChatForUser(_toUser.id);
+        await SembastChat().getLastChatForUser(_toUser.id);
     if (null != localLastChat && localLastChat.chatType != ChatModel.CHAT) {
-      print('got last chat from local ' + localLastChat.toString());
 
       if (_chatModel == null || _chatModel != localLastChat) {
         setState(() {
@@ -90,16 +112,15 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
       }
     }
     ChatListener().openFirebaseListener(_toUser.id);
-    if(ChatListener().getController(_toUser.id)!=null) {
-       _chatListenerSubs= ChatListener().getController(_toUser.id).stream.listen((data){
-                print('listening for id '+_toUser.id+' got data '+data.toString()) ;
+    if (ChatListener().getController(_toUser.id) != null) {
+      _chatListenerSubs =
+          ChatListener().getController(_toUser.id).stream.listen((data) {
                 setState(() {
-                    _chatModel = data; 
-                });
+          _chatModel = data;
         });
+      });
     }
   }
-
 
   setInitData() async {
     try {
@@ -126,10 +147,11 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
     if (_unreadChatSubs != null) {
       _unreadChatSubs.cancel();
     }
-    if(_chatListenerSubs!=null) {
-        _chatListenerSubs.cancel();
+    if (_chatListenerSubs != null) {
+      _chatListenerSubs.cancel();
     }
-    
+    LastChatListener().closeIndividualListener(_toUser.id);
+
     super.dispose();
   }
 

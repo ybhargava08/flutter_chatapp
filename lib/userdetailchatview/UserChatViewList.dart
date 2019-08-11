@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:chatapp/blocs/ChatBloc.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/userdetailchatview/ChatListDate.dart';

@@ -1,7 +1,8 @@
 import 'package:chatapp/blocs/ChatBloc.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
-import 'package:chatapp/database/SembastDatabase.dart';
+import 'package:chatapp/database/SembastChat.dart';
+import 'package:chatapp/database/SembastUser.dart';
 import 'package:chatapp/firebase/FirebaseRealtimeDB.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/model/UserModel.dart';
@@ -74,8 +75,7 @@ class Firebase {
   Future<void> addUpdateChat(
       ChatModel chat, String collection, bool shouldUpdateCount) async {
         ChatModel localChat;
-    chat.fbId = DateTime.now().microsecondsSinceEpoch;
-    chat.delStat = ChatModel.DELIVERED_TO_SERVER; 
+    chat.fbId = DateTime.now().millisecondsSinceEpoch;
     print('chat data before persist ' + chat.toJson().toString());
     
     try {
@@ -85,8 +85,10 @@ class Firebase {
         ChatBloc().addInChatController(localChat);
       }
 
+      chat.delStat = ChatModel.DELIVERED_TO_SERVER; 
+      SembastChat().upsertInChatStore(localChat,false,'addUpdateChatBefore');
+
       if (shouldUpdateCount) {
-        print('should update count called for chat id '+chat.id.toString());
         WriteBatch batch = _firestore.batch();
         DocumentReference chatRef = getChatCollectionRef(
                 Utils().getChatCollectionId(chat.fromUserId, chat.toUserId),
@@ -94,15 +96,22 @@ class Firebase {
             .document(chat.id.toString());
         batch.setData(chatRef, chat.toJson(),merge: true);
         
-        updateUnreadCount('inc', 1, chat.toUserId, chat, batch);
+       // updateUnreadCount('inc', 1, chat.toUserId, chat, batch);
 
-        batch.commit().then((val) {
+        batch.commit().whenComplete(() {
+          
+          FirebaseRealtimeDB().incDecUnreadChatCount(chat.fromUserId, chat.toUserId,
+          prepareDataForCountUpdate(chat) , 'inc', 1);
           FirebaseRealtimeDB().setUserLastActivityTime(chat);
-          SembastDatabase().deleteFromStore(chat);
           String userSearchId = (chat.fromUserId == UserBloc().getCurrUser().id)?chat.toUserId:chat.fromUserId;
-          SembastDatabase().upsertInUserContactStore(UserBloc().findUser(userSearchId), {'lastActivityTime':chat.fbId});
-          localChat.delStat = ChatModel.DELIVERED_TO_SERVER;
+          SembastUser().upsertInUserContactStore(UserBloc().findUser(userSearchId), {'lastActivityTime':chat.fbId});
+          if(null!=localChat) {
+              localChat.delStat = ChatModel.DELIVERED_TO_SERVER;
           NotificationBloc().addToNotificationController(localChat.id, ChatModel.DELIVERED_TO_SERVER);
+          }else{
+            NotificationBloc().addToNotificationController(chat.id, ChatModel.DELIVERED_TO_SERVER);
+          }
+          
         });
       } else {
         getChatCollectionRef(
@@ -121,7 +130,8 @@ class Firebase {
 
   markChatsAsReadOrDelivered(String otherUserId, List<ChatModel> chats,
       bool shouldUpdateCount,bool setUnreadCountToZero, String type) async {
-    WriteBatch batch = _firestore.batch();
+    if(chats.length > 0)  {
+        WriteBatch batch = _firestore.batch();
     chats.forEach((chat) {
       DocumentReference docRef = getChatCollectionRef(
               Utils().getChatCollectionId(
@@ -135,14 +145,14 @@ class Firebase {
         data = {'delStat': ChatModel.DELIVERED_TO_USER, 'fbId': chat.fbId};
       }
       batch.setData(docRef, data, merge: true);
-      if(setUnreadCountToZero) {
-         updateUnreadCount('set to zero', chats.length, otherUserId, null, batch);
-      }
-      else if (shouldUpdateCount) {
-        updateUnreadCount('dec', chats.length, otherUserId, null, batch);
-      }
     });
-    batch.commit();
+    batch.commit().then((val) {
+           if(type == ChatModel.READ_BY_USER) {
+                  ChatModel cm = chats[0];
+            FirebaseRealtimeDB().incDecUnreadChatCount(cm.fromUserId, cm.toUserId, null, 'dec', chats.length);
+           }
+    });
+    }   
   }
 
   setUnreadCountToZero(WriteBatch batch) {
@@ -156,7 +166,7 @@ class Firebase {
         .collection('unreadCount');
   }
 
-  updateUnreadCount(
+  /*updateUnreadCount(
       String type, int count, String id, ChatModel chat, WriteBatch batch) {
     CollectionReference ref;
     var increment;
@@ -180,5 +190,17 @@ class Firebase {
         ref = unreadChatReference(UserBloc().getCurrUser().id);
         batch.setData(ref.document(id), {'count': 0}, merge: true);
     }
+  }*/
+
+  Map<String,dynamic> prepareDataForCountUpdate(ChatModel chat) {
+         UserModel fromUser = (chat.fromUserId == UserBloc().getCurrUser().id)?UserBloc().getCurrUser():
+         UserBloc().findUser(chat.fromUserId);
+         UserModel toUser = (chat.toUserId == UserBloc().getCurrUser().id)?UserBloc().getCurrUser()
+         :UserBloc().findUser(chat.toUserId);
+         String name = (fromUser.name == null)?fromUser.ph:fromUser.name;
+         String msg = (chat.chatType == ChatModel.CHAT)?chat.chat:(chat.chatType == ChatModel.VIDEO)?'Sent a Video':'Sent an Image';
+         Map<String,dynamic> data = {'nm':name,'msg':msg,'fcm':toUser.fcmToken,'id':chat.id};
+
+         return data;
   }
 }

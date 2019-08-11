@@ -30,7 +30,7 @@ class FirebaseStorageUtil {
     _ref = FirebaseStorage.instance.ref();
   }
 
-  Future<String> getThumbnail(ChatModel chat) async {
+  Future<String> createThumbnail(ChatModel chat) async {
     if (null == chat.thumbnailPath || "" == chat.thumbnailPath) {
       chat.thumbnailPath = await Thumbnails.getThumbnail(
           videoFile: chat.localPath, imageType: ThumbFormat.PNG, quality: 11);
@@ -155,8 +155,8 @@ class FirebaseStorageUtil {
 
       ProgressBloc().addToProgressController(
           ProgressModel(chat.id.toString(), ProgressModel.START));
-          NotificationBloc().addToNotificationController(
-              chat.id, ChatModel.DELIVERED_TO_LOCAL);
+         /* NotificationBloc().addToNotificationController(
+              chat.id, ChatModel.DELIVERED_TO_LOCAL);*/
 
       task.events.listen((data) async {
         if (data.type == StorageTaskEventType.failure) {
@@ -183,8 +183,8 @@ class FirebaseStorageUtil {
           ProgressBloc().addToProgressController(
               ProgressModel(chat.id.toString(), ProgressModel.END));
           ProgressBloc().removeFromInProgressMap(chat.id.toString());
-          NotificationBloc().addToNotificationController(
-              chat.id, ChatModel.DELIVERED_TO_SERVER);
+         /* NotificationBloc().addToNotificationController(
+              chat.id, ChatModel.DELIVERED_TO_SERVER);*/
           
         }
       });
@@ -194,18 +194,17 @@ class FirebaseStorageUtil {
   Future<File> getFileFromFirebaseStorage(ChatModel chat) async {
     try {
       return await Utils().runSafe(() async {
-        if (chat.fromUserId == UserBloc().getCurrUser().id &&
-            chat.localPath != null &&
-            chat.localPath != '') {
-          return File(chat.localPath);
-        }
+        
         String dirPath =
             await createDirIfNotExists(PathConstants.CHATAPP_MEDIA);
         if (chat.localPath == null || "" == chat.localPath) {
           chat.localPath = dirPath + '/' + chat.id.toString() + '.jpg';
         }
 
-        bool isFileExists = await checkIfFileExists(chat.localPath);
+        print('start checking file exists for '+chat.id.toString());
+        bool isFileExists = await checkIfFileExists(chat.localPath).catchError((e) {
+                     throw Exception(e);  
+        });
         print('file exists ' +
             isFileExists.toString() +
             ' for chat id ' +

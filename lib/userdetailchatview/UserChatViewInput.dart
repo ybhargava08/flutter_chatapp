@@ -52,7 +52,7 @@ class _UserChatViewInput extends State<UserChatViewInput> {
                     Expanded(
                       flex: 7,
                       child: TextField(
-                        autofocus: false,
+                        autofocus: true,
                         style: TextStyle(fontSize: 17.0, color: Colors.black),
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -86,7 +86,7 @@ class _UserChatViewInput extends State<UserChatViewInput> {
                   var txt = _textEditingcontroller.text;
                   if (null != txt && txt != "") {
                     ChatModel chat = ChatModel(
-                        DateTime.now().microsecondsSinceEpoch,
+                        DateTime.now().millisecondsSinceEpoch,
                         currUser.id,
                         toUser.id,
                         txt,
@@ -96,13 +96,13 @@ class _UserChatViewInput extends State<UserChatViewInput> {
                         "",
                         "",
                         "",
-                        '',
+                        ChatModel.DELIVERED_TO_LOCAL,
                         0
                         );
                         Firebase()
                         .addUpdateChat(chat, Firebase.CHAT_COL_COMPLETE, true);
                     _textEditingcontroller.clear();
-                    Utils().playSound('sounds/Tick.mp3');
+                    //Utils().playSound('sounds/Tick.mp3');
                   }
                 },
               ),

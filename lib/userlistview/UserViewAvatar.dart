@@ -8,6 +8,10 @@ class UserViewAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final inherited = ActualInheritedWidget.of(context);
 
+    if(null == inherited) {
+        return Container(width: 0,height: 0,);
+    }
+
     final user = inherited.user;
 
     return ((user.photoUrl != null))

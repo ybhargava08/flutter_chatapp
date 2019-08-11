@@ -38,7 +38,7 @@ class MediaPickerButton extends StatelessWidget {
                   base = BaseModel(null, toUser, isUser);
                 }else{
                   base = BaseModel(ChatModel(
-                    DateTime.now().microsecondsSinceEpoch,
+                    DateTime.now().millisecondsSinceEpoch,
                     UserBloc().getCurrUser().id,
                     toUser.id,
                     "",
@@ -49,7 +49,7 @@ class MediaPickerButton extends StatelessWidget {
                     "",
                     "",
                     ChatModel.DELIVERED_TO_LOCAL,
-                    0                    
+                    DateTime.now().millisecondsSinceEpoch                    
                     ), toUser, isUser);
                 }
                 Navigator.of(context).pop(base);
