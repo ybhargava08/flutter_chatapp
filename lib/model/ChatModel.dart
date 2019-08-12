@@ -13,8 +13,9 @@ class ChatModel {
   String fileName;
   String firebaseStorage;
   String delStat = DELIVERED_TO_LOCAL;
-  int fbId;
-  int compareId = 0;
+  int localChatId = 0;
+ // int fbId;
+ // int compareId = 0;
   
 
   static const String CHAT = "chat";
@@ -30,19 +31,19 @@ class ChatModel {
     return ChatModel(map["id"],
         map["fromUserId"], map["toUserId"], map["chat"], map["chatDate"],map["chatType"],map["localPath"],
         map["thumbnailPath"],map["fileName"],map["firebaseStorage"],
-        map["delStat"],map["fbId"]);
+        map["delStat"]/*,map["fbId"]*/);
   }
 
   factory ChatModel.fromRecordSnapshot(RecordSnapshot ds) {
     return ChatModel(ds["id"],
         ds["fromUserId"], ds["toUserId"], ds["chat"], ds["chatDate"],ds["chatType"],ds["localPath"]
-        ,ds["thumbnailPath"],ds["fileName"],ds["firebaseStorage"],ds["delStat"],ds["fbId"]);
+        ,ds["thumbnailPath"],ds["fileName"],ds["firebaseStorage"],ds["delStat"]/*,ds["fbId"]*/);
   }
 
   factory ChatModel.fromDocumentSnapshot(DocumentSnapshot ds) {
     return ChatModel(ds["id"],
         ds["fromUserId"], ds["toUserId"], ds["chat"], ds["chatDate"],ds["chatType"],ds["localPath"]
-        ,ds["thumbnailPath"],ds["fileName"],ds["firebaseStorage"],ds["delStat"],ds["fbId"]);
+        ,ds["thumbnailPath"],ds["fileName"],ds["firebaseStorage"],ds["delStat"]/*,ds["fbId"]*/);
   }
 
   Map<String, dynamic> toJson() {
@@ -58,20 +59,21 @@ class ChatModel {
     map["fileName"] = fileName;
     map["firebaseStorage"] = firebaseStorage;
     map["delStat"] = delStat;
-    map["fbId"] = fbId;
+   // map["fbId"] = fbId;
     return map;
   }
 
   ChatModel(this.id,this.fromUserId, this.toUserId, this.chat, this.chatDate,this.chatType,this.localPath,
-      this.thumbnailPath,this.fileName,this.firebaseStorage,this.delStat,this.fbId);
+      this.thumbnailPath,this.fileName,this.firebaseStorage,this.delStat/*,this.fbId*/);
 
   @override
   String toString() {
-    return 'fromUser ' + fromUserId + ' toUser ' + toUserId +' chat '+chat+' chat-id ' + id.toString()+' chattype '+chatType+' '
-    +fbId.toString()+' '+delStat+' '+compareId.toString();
+    return 'fromUser ' + fromUserId + ' toUser ' + toUserId +' chat '+chat+' chat-id ' + id.toString()+' chattype '+chatType
+    /*+fbId.toString()*/+' '+delStat+' '/*+compareId.toString()*/;
   }
 
   bool operator == (dynamic other) {
-     return other.id == id && other.fbId == fbId && other.delStat == delStat && other.firebaseStorage == firebaseStorage;
+     return other.id == id /*&& other.fbId == fbId*/ && other.localChatId == localChatId 
+     && other.delStat == delStat && other.firebaseStorage == firebaseStorage;
   }
 }

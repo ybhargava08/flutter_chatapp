@@ -62,9 +62,11 @@ class FirebaseRealtimeDB {
     }
   }
 
-  setUserLastActivityTime(ChatModel chat) async {
-    getUserCollectionRef(chat.fromUserId, chat.toUserId)
-        .set(<String, int>{"time": chat.fbId});
+  Future<int> setUserLastActivityTime(ChatModel chat) async {
+    int time = DateTime.now().microsecondsSinceEpoch;
+    await getUserCollectionRef(chat.fromUserId, chat.toUserId)
+        .set(<String, int>{"time": time});
+     return time;   
   }
 
   Future<void> deleteLastChatActivity() async {

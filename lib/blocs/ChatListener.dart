@@ -4,6 +4,7 @@ import 'package:chatapp/blocs/ChatBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/database/DBConstants.dart';
 import 'package:chatapp/database/SembastChat.dart';
+import 'package:chatapp/database/SembastDatabase.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/utils.dart';
@@ -20,10 +21,6 @@ class ChatListener {
   Map<String, List<StreamSubscription>> _listeners = Map();
   Map<String, StreamController<ChatModel>> _controller = Map();
 
-  Map<String, ChatModel> _lastChat = Map();
-
-  Map<String, int> _lastIdMap = Map();
-
   StreamSubscription /*_deliverySubs,*/ _newChatSubs;
 
   static SharedPreferences _prefs;
@@ -35,29 +32,42 @@ class ChatListener {
     }
   }
 
-  openFirebaseListener(String id) {
+  openFirebaseListener(String id) async {
+    List<ChatModel> localLastChat =await SembastChat().getChatsForUserFromSembast(id,1);
+    int lastId = 0;
+    if(null!=localLastChat && localLastChat.length > 0 && localLastChat[0]!=null && localLastChat[0].id!=null) {
+           lastId = localLastChat[0].id;
+           String toUserId = (UserBloc().getCurrUser().id == localLastChat[0].fromUserId)
+          ? localLastChat[0].toUserId
+          : localLastChat[0].fromUserId;
+           ChatListener().addToController(toUserId, localLastChat[0]);
+    }
     if (_listeners.containsKey(id) && _listeners[id].length == 0) {
       _listeners[id].add(Firebase()
           .getChatCollectionRef(
               Utils().getChatCollectionId(UserBloc().getCurrUser().id, id),
               Firebase.CHAT_COL_COMPLETE)
           .where('toUserId', isEqualTo: UserBloc().getCurrUser().id)
-          .orderBy('fbId', descending: true)
+          .where('id',isGreaterThan: lastId)
+          .orderBy('id', descending: true)
           .limit(1)
           .snapshots()
           .listen((data) {
-        bool hasPendingWrites = false;
         data.documentChanges.forEach((change) {
-          hasPendingWrites = change.document.metadata.hasPendingWrites;
+          if (data != null && data.documents.length > 0) {
+      ChatModel cm = ChatModel.fromDocumentSnapshot(data.documents[0]);
+          SembastChat().upsertInChatStore(cm, 'receivedChatprocessReceivedChat');
+          }
         });
-        parseReceivedData(data, id, hasPendingWrites);
+       // parseReceivedData(data, id, hasPendingWrites);
       }));
 
-      _listeners[id].add(Firebase()
+      /*_listeners[id].add(Firebase()
           .getChatCollectionRef(
               Utils().getChatCollectionId(UserBloc().getCurrUser().id, id),
               Firebase.CHAT_COL_COMPLETE)
           .where('fromUserId', isEqualTo: UserBloc().getCurrUser().id)
+          .where('id',isGreaterThan: lastId)
           .orderBy('id', descending: true)
           .limit(1)
           .snapshots()
@@ -67,16 +77,16 @@ class ChatListener {
           hasPendingWrites = change.document.metadata.hasPendingWrites;
         });
         parseReceivedData(data, id, hasPendingWrites);
-      }));
+      }));*/
     }
   }
 
-  getLatestChat(String toUserId) {
+  /*getLatestChat(String toUserId) {
     if (_lastChat.containsKey(toUserId) && _lastChat[toUserId] != null) {
       return _lastChat[toUserId];
     }
     return null;
-  }
+  }*/
 
   _openController(String id) {
     if (isControllerClosed(id)) {
@@ -99,25 +109,25 @@ class ChatListener {
   }
 
   addToController(
-      String id, ChatModel chat, String toUserId, bool storeLastUpdated) {
-    if (!isControllerClosed(id)) {
-      print('adding chat for id ' + id + ' chat ' + chat.toString());
-      _controller[id].sink.add(chat);
-      if (storeLastUpdated) {
-        _lastChat[toUserId] = chat;
-        _lastIdMap[toUserId] = chat.compareId;
-      }
+      String toUserId, ChatModel chat) {
+    if (!isControllerClosed(toUserId)) {
+      print('adding chat for id ' + toUserId + ' chat ' + chat.toString());
+      _controller[toUserId].sink.add(chat);
+      // if (storeLastUpdated) {
+      //   _lastChat[toUserId] = chat;
+      //    _lastIdMap[toUserId] = chat.compareId;
+      // }
       UserBloc().reorderList(toUserId);
     }
   }
 
-  parseReceivedData(
+  /*parseReceivedData(
       QuerySnapshot data, String toUserId, bool hasPendingWrites) {
     if (data != null && data.documents.length > 0) {
       ChatModel cm = ChatModel.fromDocumentSnapshot(data.documents[0]);
       cm.delStat =
           (hasPendingWrites) ? ChatModel.DELIVERED_TO_LOCAL : cm.delStat;
-      bool isReceivedChat = cm.fromUserId != UserBloc().getCurrUser().id;
+      /*bool isReceivedChat = cm.fromUserId != UserBloc().getCurrUser().id;
       if (isReceivedChat &&
           cm.delStat.compareTo(ChatModel.DELIVERED_TO_USER) < 0) {
         cm.fbId = DateTime.now().millisecondsSinceEpoch;
@@ -138,8 +148,9 @@ class ChatListener {
             cm.delStat);
       }
 
-      String source = (isReceivedChat)?'receivedChatparseReceivedChat':'sentChatparseReceivedChat';
-
+      String source = (isReceivedChat)?'receivedChatparseReceivedChat':'sentChatparseReceivedChat';*/
+    
+      String source = "receivedChatparseReceivedChat";
       ChatModel _chatModel = _lastChat[toUserId];
       int _lastId = _lastIdMap[toUserId];
       data.documentChanges.forEach((change) {
@@ -170,9 +181,9 @@ class ChatListener {
         }
       });
     }
-  }
+      }*/
 
-  _markChatAsDelivered(ChatModel chat, String toUserId) {
+  /*_markChatAsDelivered(ChatModel chat, String toUserId) {
     if (chat.fromUserId != UserBloc().getCurrUser().id &&
         chat.delStat == ChatModel.DELIVERED_TO_SERVER) {
       List<ChatModel> list = List();
@@ -181,7 +192,7 @@ class ChatListener {
       /*Firebase().markChatsAsReadOrDelivered(
           toUserId, list, false, false, ChatModel.DELIVERED_TO_USER);*/
     }
-  }
+  }*/
 
   listenForNewAddedChats(String toUserId,int maxChatId) {
     print('listenForNewAddedChats '+maxChatId.toString());
@@ -200,12 +211,12 @@ class ChatListener {
             data.documents.forEach((snapshot) {
               ChatModel c = ChatModel.fromDocumentSnapshot(snapshot);
               print('got to user chat ' + c.toString());
-              if (c.toUserId == UserBloc().getCurrUser().id &&
-                  c.delStat != ChatModel.READ_BY_USER) {
-                c.fbId = DateTime.now().millisecondsSinceEpoch;
-              }
-              ChatBloc().addInChatController(c);
-              SembastChat().upsertInChatStore(c,false,'newAddedChat');
+              // if (c.toUserId == UserBloc().getCurrUser().id &&
+              //     c.delStat != ChatModel.READ_BY_USER) {
+              //   c.fbId = DateTime.now().millisecondsSinceEpoch;
+              // }
+            //  ChatBloc().addInChatController(c);
+              SembastChat().upsertInChatStore(c,'newAddedChat');
             });
           }
         }
@@ -223,7 +234,7 @@ class ChatListener {
     chatLimit = (chatLimit == null || chatLimit <= DBConstants.DATA_RETREIVE_COUNT)?DBConstants.DATA_RETREIVE_COUNT:chatLimit;
       List<ChatModel> completeList = List();
       completeList = await SembastChat().getChatsForUserFromSembast(toUserId,chatLimit);
-      if (completeList == null || completeList.length == 0) {
+     /* if (completeList == null || completeList.length == 0) {
         QuerySnapshot chatComplete = await Firebase()
             .getChatCollectionRef(
                 Utils()
@@ -242,7 +253,7 @@ class ChatListener {
        print('chat list loaded from firebase for '+toUserId);
       }else{
         print('chat list loaded from sembase for '+toUserId);
-      }
+      }*/
       if (null != completeList && completeList.length > 0) {
           return ChatBloc().setInitList(completeList, toUserId);
         }

@@ -3,11 +3,7 @@ import 'dart:async';
 import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/database/DBConstants.dart';
 import 'package:chatapp/database/SembastChat.dart';
-import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/model/ChatModel.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-import '../utils.dart';
 
 class ChatBloc {
   static ChatBloc _chatBloc;
@@ -63,22 +59,24 @@ class ChatBloc {
     _oneToOneList.clear();
     int maxId = 0;
     list.forEach((chat) {
-      if (chat.fromUserId == UserBloc().getCurrUser().id) {
+      /* if (chat.fromUserId == UserBloc().getCurrUser().id) {
         chat.compareId = chat.id;
       } else {
         chat.compareId = chat.fbId;
-      }
-      if(chat.fromUserId!=UserBloc().getCurrUser().id && chat.delStat != ChatModel.DELIVERED_TO_LOCAL && chat.id > maxId) {
-           maxId = chat.id;
+      }*/
+      if (chat.fromUserId != UserBloc().getCurrUser().id &&
+          chat.delStat != ChatModel.DELIVERED_TO_LOCAL &&
+          chat.id > maxId) {
+        maxId = chat.id;
       }
     });
-    _sortList(list);
+   // _sortList(list);
 
     _oneToOneList = list;
 
     _chatController.sink.add(_oneToOneList);
     _setMinChatId(_oneToOneList[_oneToOneList.length - 1]);
-    print('setting max id '+maxId.toString());
+    print('setting max id ' + maxId.toString());
     return maxId;
   }
 
@@ -89,16 +87,16 @@ class ChatBloc {
 
       if (foundItem == null || foundItem.isEmpty) {
         print('cm not found in list ' + cm.toString());
-        if (cm.fromUserId == UserBloc().getCurrUser().id) {
+        /* if (cm.fromUserId == UserBloc().getCurrUser().id) {
           cm.compareId = cm.id;
         } else {
           cm.compareId = cm.fbId;
-        }
+        }*/
         _oneToOneList.insert(0, cm);
 
         _chatController.sink.add(_oneToOneList);
 
-        _setMinChatId(_oneToOneList[_oneToOneList.length - 1]);
+        //_setMinChatId(_oneToOneList[_oneToOneList.length - 1]);
       } else {
         print('cm found in list ' + cm.toString());
       }
@@ -122,7 +120,7 @@ class ChatBloc {
     List<ChatModel> list = await SembastChat()
         .getChatsLessThanId(_minChatId, DBConstants.DATA_RETREIVE_COUNT);
 
-    if (null == list) {
+   /* if (null == list) {
       QuerySnapshot moreData = await Firebase()
           .getChatCollectionRef(
               Utils()
@@ -138,34 +136,36 @@ class ChatBloc {
             .map((item) => ChatModel.fromDocumentSnapshot(item))
             .toList();
         list.forEach((chat) {
-          if (chat.fromUserId == UserBloc().getCurrUser().id) {
-            chat.compareId = chat.id;
-          } else {
-            chat.compareId = chat.fbId;
-          }
+          // if (chat.fromUserId == UserBloc().getCurrUser().id) {
+          //   chat.compareId = chat.id;
+          // } else {
+          //   chat.compareId = chat.fbId;
+          // }
         });
       }
 
       SembastChat().bulkUpsertInChatStore(list);
-    }
-    if(null!=list && list.length > 0) {
-_sortList(list);
+    }*/
+    if (null != list && list.length > 0) {
+      // _sortList(list);
       setMoreData(list);
     }
-    
   }
 
-  _sortList(List<ChatModel> list) {
+  /*_sortList(List<ChatModel> list) {
     list.sort((a, b) {
-      if (a.compareId > b.compareId) {
-        return b.compareId.compareTo(a.compareId);
-      } else {
-        return a.compareId.compareTo(b.compareId);
-      }
+       if (a.compareId > b.compareId) {
+         return b.compareId.compareTo(a.compareId);
+       } else {
+         return a.compareId.compareTo(b.compareId);
+       }
     });
-  }
+  }*/
 
   _setMinChatId(ChatModel chat) {
-    _minChatId = chat.id;
+    if(chat.localChatId!=null) {
+          _minChatId = chat.localChatId;
+    }
+    
   }
 }

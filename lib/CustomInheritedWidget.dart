@@ -3,12 +3,9 @@ import 'dart:async';
 import 'package:chatapp/blocs/LastChatListener.dart';
 import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/blocs/UserListener.dart';
-import 'package:chatapp/database/SembastChat.dart';
 import 'package:chatapp/blocs/ChatListener.dart';
-import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/model/UserLatestChatModel.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chatapp/model/UserModel.dart';
@@ -42,21 +39,10 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
 
     _toUser = widget.toUser;
 
-    setInitData();
-
-    if (ChatListener().getLatestChat(_toUser.id) != null) {
-      _chatModel = ChatListener().getLatestChat(_toUser.id);
-    }
-    UserListener().openController(_toUser.id);
-    if (UserListener().getController(_toUser.id) != null) {
-      UserListener().getController(_toUser.id).stream.listen((data) {
-        if (this.mounted && (_toUser == null || _toUser != data)) {
-          setState(() {
-            _toUser = data;
-          });
-        }
-      });
-    }
+    // if (ChatListener().getLatestChat(_toUser.id) != null) {
+    //   _chatModel = ChatListener().getLatestChat(_toUser.id);
+    // }
+    listenForUserUpdates();
     listenForNewChats();
     listenForChatCounts();
 
@@ -74,6 +60,19 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
         }
       }
     });*/
+  }
+
+  listenForUserUpdates() {
+    UserListener().openController(_toUser.id);
+    if (UserListener().getController(_toUser.id) != null) {
+      UserListener().getController(_toUser.id).stream.listen((data) {
+        if (this.mounted && (_toUser == null || _toUser != data)) {
+          setState(() {
+            _toUser = data;
+          });
+        }
+      });
+    }
   }
 
   listenForChatCounts() {
@@ -101,7 +100,7 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
   }
 
   listenForNewChats() async {
-    ChatModel localLastChat =
+   /* ChatModel localLastChat =
         await SembastChat().getLastChatForUser(_toUser.id);
     if (null != localLastChat && localLastChat.chatType != ChatModel.CHAT) {
 
@@ -110,7 +109,7 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
           _chatModel = localLastChat;
         });
       }
-    }
+    }*/
     ChatListener().openFirebaseListener(_toUser.id);
     if (ChatListener().getController(_toUser.id) != null) {
       _chatListenerSubs =
@@ -119,26 +118,6 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
           _chatModel = data;
         });
       });
-    }
-  }
-
-  setInitData() async {
-    try {
-      DocumentSnapshot ds = await Firebase()
-          .unreadChatReference(UserBloc().getCurrUser().id)
-          .document(_toUser.id)
-          .get();
-
-      if (ds != null && ds.exists) {
-        int unreadMsgCount = ds["count"];
-        if (unreadMsgCount != _unreadMsg) {
-          setState(() {
-            _unreadMsg = unreadMsgCount;
-          });
-        }
-      }
-    } on Exception catch (e) {
-      print('got error while retriving doc from fb ' + e.toString());
     }
   }
 

@@ -91,7 +91,7 @@ class ChatReceiptListener {
       data.documents.forEach((snapshot) {
         ChatModel c = ChatModel.fromDocumentSnapshot(snapshot);
         print('got data from chat delivery listener ' + c.toString());
-        SembastChat().upsertInChatStore(c, false, 'chatDelivery');
+        SembastChat().upsertInChatStore(c, 'chatDelivery');
         NotificationBloc().addToNotificationController(c.id, c.delStat);
       });
     }

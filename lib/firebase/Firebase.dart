@@ -36,35 +36,6 @@ class Firebase {
         .document(docId); 
   }
 
-  Future<void> deleteAllChatsForTest() async {
-       QuerySnapshot snaps =  await _firestore.collection('chats').getDocuments();
-       if(snaps!=null) {
-         print('deleting chat snaps is not null '+snaps.documents.length.toString());
-            snaps.documents.forEach((snap) async {
-                QuerySnapshot snapsCom=await _firestore.collection('chats').document(snap.documentID).collection('complete').getDocuments();
-                snapsCom.documents.forEach((s) async {
-                        await s.reference.delete();
-                });
-                    await snap.reference.delete();
-            });
-       } 
-  }
-
-  Future<void> deleteAllChatActivityForTest() async {
-       QuerySnapshot snaps =  await _firestore.collection('chatActivity').getDocuments();
-       if(snaps!=null) {
-         print('deleting chat snaps is not null '+snaps.documents.length.toString());
-            snaps.documents.forEach((snap) async {
-                QuerySnapshot snapsCom=await _firestore.collection('chatActivity').document(snap.documentID).collection('unreadCount')
-                .getDocuments();
-                snapsCom.documents.forEach((s) async {
-                        await s.reference.delete();
-                });
-                    await snap.reference.delete();
-            });
-       } 
-  }
-
   CollectionReference getChatCollectionRef(String docId, String collection) {
     return _firestore
         .collection('chats')
@@ -75,36 +46,31 @@ class Firebase {
   Future<void> addUpdateChat(
       ChatModel chat, String collection, bool shouldUpdateCount) async {
         ChatModel localChat;
-    chat.fbId = DateTime.now().millisecondsSinceEpoch;
     print('chat data before persist ' + chat.toJson().toString());
     
     try {
       if (chat.chatType == ChatModel.CHAT) {
         localChat = ChatModel(chat.id, chat.fromUserId, chat.toUserId, chat.chat, chat.chatDate, chat.chatType, 
-        chat.localPath, chat.thumbnailPath, chat.fileName, chat.firebaseStorage, ChatModel.DELIVERED_TO_LOCAL, chat.fbId);
+        chat.localPath, chat.thumbnailPath, chat.fileName, chat.firebaseStorage, ChatModel.DELIVERED_TO_LOCAL);
         ChatBloc().addInChatController(localChat);
       }
 
-      chat.delStat = ChatModel.DELIVERED_TO_SERVER; 
-      SembastChat().upsertInChatStore(localChat,false,'addUpdateChatBefore');
+      SembastChat().upsertInChatStore(localChat,'addUpdateChatBefore');
 
       if (shouldUpdateCount) {
-        WriteBatch batch = _firestore.batch();
         DocumentReference chatRef = getChatCollectionRef(
                 Utils().getChatCollectionId(chat.fromUserId, chat.toUserId),
                 collection)
             .document(chat.id.toString());
-        batch.setData(chatRef, chat.toJson(),merge: true);
-        
-       // updateUnreadCount('inc', 1, chat.toUserId, chat, batch);
-
-        batch.commit().whenComplete(() {
+            chat.delStat = ChatModel.DELIVERED_TO_SERVER; 
+            chatRef.setData(chat.toJson(),merge:true)
+        .whenComplete(() async {
           
           FirebaseRealtimeDB().incDecUnreadChatCount(chat.fromUserId, chat.toUserId,
           prepareDataForCountUpdate(chat) , 'inc', 1);
-          FirebaseRealtimeDB().setUserLastActivityTime(chat);
+          int time = await FirebaseRealtimeDB().setUserLastActivityTime(chat);
           String userSearchId = (chat.fromUserId == UserBloc().getCurrUser().id)?chat.toUserId:chat.fromUserId;
-          SembastUser().upsertInUserContactStore(UserBloc().findUser(userSearchId), {'lastActivityTime':chat.fbId});
+          SembastUser().upsertInUserContactStore(UserBloc().findUser(userSearchId), {'lastActivityTime':time});
           if(null!=localChat) {
               localChat.delStat = ChatModel.DELIVERED_TO_SERVER;
           NotificationBloc().addToNotificationController(localChat.id, ChatModel.DELIVERED_TO_SERVER);
@@ -140,9 +106,9 @@ class Firebase {
           .document(chat.id.toString());
       Map<String, dynamic> data = Map();
       if (type == ChatModel.READ_BY_USER) {
-        data = {'delStat': ChatModel.READ_BY_USER, 'fbId': chat.fbId};
+        data = {'delStat': ChatModel.READ_BY_USER};
       } else {
-        data = {'delStat': ChatModel.DELIVERED_TO_USER, 'fbId': chat.fbId};
+        data = {'delStat': ChatModel.DELIVERED_TO_USER};
       }
       batch.setData(docRef, data, merge: true);
     });
@@ -154,43 +120,6 @@ class Firebase {
     });
     }   
   }
-
-  setUnreadCountToZero(WriteBatch batch) {
-       
-  }
-
-  CollectionReference unreadChatReference(String id) {
-    return _firestore
-        .collection('chatActivity')
-        .document(id)
-        .collection('unreadCount');
-  }
-
-  /*updateUnreadCount(
-      String type, int count, String id, ChatModel chat, WriteBatch batch) {
-    CollectionReference ref;
-    var increment;
-    if (type == 'inc') {
-      ref = unreadChatReference(id);
-      increment = FieldValue.increment(count);
-          String msg = (chat.chatType == ChatModel.CHAT)
-            ? chat.chat
-            : (chat.chatType == ChatModel.VIDEO)
-                ? 'Sent a video'
-                : 'Sent an Image';
-        print('last message is ' + msg);
-      batch.setData(ref.document(UserBloc().getCurrUser().id),
-          {'count': increment, 'msg': msg},
-          merge: true);
-    } else if(type == 'dec'){
-      ref = unreadChatReference(UserBloc().getCurrUser().id);
-      increment = FieldValue.increment(-count);
-      batch.setData(ref.document(id), {'count': increment}, merge: true);
-    }else{
-        ref = unreadChatReference(UserBloc().getCurrUser().id);
-        batch.setData(ref.document(id), {'count': 0}, merge: true);
-    }
-  }*/
 
   Map<String,dynamic> prepareDataForCountUpdate(ChatModel chat) {
          UserModel fromUser = (chat.fromUserId == UserBloc().getCurrUser().id)?UserBloc().getCurrUser():
