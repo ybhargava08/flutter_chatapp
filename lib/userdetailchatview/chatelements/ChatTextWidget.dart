@@ -32,7 +32,7 @@ _markedChatAsRead.add(widget.chat);
 print('marking chat as read for '+widget.chat.id.toString());
            Firebase().markChatsAsReadOrDelivered((widget.chat.fromUserId == UserBloc().getCurrUser().id?widget.chat.toUserId
            :widget.chat.fromUserId),
-                      _markedChatAsRead, true, (widget.index == widget.totalLength-1),ChatModel.READ_BY_USER);
+                       _markedChatAsRead, true, ChatModel.READ_BY_USER);
                  
     }
     super.initState();

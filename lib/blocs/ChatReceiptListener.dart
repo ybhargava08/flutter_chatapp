@@ -20,12 +20,12 @@ class ChatReceiptListener {
 
   Map<int, StreamSubscription> _chatDelReceiptListenersLesser = Map();
 
-  initChatReceiptListeners(int chatId, String delStat, String toUserId) {
-    _listenForChatReceiptsGreater(chatId, delStat, toUserId);
-    _listenForChatReceiptsLess(chatId, delStat, toUserId);
+  initChatReceiptListeners(int chatId, String toUserId) {
+    _listenForChatReceiptsGreater(chatId, toUserId);
+    _listenForChatReceiptsLess(chatId, toUserId);
   }
 
-  _listenForChatReceiptsGreater(int chatId, String delStat, String toUserId) {
+  _listenForChatReceiptsGreater(int chatId, String toUserId) {
     if (!_chatDelReceiptListenersGreater.containsKey(chatId) &&
         _chatDelReceiptListenersGreater[chatId] == null) {
       _chatDelReceiptListenersGreater[chatId] = Firebase()
@@ -43,7 +43,7 @@ class ChatReceiptListener {
     }
   }
 
-  _listenForChatReceiptsLess(int chatId, String delStat, String toUserId) {
+  _listenForChatReceiptsLess(int chatId, String toUserId) {
     if (!_chatDelReceiptListenersLesser.containsKey(chatId) &&
         _chatDelReceiptListenersLesser[chatId] == null) {
       _chatDelReceiptListenersLesser[chatId] = Firebase()
@@ -76,24 +76,22 @@ class ChatReceiptListener {
     }
   }
 
-  closeAllListeners() {  
-
-      _chatDelReceiptListenersGreater.forEach((k,v) {
-              closeChatReceiptListeners(k);
-      });
-      _chatDelReceiptListenersLesser.forEach((k,v) {
-              closeChatReceiptListeners(k);
-      });
+  closeAllListeners() {
+    _chatDelReceiptListenersGreater.forEach((k, v) {
+      closeChatReceiptListeners(k);
+    });
+    _chatDelReceiptListenersLesser.forEach((k, v) {
+      closeChatReceiptListeners(k);
+    });
   }
 
   _processData(QuerySnapshot data, DocumentChange change) {
     if (change.type == DocumentChangeType.modified) {
-      data.documents.forEach((snapshot) {
-        ChatModel c = ChatModel.fromDocumentSnapshot(snapshot);
+        ChatModel c = ChatModel.fromDocumentSnapshot(change.document);
         print('got data from chat delivery listener ' + c.toString());
         SembastChat().upsertInChatStore(c, 'chatDelivery');
         NotificationBloc().addToNotificationController(c.id, c.delStat);
-      });
+      
     }
   }
 }

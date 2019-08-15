@@ -74,6 +74,7 @@ class Firebase {
           if(null!=localChat) {
               localChat.delStat = ChatModel.DELIVERED_TO_SERVER;
           NotificationBloc().addToNotificationController(localChat.id, ChatModel.DELIVERED_TO_SERVER);
+          SembastChat().upsertInChatStore(localChat,'addUpdateChatBefore');
           }else{
             NotificationBloc().addToNotificationController(chat.id, ChatModel.DELIVERED_TO_SERVER);
           }
@@ -89,13 +90,13 @@ class Firebase {
                      NotificationBloc().addToNotificationController(localChat.id, ChatModel.DELIVERED_TO_SERVER);
             });
       }
-    } on Exception catch (e) {
+    } catch (e) {
       print('exception while add / update chat in FB ' + e.toString());
     }
   }
 
   markChatsAsReadOrDelivered(String otherUserId, List<ChatModel> chats,
-      bool shouldUpdateCount,bool setUnreadCountToZero, String type) async {
+      bool shouldUpdateCount, String type) async {
     if(chats.length > 0)  {
         WriteBatch batch = _firestore.batch();
     chats.forEach((chat) {

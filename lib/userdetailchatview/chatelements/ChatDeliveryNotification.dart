@@ -32,7 +32,7 @@ class _ChatDeliveryNotificationState extends State<ChatDeliveryNotification>
     _deliveryState = widget.chat.delStat;
     if (widget.chat.delStat != ChatModel.READ_BY_USER) {
       String toUserId = (UserBloc().getCurrUser().id == widget.chat.fromUserId)?widget.chat.toUserId:widget.chat.fromUserId;
-      ChatReceiptListener().initChatReceiptListeners(widget.chat.id, widget.chat.delStat, toUserId);
+      ChatReceiptListener().initChatReceiptListeners(widget.chat.id, toUserId);
       listenForNotificationChanges();
     }
   }

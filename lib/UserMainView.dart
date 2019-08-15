@@ -6,6 +6,8 @@ import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/blocs/UserListener.dart';
 import 'package:chatapp/blocs/VerificationBloc.dart';
 import 'package:chatapp/blocs/ChatListener.dart';
+import 'package:chatapp/database/SembastChat.dart';
+import 'package:chatapp/database/SembastUserLastChat.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/settings/profile/UserDisplayPicPage.dart';
 import 'package:chatapp/utils.dart';
@@ -104,15 +106,40 @@ class _UserMainViewState extends State<UserMainView> {
         if (value == 1) {
           Navigator.pushNamed(context, RouteConstants.SETTINGS,
               arguments: UserDisplayPicPageArgs(UserBloc().getCurrUser()));
+        }else if(value ==2) {
+              popUpDeleteDialog();
         }
       },
       itemBuilder: (context) => [
         PopupMenuItem(
           child: Text('Settings'),
           value: 1,
+        ),
+        PopupMenuItem(
+           child: Text('Del Chats'),
+           value: 2,
         )
       ],
     );
+  }
+
+  popUpDeleteDialog() async {
+       int chatCount = await SembastChat().deleteAllChats();
+       int lastChatCount = await SembastUserLastChat().deleteAllLastChats(); 
+
+       showDialog(context: context,
+                        builder: (BuildContext context) {
+                                return AlertDialog(
+                                    title: Text('Chat Delete'),
+                                    content: Column(
+                                        children: <Widget>[
+                                          Text('Delete Chats - $chatCount'),
+                                          Text('Delete Last Chats - $lastChatCount')
+                                        ],
+                                    ),
+                                );
+                        }
+                      );
   }
 
   Widget getScaffold() {

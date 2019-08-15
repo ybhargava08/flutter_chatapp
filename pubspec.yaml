@@ -46,6 +46,7 @@ dependencies:
   audioplayers: ^0.13.1
   fluttertoast: ^3.1.0
   connectivity: ^0.4.3+6
+  synchronized: ^2.1.0+1
 
  
 dev_dependencies:

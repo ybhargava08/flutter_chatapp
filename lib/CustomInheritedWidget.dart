@@ -39,27 +39,9 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
 
     _toUser = widget.toUser;
 
-    // if (ChatListener().getLatestChat(_toUser.id) != null) {
-    //   _chatModel = ChatListener().getLatestChat(_toUser.id);
-    // }
     listenForUserUpdates();
     listenForNewChats();
     listenForChatCounts();
-
-    /* _unreadChatSubs = Firebase()
-        .unreadChatReference(UserBloc().getCurrUser().id)
-        .document(_toUser.id)
-        .snapshots()
-        .listen((data) {
-      if (data.exists) {
-        int unreadMsgCount = data["count"];
-        if (unreadMsgCount != _unreadMsg) {
-          setState(() {
-            _unreadMsg = unreadMsgCount;
-          });
-        }
-      }
-    });*/
   }
 
   listenForUserUpdates() {
@@ -76,9 +58,8 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
   }
 
   listenForChatCounts() {
-    
     UserLatestChatBloc().openChatCountController();
-    
+
     print('opening chat count listener for ' + _toUser.id);
     if (null != UserLatestChatBloc().getChatCountController()) {
       print('listening to UserLatestChatBloc controller ' + _toUser.id);
@@ -100,21 +81,12 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
   }
 
   listenForNewChats() async {
-   /* ChatModel localLastChat =
-        await SembastChat().getLastChatForUser(_toUser.id);
-    if (null != localLastChat && localLastChat.chatType != ChatModel.CHAT) {
-
-      if (_chatModel == null || _chatModel != localLastChat) {
-        setState(() {
-          _chatModel = localLastChat;
-        });
-      }
-    }*/
     ChatListener().openFirebaseListener(_toUser.id);
     if (ChatListener().getController(_toUser.id) != null) {
       _chatListenerSubs =
-          ChatListener().getController(_toUser.id).stream.listen((data) {
-                setState(() {
+          ChatListener().getController(_toUser.id).stream.where((item) => (_chatModel == null || item.chatDate >= _chatModel.chatDate))
+          .listen((data) {
+        setState(() {
           _chatModel = data;
         });
       });

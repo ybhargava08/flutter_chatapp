@@ -69,13 +69,15 @@ class _UserChatViewListState extends State<UserChatViewList> {
         child: getChatType(currChat, index, totalLength));
   }
 
-  checkIfDateShown(String date) {
-    String datePart = date.substring(0, date.indexOf(' '));
+  checkIfDateShown(int dateMillis) {
+    String datePart = getDatePart(dateMillis);
+    
     return _dateShownMap.containsKey(datePart) && _dateShownMap[datePart];
   }
 
-  String getDatePart(String date) {
-    return date.substring(0, date.indexOf(' '));
+  String getDatePart(int dateMillis) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(dateMillis);
+    return date.day.toString()+'/'+date.month.toString()+'/'+date.year.toString();
   }
 
   Widget loaderList() {
@@ -121,8 +123,7 @@ class _UserChatViewListState extends State<UserChatViewList> {
                   (index == snapshot.data.length - 1 ||
                       getDatePart(snapshot.data[index].chatDate) !=
                           getDatePart(snapshot.data[index + 1].chatDate))) {
-                _dateShownMap[currChat.chatDate
-                    .substring(0, currChat.chatDate.indexOf(' '))] = true;
+                _dateShownMap[getDatePart(currChat.chatDate)] = true;
                 return Flex(
                   direction: Axis.vertical,
                   children: <Widget>[

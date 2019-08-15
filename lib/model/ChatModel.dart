@@ -6,7 +6,7 @@ class ChatModel {
   String fromUserId;
   String toUserId;
   String chat;
-  String chatDate;
+  int chatDate;
   String chatType;
   String localPath;
   String thumbnailPath;
@@ -31,19 +31,19 @@ class ChatModel {
     return ChatModel(map["id"],
         map["fromUserId"], map["toUserId"], map["chat"], map["chatDate"],map["chatType"],map["localPath"],
         map["thumbnailPath"],map["fileName"],map["firebaseStorage"],
-        map["delStat"]/*,map["fbId"]*/);
+        map["delStat"]);
   }
 
   factory ChatModel.fromRecordSnapshot(RecordSnapshot ds) {
     return ChatModel(ds["id"],
         ds["fromUserId"], ds["toUserId"], ds["chat"], ds["chatDate"],ds["chatType"],ds["localPath"]
-        ,ds["thumbnailPath"],ds["fileName"],ds["firebaseStorage"],ds["delStat"]/*,ds["fbId"]*/);
+        ,ds["thumbnailPath"],ds["fileName"],ds["firebaseStorage"],ds["delStat"]);
   }
 
   factory ChatModel.fromDocumentSnapshot(DocumentSnapshot ds) {
     return ChatModel(ds["id"],
         ds["fromUserId"], ds["toUserId"], ds["chat"], ds["chatDate"],ds["chatType"],ds["localPath"]
-        ,ds["thumbnailPath"],ds["fileName"],ds["firebaseStorage"],ds["delStat"]/*,ds["fbId"]*/);
+        ,ds["thumbnailPath"],ds["fileName"],ds["firebaseStorage"],ds["delStat"]);
   }
 
   Map<String, dynamic> toJson() {
@@ -59,16 +59,16 @@ class ChatModel {
     map["fileName"] = fileName;
     map["firebaseStorage"] = firebaseStorage;
     map["delStat"] = delStat;
-   // map["fbId"] = fbId;
     return map;
   }
 
   ChatModel(this.id,this.fromUserId, this.toUserId, this.chat, this.chatDate,this.chatType,this.localPath,
-      this.thumbnailPath,this.fileName,this.firebaseStorage,this.delStat/*,this.fbId*/);
+      this.thumbnailPath,this.fileName,this.firebaseStorage,this.delStat);
 
   @override
   String toString() {
-    return 'fromUser ' + fromUserId + ' toUser ' + toUserId +' chat '+chat+' chat-id ' + id.toString()+' chattype '+chatType
+    return 'fromUser ' + fromUserId + ' toUser ' + toUserId +' chat '+chat+' local chat id '+localChatId.toString()
+    +' chat-id ' + id.toString()+' chattype '+chatType
     /*+fbId.toString()*/+' '+delStat+' '/*+compareId.toString()*/;
   }
 

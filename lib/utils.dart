@@ -35,9 +35,9 @@ class Utils {
     return DateFormat('yyyyMMdd HH:mm:ss').format(DateTime.now());
   }
 
-  String getDateTimeInFormat(String inputDate, String type, String from) {
-    if (inputDate != null && inputDate.trim().length > 0) {
-      DateTime dateTime = DateTime.parse(inputDate);
+  String getDateTimeInFormat(int millis, String type, String from) {
+    if (null!=millis && millis > 0) {
+      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(millis);
       DateTime currTime = DateTime.now();
       if (from == 'userview') {
         if (currTime.year == dateTime.year &&

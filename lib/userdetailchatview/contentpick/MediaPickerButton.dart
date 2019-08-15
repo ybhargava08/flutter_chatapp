@@ -42,7 +42,7 @@ class MediaPickerButton extends StatelessWidget {
                     UserBloc().getCurrUser().id,
                     toUser.id,
                     "",
-                    Utils().getDateInFormat(),
+                    DateTime.now().millisecondsSinceEpoch,
                     type,
                     chat.localPath,
                     "",

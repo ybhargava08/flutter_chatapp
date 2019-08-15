@@ -4,16 +4,16 @@ import 'package:flutter/material.dart';
 
 class UserChatViewLastSeen extends StatelessWidget {
 
-  getLastSeenText(String inputDate) {
+  getLastSeenText() {
       String result = '';
-     String date =  Utils().getDateTimeInFormat(inputDate,'date','userchatview');
+     String date =  Utils().getDateTimeInFormat(DateTime.now().millisecondsSinceEpoch,'date','userchatview');
      if(date == 'TODAY' || date == 'YESTERDAY') {
          result = 'last seen '+date.toLowerCase()+' at ';
      }else{
        result = 'last seen on '+date+' at ';
      }
 
-     result += Utils().getDateTimeInFormat(inputDate,'time','userchatview');
+     result += Utils().getDateTimeInFormat(DateTime.now().millisecondsSinceEpoch,'time','userchatview');
      return result;
   }
     @override
@@ -26,7 +26,7 @@ class UserChatViewLastSeen extends StatelessWidget {
                     alignment: Alignment.topLeft,
                     child: (/* !user.isOnline */false)
                       ? Text(
-                          getLastSeenText(user.lastSeenTime),
+                          getLastSeenText(),
                           style: TextStyle(fontSize: 13),
                         )
                       : Container(

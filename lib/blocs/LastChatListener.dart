@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/firebase/FirebaseRealtimeDB.dart';
 import 'package:chatapp/model/UserLatestChatModel.dart';
-import 'package:firebase_database/firebase_database.dart';
 
 class LastChatListener {
   static LastChatListener _lastChatListener;

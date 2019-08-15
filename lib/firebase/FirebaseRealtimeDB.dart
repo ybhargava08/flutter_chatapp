@@ -53,7 +53,7 @@ class FirebaseRealtimeDB {
       countRef = _database.reference().child('ChatActivity').child(toUserId).child('UnreadChat').child(fromUserId).child('ct');
       countRef.runTransaction((MutableData mutableData) async {
             if (mutableData.value != null) {
-          mutableData.value = (mutableData.value - count) >= 0
+          mutableData.value = (mutableData.value - count > 0)
               ? (mutableData.value - count)
               : 0;
         }
