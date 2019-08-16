@@ -9,6 +9,7 @@ import 'package:chatapp/blocs/ChatListener.dart';
 import 'package:chatapp/database/SembastChat.dart';
 import 'package:chatapp/database/SembastUserLastChat.dart';
 import 'package:chatapp/firebase/Firebase.dart';
+import 'package:chatapp/firebase/FirebaseStorageUtil.dart';
 import 'package:chatapp/settings/profile/UserDisplayPicPage.dart';
 import 'package:chatapp/utils.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,6 @@ class UserMainView extends StatefulWidget {
 }
 
 class _UserMainViewState extends State<UserMainView> {
-
   @override
   void initState() {
     VerificationBloc().closeController();
@@ -75,18 +75,18 @@ class _UserMainViewState extends State<UserMainView> {
         }
         return Container(width: 0, height: 0);
       },
-      separatorBuilder: (BuildContext context,int index) {
+      separatorBuilder: (BuildContext context, int index) {
         return Container(
-        alignment: Alignment.centerRight,
-        margin: EdgeInsets.only(right: 10),
-        child: SizedBox(
-          width: 0.8 * MediaQuery.of(context).size.width,
-          height: 1,
-          child: Container(
-            color: Colors.blueGrey[100],
+          alignment: Alignment.centerRight,
+          margin: EdgeInsets.only(right: 10),
+          child: SizedBox(
+            width: 0.8 * MediaQuery.of(context).size.width,
+            height: 1,
+            child: Container(
+              color: Colors.blueGrey[100],
+            ),
           ),
-        ),
-      );
+        );
       },
       itemCount: list.length,
     ));
@@ -100,47 +100,64 @@ class _UserMainViewState extends State<UserMainView> {
   Widget getPopMenu() {
     return PopupMenuButton<int>(
       child: Container(
-        margin: EdgeInsets.only(right: 15), 
-        child:Icon(Icons.more_vert)),
+          margin: EdgeInsets.only(right: 15), child: Icon(Icons.more_vert)),
       onSelected: (value) {
         if (value == 1) {
           Navigator.pushNamed(context, RouteConstants.SETTINGS,
               arguments: UserDisplayPicPageArgs(UserBloc().getCurrUser()));
-        }else if(value ==2) {
-              popUpDeleteDialog();
-        }
+        } /*else if (value == 2) {
+          popUpDeleteDialog();
+        }else if(value == 3) {
+             checkDbfileUpload();
+        }*/
       },
       itemBuilder: (context) => [
         PopupMenuItem(
           child: Text('Settings'),
           value: 1,
         ),
+       /* PopupMenuItem(
+          child: Text('Del Chats'),
+          value: 2,
+        ),
         PopupMenuItem(
-           child: Text('Del Chats'),
-           value: 2,
-        )
+          child: Text('Upload DB'),
+          value: 3,
+        )*/
       ],
     );
   }
 
-  popUpDeleteDialog() async {
-       int chatCount = await SembastChat().deleteAllChats();
-       int lastChatCount = await SembastUserLastChat().deleteAllLastChats(); 
-
-       showDialog(context: context,
-                        builder: (BuildContext context) {
-                                return AlertDialog(
-                                    title: Text('Chat Delete'),
-                                    content: Column(
-                                        children: <Widget>[
-                                          Text('Delete Chats - $chatCount'),
-                                          Text('Delete Last Chats - $lastChatCount')
-                                        ],
-                                    ),
-                                );
-                        }
-                      );
+  /*checkDbfileUpload() async {
+    bool isUploaded = await FirebaseStorageUtil().uploadDbFile();
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('DB File Status'),
+            content: Text('file uploaded ' + isUploaded.toString()),
+          );
+        });
   }
+
+  popUpDeleteDialog() async {
+    int chatCount = await SembastChat().deleteAllChats();
+    int lastChatCount = await SembastUserLastChat().deleteAllLastChats();
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Chat Delete'),
+            content: Column(
+              children: <Widget>[
+                Text('Delete Chats - $chatCount'),
+                Text('Delete Last Chats - $lastChatCount')
+              ],
+            ),
+          );
+        });
+  }*/
 
   Widget getScaffold() {
     return Scaffold(

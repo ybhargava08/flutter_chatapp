@@ -36,6 +36,12 @@ class ChatListener {
     ChatModel lastChat = await SembastUserLastChat().getLastUserChat(id);
     int lastId = 0;
     if (null != lastChat && null!=lastChat.id) {
+      print('got last user chat '+lastChat.toString());
+      if(lastChat.delStat == ChatModel.READ_BY_USER) {
+          lastId = lastChat.id;     
+      }else{
+        lastId = lastChat.id-1;
+      }
       lastId = lastChat.id;
       String toUserId =
           (UserBloc().getCurrUser().id == lastChat.fromUserId)
@@ -49,13 +55,15 @@ class ChatListener {
               Utils().getChatCollectionId(UserBloc().getCurrUser().id, id),
               Firebase.CHAT_COL_COMPLETE)
           .where('toUserId', isEqualTo: UserBloc().getCurrUser().id)
-          .where('id', isGreaterThan: lastId)
+          .where('id', isGreaterThan: lastId).
+          orderBy('id',descending: true)
           .limit(1)
-          .snapshots()
+          .snapshots()  
           .listen((data) {
         data.documentChanges.forEach((change) {
           if (change.type == DocumentChangeType.added || change.type == DocumentChangeType.modified) {
               ChatModel cm = ChatModel.fromDocumentSnapshot(change.document);
+              cm.chatDate = DateTime.now().millisecondsSinceEpoch;
               SembastUserLastChat().upsertUserLastChat(cm);
           } 
         });
@@ -85,7 +93,6 @@ class ChatListener {
 
   addToController(String toUserId, ChatModel chat) {
     if (!isControllerClosed(toUserId)) {
-      print('adding chat for id ' + toUserId + ' chat ' + chat.toString());
       _controller[toUserId].sink.add(chat);
       UserBloc().reorderList(toUserId);
     }

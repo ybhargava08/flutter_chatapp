@@ -20,12 +20,7 @@ class SembastUserLastChat {
   final _userLastChatStore = intMapStoreFactory.store(USER_LAST_CHAT_STORE);
 
   Future<ChatModel> getLastUserChat(String toUserId) async {
-    final finder = Finder(filter: Filter.and(
-      [
-        Filter.equals('toUserId', toUserId),
-        Filter.equals('delStat', ChatModel.READ_BY_USER)
-      ]
-    ));
+    final finder = Finder(filter: Filter.equals('toUserId', toUserId));
     RecordSnapshot rs = await _userLastChatStore
         .findFirst(await SembastDatabase().getDatabase(), finder: finder);
     if (rs != null && rs['id'] != null) {
@@ -39,20 +34,30 @@ class SembastUserLastChat {
       String toUserId = (UserBloc().getCurrUser().id == chat.fromUserId)
           ? chat.toUserId
           : chat.fromUserId;
-      final finder = Finder(filter: Filter.equals('toUserId', toUserId));
+      final finder = Finder(filter: Filter.or([
+        Filter.equals('toUserId', toUserId),
+        Filter.equals('fromUserId', toUserId)
+      ]));
       int key;
       RecordSnapshot rs = await _userLastChatStore
           .findFirst(await SembastDatabase().getDatabase(), finder: finder);
-      if (rs != null && rs['toUserId'] != null) {
+      if (rs != null) {
         key = rs.key;
+        print('found key in upsertuserlastchat current last chat '+rs['chat'].toString()+" current last time "+rs['chatDate'].toString()
+        +' new chat '+chat.chat+' new date '+chat.chatDate.toString());
+        if(chat.chatDate < rs['chatDate']) {
+             return;
+        }
       } else {
         key = DateTime.now().microsecondsSinceEpoch;
-        chat.chatDate = DateTime.now().millisecondsSinceEpoch;
+        
       }
       _userLastChatStore
           .record(key)
-          .put(await SembastDatabase().getDatabase(), chat.toJson()).then((_) {
+          .put(await SembastDatabase().getDatabase(), chat.toJson()).then((map) {
                   ChatListener().addToController(toUserId, chat);
+                  ChatModel c = ChatModel.fromJson(map);
+            print('upsert last user chat '+c.toString());
           });
     });
   }

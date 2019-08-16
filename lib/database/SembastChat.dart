@@ -21,30 +21,30 @@ class SembastChat {
   final _chatStore = intMapStoreFactory.store(CHAT_STORE);
 
   Future upsertInChatStore(ChatModel chat, String source) async {
-    await lock.synchronized(() async {
-      final finder = Finder(filter: Filter.equals('id', chat.id));
-      RecordSnapshot snap = await _chatStore
-          .findFirst(await SembastDatabase().getDatabase(), finder: finder);
-      if (snap != null && snap.key != null) {
-        chat.localChatId = snap.key;
-      } else {
-        chat.localChatId = DateTime.now().millisecondsSinceEpoch;
-        chat.chatDate = DateTime.now().millisecondsSinceEpoch;
-      }
-      Map<String, dynamic> map = await _chatStore.record(chat.localChatId).put(
-          await SembastDatabase().getDatabase(), chat.toJson(),
-          merge: true);
+      await lock.synchronized(() async {
+        final finder = Finder(filter: Filter.equals('id', chat.id));
+        RecordSnapshot snap = await _chatStore
+            .findFirst(await SembastDatabase().getDatabase(), finder: finder);
+        if (snap != null && snap.key != null) {
+          chat.localChatId = snap.key;
+        } else {
+          chat.localChatId = DateTime.now().millisecondsSinceEpoch;
+          chat.chatDate = DateTime.now().millisecondsSinceEpoch;
+        }
+        Map<String, dynamic> map = await _chatStore
+            .record(chat.localChatId)
+            .put(await SembastDatabase().getDatabase(), chat.toJson(),
+                merge: true);
 
-      ChatModel updatedChat = ChatModel.fromJson(map);
-      print('source ' +
-          source +
-          ' after upserting chat value is ' +
-          updatedChat.toString());
-      updatedChat.localChatId = chat.localChatId;
-      ChatBloc().addInChatController(updatedChat);
+        ChatModel updatedChat = ChatModel.fromJson(map);
+        print('source ' +
+            source +
+            ' after upserting chat value is ' +
+            updatedChat.toString());
+        updatedChat.localChatId = chat.localChatId;
+        ChatBloc().addInChatController(updatedChat);
         SembastUserLastChat().upsertUserLastChat(chat);
-     
-    });
+      });
   }
 
   Future<List<ChatModel>> getChatsLessThanId(int id, int limit) async {

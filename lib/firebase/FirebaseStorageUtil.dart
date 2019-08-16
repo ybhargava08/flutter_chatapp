@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/blocs/ProgressBloc.dart';
-import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/firebase/PathConstants.dart';
 import 'package:chatapp/model/ChatModel.dart';
@@ -11,9 +9,11 @@ import 'package:chatapp/model/ProgressModel.dart';
 import 'package:chatapp/model/UserModel.dart';
 import 'package:chatapp/utils.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:thumbnails/thumbnails.dart';
+import 'package:path/path.dart';
 
 class FirebaseStorageUtil {
   static FirebaseStorageUtil _firebaseStorageUtil;
@@ -155,7 +155,7 @@ class FirebaseStorageUtil {
 
       ProgressBloc().addToProgressController(
           ProgressModel(chat.id.toString(), ProgressModel.START));
-         /* NotificationBloc().addToNotificationController(
+      /* NotificationBloc().addToNotificationController(
               chat.id, ChatModel.DELIVERED_TO_LOCAL);*/
 
       task.events.listen((data) async {
@@ -164,12 +164,10 @@ class FirebaseStorageUtil {
           ProgressBloc().addToProgressController(
               ProgressModel(chat.id.toString(), ProgressModel.ERR));
           ProgressBloc().removeFromInProgressMap(chat.id.toString());
-        }else if (data.type == StorageTaskEventType.progress) {
-            ProgressBloc().addToProgressController(
+        } else if (data.type == StorageTaskEventType.progress) {
+          ProgressBloc().addToProgressController(
               ProgressModel(chat.id.toString(), ProgressModel.PROGRESS));
-        } 
-        
-        else if (data.type == StorageTaskEventType.success) {
+        } else if (data.type == StorageTaskEventType.success) {
           if (filetype == 'UserMedia') {
             await addThumbnailToStorage(chat);
           }
@@ -183,9 +181,9 @@ class FirebaseStorageUtil {
           ProgressBloc().addToProgressController(
               ProgressModel(chat.id.toString(), ProgressModel.END));
           ProgressBloc().removeFromInProgressMap(chat.id.toString());
-         /* NotificationBloc().addToNotificationController(
+          /* NotificationBloc().addToNotificationController(
               chat.id, ChatModel.DELIVERED_TO_SERVER);*/
-          
+
         }
       });
     }
@@ -194,16 +192,16 @@ class FirebaseStorageUtil {
   Future<File> getFileFromFirebaseStorage(ChatModel chat) async {
     try {
       return await Utils().runSafe(() async {
-        
         String dirPath =
             await createDirIfNotExists(PathConstants.CHATAPP_MEDIA);
         if (chat.localPath == null || "" == chat.localPath) {
           chat.localPath = dirPath + '/' + chat.id.toString() + '.jpg';
         }
 
-        print('start checking file exists for '+chat.id.toString());
-        bool isFileExists = await checkIfFileExists(chat.localPath).catchError((e) {
-                     throw Exception(e);  
+        print('start checking file exists for ' + chat.id.toString());
+        bool isFileExists =
+            await checkIfFileExists(chat.localPath).catchError((e) {
+          throw Exception(e);
         });
         print('file exists ' +
             isFileExists.toString() +
@@ -226,6 +224,40 @@ class FirebaseStorageUtil {
     } on Exception catch (e) {
       print('got error while download ' + e.toString());
       throw Exception();
+    }
+  }
+
+  Future<bool> uploadDbFile() async {
+    final docDir = await getApplicationDocumentsDirectory();
+
+    final localDbPath = join(docDir.path, 'chatapp.db');
+
+    if (await checkIfFileExists(localDbPath)) {
+      String path = 'db/chatapp.db';
+      final StorageReference storageReference = _ref.child(path);
+
+      StorageUploadTask task = storageReference.putFile(File(localDbPath));
+
+      await task.onComplete;
+
+      if (task.isComplete && task.isSuccessful) {
+        return true;
+      }
+    } else {
+      print('db path for upload ' + localDbPath + ' does not exists');
+    }
+    return false;
+  }
+
+  Future downloadLocalDB(String path) async {
+    if (!await checkIfFileExists(path)) {
+      print('downloading db from fb storage');
+      final StorageReference storageReference = _ref.child('db/chatapp.db');
+      StorageMetadata metaData = await storageReference.getMetadata();
+      if (metaData.path != null && metaData.sizeBytes > 0) {
+        StorageFileDownloadTask task = storageReference.writeToFile(File(path));
+        await task.future;
+      }
     }
   }
 }

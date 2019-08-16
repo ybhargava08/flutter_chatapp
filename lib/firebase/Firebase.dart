@@ -53,9 +53,8 @@ class Firebase {
         localChat = ChatModel(chat.id, chat.fromUserId, chat.toUserId, chat.chat, chat.chatDate, chat.chatType, 
         chat.localPath, chat.thumbnailPath, chat.fileName, chat.firebaseStorage, ChatModel.DELIVERED_TO_LOCAL);
         ChatBloc().addInChatController(localChat);
+        SembastChat().upsertInChatStore(localChat,'addUpdateChatBefore');
       }
-
-      SembastChat().upsertInChatStore(localChat,'addUpdateChatBefore');
 
       if (shouldUpdateCount) {
         DocumentReference chatRef = getChatCollectionRef(
@@ -64,7 +63,7 @@ class Firebase {
             .document(chat.id.toString());
             chat.delStat = ChatModel.DELIVERED_TO_SERVER; 
             chatRef.setData(chat.toJson(),merge:true)
-        .whenComplete(() async {
+        .then((_) async {
           
           FirebaseRealtimeDB().incDecUnreadChatCount(chat.fromUserId, chat.toUserId,
           prepareDataForCountUpdate(chat) , 'inc', 1);
@@ -74,8 +73,9 @@ class Firebase {
           if(null!=localChat) {
               localChat.delStat = ChatModel.DELIVERED_TO_SERVER;
           NotificationBloc().addToNotificationController(localChat.id, ChatModel.DELIVERED_TO_SERVER);
-          SembastChat().upsertInChatStore(localChat,'addUpdateChatBefore');
+          SembastChat().upsertInChatStore(localChat,'addUpdateChatAfterFBPersist');
           }else{
+            SembastChat().upsertInChatStore(chat,'addUpdateChatAfterFBPersist');
             NotificationBloc().addToNotificationController(chat.id, ChatModel.DELIVERED_TO_SERVER);
           }
           

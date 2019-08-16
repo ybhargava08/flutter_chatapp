@@ -84,7 +84,8 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
     ChatListener().openFirebaseListener(_toUser.id);
     if (ChatListener().getController(_toUser.id) != null) {
       _chatListenerSubs =
-          ChatListener().getController(_toUser.id).stream.where((item) => (_chatModel == null || item.chatDate >= _chatModel.chatDate))
+          ChatListener().getController(_toUser.id).stream.where((item) => (_chatModel == null 
+          || (item.chatDate >= _chatModel.chatDate)))
           .listen((data) {
         setState(() {
           _chatModel = data;
