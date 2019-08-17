@@ -3,7 +3,6 @@ import 'package:chatapp/model/BaseModel.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/model/UserModel.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
-import 'package:chatapp/utils.dart';
 
 import 'package:flutter/material.dart';
 
@@ -42,7 +41,7 @@ class MediaPickerButton extends StatelessWidget {
                     UserBloc().getCurrUser().id,
                     toUser.id,
                     "",
-                    DateTime.now().millisecondsSinceEpoch,
+                    0,
                     type,
                     chat.localPath,
                     "",

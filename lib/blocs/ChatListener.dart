@@ -63,7 +63,8 @@ class ChatListener {
         data.documentChanges.forEach((change) {
           if (change.type == DocumentChangeType.added || change.type == DocumentChangeType.modified) {
               ChatModel cm = ChatModel.fromDocumentSnapshot(change.document);
-              cm.chatDate = DateTime.now().millisecondsSinceEpoch;
+              //cm.chatDate = Timestamp.now();
+              print('got last chat with timestamp '+cm.toString());
               SembastUserLastChat().upsertUserLastChat(cm);
           } 
         });
@@ -106,7 +107,8 @@ class ChatListener {
             Firebase.CHAT_COL_COMPLETE)
         .where('toUserId', isEqualTo: UserBloc().getCurrUser().id)
         .where('id', isGreaterThan: maxChatId)
-        .orderBy('id')
+        .orderBy('id',descending: false)
+        .orderBy('chatDate',descending: false)
         .snapshots()
         .listen((data) {
       data.documentChanges.forEach((change) {

@@ -69,14 +69,14 @@ class _UserChatViewListState extends State<UserChatViewList> {
         child: getChatType(currChat, index, totalLength));
   }
 
-  checkIfDateShown(int dateMillis) {
-    String datePart = getDatePart(dateMillis);
+  checkIfDateShown(int ts) {
+    String datePart = getDatePart(ts);
     
     return _dateShownMap.containsKey(datePart) && _dateShownMap[datePart];
   }
 
-  String getDatePart(int dateMillis) {
-    DateTime date = DateTime.fromMillisecondsSinceEpoch(dateMillis);
+  String getDatePart(int ts) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(ts);
     return date.day.toString()+'/'+date.month.toString()+'/'+date.year.toString();
   }
 

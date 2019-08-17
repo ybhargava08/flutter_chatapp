@@ -1,5 +1,6 @@
 import 'package:chatapp/blocs/VerificationBloc.dart';
 import 'package:chatapp/firebase/auth/FBAuth.dart';
+import 'package:chatapp/model/VerificaitionModel.dart';
 import 'package:chatapp/snackbars/MessageSnackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,6 +34,7 @@ class _SMSCodeState extends State<SMSCode> {
 
   @override
   void initState() {
+    VerificationBloc().addToController(VerificaitionModel(false,VerificaitionModel.SHOW_PH_SC_LOADER)); 
     if (VerificationBloc().getController() != null) {
       VerificationBloc().getController().stream.listen((data) {
         if (this.mounted) {
@@ -200,21 +202,21 @@ class _SMSCodeState extends State<SMSCode> {
           ),
           _showLoader
               ? Container(
-                  color: Colors.teal[300],
+                 // color: Colors.teal[300],
                   alignment: Alignment.center,
                   width: 250,
                   padding: EdgeInsets.all(10),
-                  child: Text(
+                  child: /*Text(
                     'Verifying. Please Wait...',
                     style: TextStyle(
                         color: Colors.white.withOpacity(0.7), fontSize: 20),
-                  ),
+                  )*/CircularProgressIndicator(),
                 )
               : Flex(
                   direction: Axis.horizontal,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    Flexible(
+                    /*Flexible(
                       flex: 5,
                       child: SizedBox(
                         width: 145,
@@ -234,7 +236,7 @@ class _SMSCodeState extends State<SMSCode> {
                           },
                         ),
                       ),
-                    ),
+                    ),*/
                     Flexible(
                       flex: 5,
                       child: SizedBox(

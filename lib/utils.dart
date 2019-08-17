@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:audioplayers/audio_cache.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
@@ -35,9 +36,9 @@ class Utils {
     return DateFormat('yyyyMMdd HH:mm:ss').format(DateTime.now());
   }
 
-  String getDateTimeInFormat(int millis, String type, String from) {
-    if (null!=millis && millis > 0) {
-      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(millis);
+  String getDateTimeInFormat(int timeMillis, String type, String from) {
+    if (null!=timeMillis && timeMillis > 0) {
+      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timeMillis);
       DateTime currTime = DateTime.now();
       if (from == 'userview') {
         if (currTime.year == dateTime.year &&

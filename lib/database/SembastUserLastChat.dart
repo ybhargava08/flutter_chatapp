@@ -45,7 +45,7 @@ class SembastUserLastChat {
         key = rs.key;
         print('found key in upsertuserlastchat current last chat '+rs['chat'].toString()+" current last time "+rs['chatDate'].toString()
         +' new chat '+chat.chat+' new date '+chat.chatDate.toString());
-        if(chat.chatDate < rs['chatDate']) {
+        if(chat.chatDate.compareTo(rs['chatDate']) < 0) {
              return;
         }
       } else {

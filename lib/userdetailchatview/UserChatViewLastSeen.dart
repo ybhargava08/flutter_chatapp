@@ -1,4 +1,3 @@
-import 'package:chatapp/userdetailchatview/ChatViewInheritedWrapper.dart';
 import 'package:chatapp/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -6,21 +5,19 @@ class UserChatViewLastSeen extends StatelessWidget {
 
   getLastSeenText() {
       String result = '';
-     String date =  Utils().getDateTimeInFormat(DateTime.now().millisecondsSinceEpoch,'date','userchatview');
+     String date =  Utils().getDateTimeInFormat(0,'date','userchatview');
      if(date == 'TODAY' || date == 'YESTERDAY') {
          result = 'last seen '+date.toLowerCase()+' at ';
      }else{
        result = 'last seen on '+date+' at ';
      }
 
-     result += Utils().getDateTimeInFormat(DateTime.now().millisecondsSinceEpoch,'time','userchatview');
+     result += Utils().getDateTimeInFormat(0,'time','userchatview');
      return result;
   }
     @override
   Widget build(BuildContext context) {
     
-    var inherited = ChatViewInheritedWidget.of(context);
-    final user = inherited.toUser;
 
     return Align(
                     alignment: Alignment.topLeft,

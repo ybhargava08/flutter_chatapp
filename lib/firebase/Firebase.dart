@@ -62,7 +62,7 @@ class Firebase {
                 collection)
             .document(chat.id.toString());
             chat.delStat = ChatModel.DELIVERED_TO_SERVER; 
-            chatRef.setData(chat.toJson(),merge:true)
+            chatRef.setData(chat.toFirestoreJson(),merge:true)
         .then((_) async {
           
           FirebaseRealtimeDB().incDecUnreadChatCount(chat.fromUserId, chat.toUserId,

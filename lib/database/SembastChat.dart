@@ -29,7 +29,7 @@ class SembastChat {
           chat.localChatId = snap.key;
         } else {
           chat.localChatId = DateTime.now().millisecondsSinceEpoch;
-          chat.chatDate = DateTime.now().millisecondsSinceEpoch;
+      //    chat.chatDate = DateTime.now().millisecondsSinceEpoch;
         }
         Map<String, dynamic> map = await _chatStore
             .record(chat.localChatId)

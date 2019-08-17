@@ -252,11 +252,17 @@ class FirebaseStorageUtil {
   Future downloadLocalDB(String path) async {
     if (!await checkIfFileExists(path)) {
       print('downloading db from fb storage');
-      final StorageReference storageReference = _ref.child('db/chatapp.db');
-      StorageMetadata metaData = await storageReference.getMetadata();
-      if (metaData.path != null && metaData.sizeBytes > 0) {
-        StorageFileDownloadTask task = storageReference.writeToFile(File(path));
-        await task.future;
+      try {
+        final StorageReference storageReference = _ref.child('db/chatapp.db');
+        StorageMetadata metaData = await storageReference.getMetadata();
+        if (metaData.path != null && metaData.sizeBytes > 0) {
+          StorageFileDownloadTask task =
+              storageReference.writeToFile(File(path));
+          await task.future;
+        }
+      } catch (e) {
+        print(
+            'error occured while accessing file in fb storage ' + e.toString());
       }
     }
   }

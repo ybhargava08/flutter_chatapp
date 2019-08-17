@@ -1,11 +1,9 @@
-import 'package:chatapp/blocs/ChatBloc.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/userdetailchatview/ChatViewInheritedWrapper.dart';
 import 'package:chatapp/userdetailchatview/contentpick/CustomMediaPicker.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chatapp/model/ChatModel.dart';
-import 'package:chatapp/utils.dart';
 
 class UserChatViewInput extends StatefulWidget {
   @override
@@ -90,7 +88,7 @@ class _UserChatViewInput extends State<UserChatViewInput> {
                         currUser.id,
                         toUser.id,
                         txt,
-                        DateTime.now().millisecondsSinceEpoch,
+                        0,
                         ChatModel.CHAT,
                         "",
                         "",

@@ -1,11 +1,9 @@
 import 'dart:async';
 
-import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/blocs/ProgressBloc.dart';
 import 'package:chatapp/firebase/FirebaseStorageUtil.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/model/ProgressModel.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class MediaPlayPause extends StatefulWidget {

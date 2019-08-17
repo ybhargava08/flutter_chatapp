@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 import 'package:sembast/sembast.dart';
 
 class ChatModel {
@@ -40,9 +40,10 @@ class ChatModel {
         ,ds["thumbnailPath"],ds["fileName"],ds["firebaseStorage"],ds["delStat"]);
   }
 
-  factory ChatModel.fromDocumentSnapshot(DocumentSnapshot ds) {
+  factory ChatModel.fromDocumentSnapshot(firestore.DocumentSnapshot ds) {
+    firestore.Timestamp ts = ds['chatDate'];
     return ChatModel(ds["id"],
-        ds["fromUserId"], ds["toUserId"], ds["chat"], ds["chatDate"],ds["chatType"],ds["localPath"]
+        ds["fromUserId"], ds["toUserId"], ds["chat"], ts.millisecondsSinceEpoch,ds["chatType"],ds["localPath"]
         ,ds["thumbnailPath"],ds["fileName"],ds["firebaseStorage"],ds["delStat"]);
   }
 
@@ -62,13 +63,29 @@ class ChatModel {
     return map;
   }
 
+Map<String, dynamic> toFirestoreJson() {
+    Map<String, dynamic> map = Map();
+    map["id"] = id;
+    map["fromUserId"] = fromUserId;
+    map["toUserId"] = toUserId;
+    map["chat"] = chat;
+    map["chatDate"] = firestore.FieldValue.serverTimestamp();
+    map["chatType"] = chatType;
+    map["localPath"] = localPath;
+    map["thumbnailPath"] = thumbnailPath;
+    map["fileName"] = fileName;
+    map["firebaseStorage"] = firebaseStorage;
+    map["delStat"] = delStat;
+    return map;
+  }
+
   ChatModel(this.id,this.fromUserId, this.toUserId, this.chat, this.chatDate,this.chatType,this.localPath,
       this.thumbnailPath,this.fileName,this.firebaseStorage,this.delStat);
 
   @override
   String toString() {
     return 'fromUser ' + fromUserId + ' toUser ' + toUserId +' chat '+chat+' local chat id '+localChatId.toString()
-    +' chat-id ' + id.toString()+' chattype '+chatType
+    +' chat-id ' + id.toString()+' chattype '+chatType+' chatDate '+chatDate.toString()
     /*+fbId.toString()*/+' '+delStat+' '/*+compareId.toString()*/;
   }
 
