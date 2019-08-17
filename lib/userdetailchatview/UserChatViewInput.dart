@@ -88,7 +88,7 @@ class _UserChatViewInput extends State<UserChatViewInput> {
                         currUser.id,
                         toUser.id,
                         txt,
-                        0,
+                        DateTime.now().millisecondsSinceEpoch,
                         ChatModel.CHAT,
                         "",
                         "",

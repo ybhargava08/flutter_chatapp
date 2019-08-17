@@ -7,7 +7,6 @@ import 'package:chatapp/model/BaseModel.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/model/UserModel.dart';
 import 'package:chatapp/userdetailchatview/ChatViewInheritedWrapper.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -18,7 +17,7 @@ class CustomMediaPicker extends StatelessWidget {
 
     if (image != null) {
       print('local image file path ' + image.path);
-      BaseModel base = BaseModel(ChatModel(0, '', '', '', 0, '', image.path, '', '', '',
+      BaseModel base = BaseModel(ChatModel(0, '', '', '', DateTime.now().millisecondsSinceEpoch, '', image.path, '', '', '',
                        ''), toUser,false); 
                        
       Navigator.pushNamed(context, RouteConstants.IMAGE_VIEW,
@@ -48,7 +47,7 @@ class CustomMediaPicker extends StatelessWidget {
     if (video != null) {
       Navigator.pushNamed(context, RouteConstants.MEDIA_VIEW,
               arguments: MediaEnlargedViewArgs(
-                  ChatModel(0, "", toUser.id, "", 0, ChatModel.VIDEO,
+                  ChatModel(0, "", toUser.id, "", DateTime.now().millisecondsSinceEpoch, ChatModel.VIDEO,
                       video.path, "", "", "", ''),
                   true,
                   toUser,

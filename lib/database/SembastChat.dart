@@ -22,6 +22,7 @@ class SembastChat {
 
   Future upsertInChatStore(ChatModel chat, String source) async {
       await lock.synchronized(() async {
+        print('inside lock '+chat.id.toString());
         final finder = Finder(filter: Filter.equals('id', chat.id));
         RecordSnapshot snap = await _chatStore
             .findFirst(await SembastDatabase().getDatabase(), finder: finder);

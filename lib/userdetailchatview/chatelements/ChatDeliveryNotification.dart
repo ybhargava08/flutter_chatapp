@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:chatapp/blocs/ChatReceiptListener.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
+import 'package:chatapp/database/SembastChat.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/userdetailchatview/chatelements/AnimatedRead.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,7 @@ class _ChatDeliveryNotificationState extends State<ChatDeliveryNotification>
           widget.chat.toString());
       if (data.status.compareTo(_deliveryState) > 0) {
         widget.chat.delStat = data.status;
+        SembastChat().upsertInChatStore(widget.chat, 'delivery notification');
         setState(() {
           _deliveryState = data.status;
           _doAnimation = true;
