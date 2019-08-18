@@ -1,6 +1,4 @@
 import 'package:chatapp/blocs/ChatBloc.dart';
-import 'package:chatapp/blocs/ChatListener.dart';
-import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/database/SembastDatabase.dart';
 import 'package:chatapp/database/SembastUserLastChat.dart';
 import 'package:chatapp/model/ChatModel.dart';
@@ -21,31 +19,50 @@ class SembastChat {
   final _chatStore = intMapStoreFactory.store(CHAT_STORE);
 
   Future upsertInChatStore(ChatModel chat, String source) async {
-      await lock.synchronized(() async {
-        print('inside lock '+chat.id.toString());
-        final finder = Finder(filter: Filter.equals('id', chat.id));
-        RecordSnapshot snap = await _chatStore
-            .findFirst(await SembastDatabase().getDatabase(), finder: finder);
-        if (snap != null && snap.key != null) {
-          chat.localChatId = snap.key;
-        } else {
-          chat.localChatId = DateTime.now().millisecondsSinceEpoch;
-      //    chat.chatDate = DateTime.now().millisecondsSinceEpoch;
+    await lock.synchronized(() async {
+      Map<String, dynamic> data = new Map();
+      bool shouldUpdate = false;
+      bool shoulInsert = false;
+      print('inside lock ' + chat.id.toString());
+      final finder = Finder(filter: Filter.equals('id', chat.id));
+      RecordSnapshot snap = await _chatStore
+          .findFirst(await SembastDatabase().getDatabase(), finder: finder);
+      if (snap != null && snap.key != null) {
+        chat.localChatId = snap.key;
+        if (ChatModel.CHAT!=snap['chatType'] && snap['firebaseStorage'] == null 
+        && null!=chat.firebaseStorage && ''!=chat.firebaseStorage) {
+          data['firebaseStorage'] = chat.firebaseStorage;
+          shouldUpdate = true;
         }
+        if (snap['delStat'] == null && chat.delStat!=null ||
+            chat.delStat.compareTo(snap['delStat']) > 0) {
+          data['delStat'] = chat.delStat;
+          shouldUpdate = true;
+        }
+      } else {
+        shoulInsert = true;
+        chat.localChatId = DateTime.now().millisecondsSinceEpoch;
+      }
+
+      if (shoulInsert) {
         Map<String, dynamic> map = await _chatStore
             .record(chat.localChatId)
             .put(await SembastDatabase().getDatabase(), chat.toJson(),
                 merge: true);
 
         ChatModel updatedChat = ChatModel.fromJson(map);
-        print('source ' +
-            source +
-            ' after upserting chat value is ' +
-            updatedChat.toString());
         updatedChat.localChatId = chat.localChatId;
         ChatBloc().addInChatController(updatedChat);
         SembastUserLastChat().upsertUserLastChat(chat);
-      });
+      }
+
+      if (shouldUpdate) {
+        await _chatStore.update(await SembastDatabase().getDatabase(), data,
+            finder: finder);
+        ChatBloc().addInChatController(chat);
+        SembastUserLastChat().upsertUserLastChat(chat);
+      }
+    });
   }
 
   Future<List<ChatModel>> getChatsLessThanId(int id, int limit) async {

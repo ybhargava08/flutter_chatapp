@@ -76,4 +76,19 @@ class FirebaseRealtimeDB {
   DatabaseReference getDBPathReference(String path) {
         return _database.reference().child(path);
   }
+
+  Future<int> writeLastBackUpTime() async {
+       int time = DateTime.now().millisecondsSinceEpoch;
+       await getDBPathReference('DbBackup/'+UserBloc().getCurrUser().id).set(<String,int>{'tm':time});
+       return time;
+  }
+
+  Future<int> getLastBackUpTime() async {
+        DataSnapshot snap = await getDBPathReference('DbBackup/'+UserBloc().getCurrUser().id).once();
+
+        if(snap!=null && snap.value!=null) {
+             return snap.value['tm'];
+        }
+        return 0;
+  }
 }

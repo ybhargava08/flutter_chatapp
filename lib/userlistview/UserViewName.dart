@@ -13,7 +13,7 @@ class UserViewName extends StatelessWidget {
         margin: EdgeInsets.only(bottom: 5),
         child: Text(
       user.name,
-      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,color: inherited.mainColor),
     ),
     );
   }

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:audioplayers/audio_cache.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
@@ -17,9 +16,11 @@ class Utils {
 
   Utils._();
 
-  static final String _timeFormat = 'h:mm a';
-  static final String _dfShort = 'M/d/yy';
-  static final String _dfLong = 'yMMMMd';
+  static const String _timeFormat = 'h:mm a';
+  static const String _dfShort = 'M/d/yy';
+  static const String _dfLong = 'yMMMMd';
+  static const String _dfLongTime = 'M/d/yy h:mm a'; 
+
 
   static AudioCache _cache = AudioCache();
 
@@ -68,6 +69,8 @@ class Utils {
         } else if (type == 'time') {
           return DateFormat(_timeFormat).format(dateTime);
         }
+      }else if(from == 'backupDate') {
+          return DateFormat(_dfLongTime).format(dateTime);
       }
     }
     return "";

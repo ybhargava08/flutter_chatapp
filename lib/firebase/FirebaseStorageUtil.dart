@@ -2,15 +2,18 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:chatapp/blocs/ProgressBloc.dart';
+import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/firebase/Firebase.dart';
+import 'package:chatapp/firebase/FirebaseRealtimeDB.dart';
 import 'package:chatapp/firebase/PathConstants.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/model/ProgressModel.dart';
 import 'package:chatapp/model/UserModel.dart';
 import 'package:chatapp/utils.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:thumbnails/thumbnails.dart';
 import 'package:path/path.dart';
@@ -19,6 +22,8 @@ class FirebaseStorageUtil {
   static FirebaseStorageUtil _firebaseStorageUtil;
 
   StorageReference _ref;
+
+  static StorageUploadTask _dbUploadTask; 
 
   factory FirebaseStorageUtil() =>
       _firebaseStorageUtil ??= FirebaseStorageUtil._internal();
@@ -227,43 +232,57 @@ class FirebaseStorageUtil {
     }
   }
 
-  Future<bool> uploadDbFile() async {
+  Future uploadDbFile(BuildContext context) async {
     final docDir = await getApplicationDocumentsDirectory();
 
     final localDbPath = join(docDir.path, 'chatapp.db');
 
     if (await checkIfFileExists(localDbPath)) {
-      String path = 'db/chatapp.db';
-      final StorageReference storageReference = _ref.child(path);
+      String fbPath = 'db/'+UserBloc().getCurrUser().id+'/chatapp.db';
+      final StorageReference storageReference = _ref.child(fbPath);
 
-      StorageUploadTask task = storageReference.putFile(File(localDbPath));
+      _dbUploadTask = storageReference.putFile(File(localDbPath));
 
-      await task.onComplete;
-
-      if (task.isComplete && task.isSuccessful) {
-        return true;
-      }
+      String id = 'db-'+UserBloc().getCurrUser().id;
+      ProgressBloc().openProgressController();
+      _dbUploadTask.events.listen((data) async {
+           if(data.type == StorageTaskEventType.failure) {
+                    ProgressBloc().addToProgressController(ProgressModel(id,ProgressModel.ERR));
+                    Utils().showToast('Error while backing up. Pls retry', context, Toast.LENGTH_LONG, ToastGravity.CENTER);
+                    ProgressBloc().closeProgressController();
+           }else if(data.type == StorageTaskEventType.progress) {
+               ProgressBloc().addToProgressController(ProgressModel(id,ProgressModel.START));
+           }else if(data.type == StorageTaskEventType.success) {
+                    ProgressBloc().addToProgressController(ProgressModel(id,ProgressModel.END));
+                    await FirebaseRealtimeDB().writeLastBackUpTime();
+                    Utils().showToast('Backup Successful', context, Toast.LENGTH_LONG, ToastGravity.CENTER);
+                    ProgressBloc().closeProgressController();
+           }
+      });
     } else {
       print('db path for upload ' + localDbPath + ' does not exists');
     }
-    return false;
   }
 
-  Future downloadLocalDB(String path) async {
+  Future<bool> downloadLocalDB(String path) async {
     if (!await checkIfFileExists(path)) {
       print('downloading db from fb storage');
       try {
-        final StorageReference storageReference = _ref.child('db/chatapp.db');
+        String fbPath = 'db/'+UserBloc().getCurrUser().id+'/chatapp.db';
+        final StorageReference storageReference = _ref.child(fbPath);
         StorageMetadata metaData = await storageReference.getMetadata();
         if (metaData.path != null && metaData.sizeBytes > 0) {
           StorageFileDownloadTask task =
               storageReference.writeToFile(File(path));
           await task.future;
+
+          return true;
         }
       } catch (e) {
         print(
             'error occured while accessing file in fb storage ' + e.toString());
       }
     }
+    return false;
   }
 }

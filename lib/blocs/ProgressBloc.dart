@@ -29,7 +29,6 @@ class ProgressBloc {
     }
 
     openProgressController() {
-        print('opening progress controller ');
          if(isProgressControllerClosed()) {
                _progressController = StreamController.broadcast();
          }
@@ -43,7 +42,6 @@ class ProgressBloc {
     }
 
     closeProgressController() {
-      print('closing progress controller ');
             if(!isProgressControllerClosed()) {
                    _progressController.close(); 
             }

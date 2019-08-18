@@ -73,6 +73,7 @@ flutter:
      - assets/images/chat-app-logo.jpg
      - assets/images/acc_placeholder_enlarged.jpg
      - assets/images/loading.gif
+     - assets/images/background.jpg
      - assets/sounds/Tick.mp3
      
   #  - images/a_dot_burr.jpeg

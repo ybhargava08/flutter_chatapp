@@ -40,7 +40,6 @@ class _UserMainViewState extends State<UserMainView> {
 
   setUserOffline() {
     UserModel user = UserBloc().getCurrUser();
-    print('set offlien users called for ' + user.id.toString());
     /* user.isOnline = false; */
     user.lastSeenTime = Utils().getDateInFormat();
     Firebase().addUpdateUser(user);
@@ -61,7 +60,6 @@ class _UserMainViewState extends State<UserMainView> {
 
   Widget buildContent(List<UserModel> list) {
     return Container(
-        //  margin: EdgeInsets.only(top: 20),
         child: ListView.separated(
       itemBuilder: (BuildContext context, int index) {
         UserModel user = list[index];
@@ -105,7 +103,8 @@ class _UserMainViewState extends State<UserMainView> {
         if (value == 1) {
           Navigator.pushNamed(context, RouteConstants.SETTINGS,
               arguments: UserDisplayPicPageArgs(UserBloc().getCurrUser()));
-        } /*else if (value == 2) {
+        }
+        /*else if (value == 2) {
           popUpDeleteDialog();
         }else if(value == 3) {
              checkDbfileUpload();
@@ -116,7 +115,7 @@ class _UserMainViewState extends State<UserMainView> {
           child: Text('Settings'),
           value: 1,
         ),
-       /* PopupMenuItem(
+        /* PopupMenuItem(
           child: Text('Del Chats'),
           value: 2,
         ),
@@ -128,59 +127,47 @@ class _UserMainViewState extends State<UserMainView> {
     );
   }
 
-  /*checkDbfileUpload() async {
-    bool isUploaded = await FirebaseStorageUtil().uploadDbFile();
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('DB File Status'),
-            content: Text('file uploaded ' + isUploaded.toString()),
-          );
-        });
-  }
-
-  popUpDeleteDialog() async {
-    int chatCount = await SembastChat().deleteAllChats();
-    int lastChatCount = await SembastUserLastChat().deleteAllLastChats();
-
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Chat Delete'),
-            content: Column(
-              children: <Widget>[
-                Text('Delete Chats - $chatCount'),
-                Text('Delete Last Chats - $lastChatCount')
-              ],
-            ),
-          );
-        });
-  }*/
-
   Widget getScaffold() {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text('ChatApp'),
-          actions: <Widget>[getPopMenu()],
-        ),
-        body: StreamBuilder<List<UserModel>>(
-          initialData: widget.initUserList,
-          stream: UserBloc().getUserStreamController().stream,
-          builder:
-              (BuildContext context, AsyncSnapshot<List<UserModel>> snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              return buildContent(snapshot.data);
-            }
-            return ListView.builder(
-              itemBuilder: (BuildContext context, int index) {
-                return Container(width: 0, height: 0);
-              },
-              itemCount: 0,
-            );
-          },
-        ));
+    return Stack(
+      children: <Widget>[
+        Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: AssetImage('assets/images/background.jpg'),
+                    fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+                        Colors.purple[300], BlendMode.luminosity)))),
+        Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            title: Text('ChatApp'),
+            actions: <Widget>[getPopMenu()],
+            elevation: 5.0,
+            backgroundColor: Colors.transparent,
+          ),
+          body: StreamBuilder<List<UserModel>>(
+            initialData: widget.initUserList,
+            stream: UserBloc().getUserStreamController().stream,
+            builder: (BuildContext context,
+                AsyncSnapshot<List<UserModel>> snapshot) {
+              if (snapshot.hasData && snapshot.data != null) {
+                return buildContent(snapshot.data);
+              }
+              return ListView.builder(
+                itemBuilder: (BuildContext context, int index) {
+                  return Container(width: 0, height: 0);
+                },
+                itemCount: 0,
+              );
+            },
+          ),
+        )
+      ],
+    );
+
+    ;
   }
 }
 

@@ -49,7 +49,7 @@ class UserView extends StatelessWidget {
         ),
         Flexible(
           flex: 9,
-          child: ListTile(
+          child: ListTile(    
               title: UserViewName(),
               subtitle: UserViewLastMsg(),
               trailing: UserChatViewUnreadMsg(),
