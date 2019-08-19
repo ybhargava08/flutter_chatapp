@@ -29,7 +29,7 @@ class _ChatTextWidgetState extends State<ChatTextWidget> {
            widget.chat.delStat = ChatModel.READ_BY_USER;
            List<ChatModel> _markedChatAsRead = List();
 _markedChatAsRead.add(widget.chat);
-print('marking chat as read for '+widget.chat.id.toString());
+//print('marking chat as read for '+widget.chat.id.toString());
            Firebase().markChatsAsReadOrDelivered((widget.chat.fromUserId == UserBloc().getCurrUser().id?widget.chat.toUserId
            :widget.chat.fromUserId),
                        _markedChatAsRead, true, ChatModel.READ_BY_USER);

@@ -35,7 +35,7 @@ class SembastDatabase {
 
     final database = await databaseFactoryIo.openDatabase(dbPath);
 
-    print('created / opened database at path '+dbPath.toString());
+    //print('created / opened database at path '+dbPath.toString());
 
     _dbCompleter.complete(database);
   }

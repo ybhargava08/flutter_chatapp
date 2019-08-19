@@ -46,7 +46,7 @@ class Firebase {
   Future<void> addUpdateChat(
       ChatModel chat, String collection, bool shouldUpdateCount) async {
         ChatModel localChat;
-    print('chat data before persist ' + chat.toJson().toString());
+    //print('chat data before persist ' + chat.toJson().toString());
     
     try {
       if (chat.chatType == ChatModel.CHAT) {
@@ -91,7 +91,7 @@ class Firebase {
             });
       }
     } catch (e) {
-      print('exception while add / update chat in FB ' + e.toString());
+      //print('exception while add / update chat in FB ' + e.toString());
     }
   }
 

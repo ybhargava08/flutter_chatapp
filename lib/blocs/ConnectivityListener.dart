@@ -23,7 +23,7 @@ class ConnectivityListener {
           connectivityResult == ConnectivityResult.wifi) {
         List<ChatModel> list = await SembastChat().getMediaDataNotUploaded();
         if (list != null && list.length > 0) {
-          print('got connectivity ' + list.length.toString());
+          //print('got connectivity ' + list.length.toString());
           list.forEach((chat) async {
           if (await pingGoogle()) {
             FirebaseStorageUtil().addFileToFirebaseStorage(
@@ -31,7 +31,7 @@ class ConnectivityListener {
           }
         });
         } else {
-          print(' got connectivity no list');
+          //print(' got connectivity no list');
         }
 
         

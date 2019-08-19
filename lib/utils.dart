@@ -29,7 +29,7 @@ class Utils {
   }
 
   getChatFromMsg(Map<String, dynamic> map) {
-    print('got chat message ' + map.toString());
+    //print('got chat message ' + map.toString());
     return ChatModel.fromJson(map);
   }
 

@@ -44,10 +44,10 @@ class _ChatDeliveryNotificationState extends State<ChatDeliveryNotification>
         .stream
         .where((item) => item.chatId == widget.chat.id)
         .listen((data) {
-      print('got data ' +
+      /*print('got data ' +
           data.status +
           ' in notifcation listener ' +
-          widget.chat.toString());
+          widget.chat.toString());*/
       if (data.status.compareTo(_deliveryState) > 0) {
         widget.chat.delStat = data.status;
         SembastChat().upsertInChatStore(widget.chat, 'delivery notification');

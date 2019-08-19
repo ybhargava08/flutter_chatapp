@@ -59,8 +59,8 @@ class _DisplayPicState extends State<DisplayPic> {
                           ExactAssetImage('assets/images/blur_image.jpg'),
                     ),
                     errorWidget: (context, url, error) {
-                      print(
-                          'error occured while loading dp ' + error.toString());
+                      /*print(
+                          'error occured while loading dp ' + error.toString());*/
                       return CircleAvatar(
                         minRadius: 0,
                         maxRadius: 75,

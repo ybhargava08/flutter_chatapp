@@ -38,7 +38,7 @@ class _MediaPlayPauseState extends State<MediaPlayPause> {
     FirebaseStorageUtil()
         .addFileToFirebaseStorage(widget.chat,(widget.chat.chatType == ChatModel.IMAGE));
     _subs = ProgressBloc().getProgressController().stream.where((item) => item.id == widget.chat.id.toString()).listen((data) {
-      print('got progress bar for chat id '+widget.chat.id.toString()+' data '+data.data);
+      //print('got progress bar for chat id '+widget.chat.id.toString()+' data '+data.data);
       if ((data.data == ProgressModel.START || 
        (data.data == ProgressModel.PROGRESS) && _prevState!=ProgressModel.PROGRESS) && this.mounted) {
         _prevState = data.data;

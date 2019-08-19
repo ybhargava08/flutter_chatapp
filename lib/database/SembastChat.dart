@@ -23,7 +23,7 @@ class SembastChat {
       Map<String, dynamic> data = new Map();
       bool shouldUpdate = false;
       bool shoulInsert = false;
-      print('inside lock ' + chat.id.toString());
+      //print('inside lock ' + chat.id.toString());
       final finder = Finder(filter: Filter.equals('id', chat.id));
       RecordSnapshot snap = await _chatStore
           .findFirst(await SembastDatabase().getDatabase(), finder: finder);
@@ -73,10 +73,10 @@ class SembastChat {
     List<RecordSnapshot> list = await _chatStore
         .find(await SembastDatabase().getDatabase(), finder: finder);
     if (list != null && list.length > 0) {
-      print('found all chat list from sembast less than id' +
+      /*print('found all chat list from sembast less than id' +
           id.toString() +
           ' ' +
-          list.toString());
+          list.toString());*/
       return list.map((item) => ChatModel.fromRecordSnapshot(item)).toList();
     }
     return null;
@@ -97,12 +97,12 @@ class SembastChat {
     List<RecordSnapshot> list = await _chatStore
         .find(await SembastDatabase().getDatabase(), finder: finder);
     if (list != null && list.length > 0) {
-      print('found all chat list from sembast ' + list.toString());
+      //print('found all chat list from sembast ' + list.toString());
       result = list.map((item) => ChatModel.fromRecordSnapshot(item)).toList();
     }
     int diff = DateTime.now().millisecondsSinceEpoch - start;
-    print(
-        'time taken in fetching chats from sembast ' + diff.toString() + ' ms');
+    /*print(
+        'time taken in fetching chats from sembast ' + diff.toString() + ' ms');*/
     return result;
   }
 
@@ -115,9 +115,9 @@ class SembastChat {
     ]));
     List<RecordSnapshot> list = await _chatStore
         .find(await SembastDatabase().getDatabase(), finder: finder);
-    print('record snapshot list ' + list.toString());
+    //print('record snapshot list ' + list.toString());
     if (list != null && list.length > 0) {
-      print('found list from sembast ' + list.toString());
+      //print('found list from sembast ' + list.toString());
       return list.map((item) => ChatModel.fromRecordSnapshot(item)).toList();
     }
     return null;

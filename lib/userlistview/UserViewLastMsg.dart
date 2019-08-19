@@ -9,7 +9,7 @@ class UserViewLastMsg extends StatelessWidget {
   Widget getMsgWidget(
       ChatModel chatModel, var unreadMsgCount, BuildContext context,var inherited) {
     if (null != chatModel) {
-      print('in getmsg widget  '+chatModel.toString()); 
+      //print('in getmsg widget  '+chatModel.toString()); 
       Widget iconType = (chatModel.chatType == ChatModel.IMAGE)
           ? Icon(Icons.photo_camera)
           : Icon(Icons.videocam);

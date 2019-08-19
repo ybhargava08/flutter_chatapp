@@ -70,7 +70,7 @@ class ChatBloc {
 
     _chatController.sink.add(_oneToOneList);
     _setMinChatId(_oneToOneList[_oneToOneList.length - 1]);
-    print('setting max id ' + maxId.toString());
+    //print('setting max id ' + maxId.toString());
     return maxId;
   }
 
@@ -80,14 +80,12 @@ class ChatBloc {
           _oneToOneList.where((item) => item.id == cm.id).toList();
 
       if (foundItem == null || foundItem.isEmpty) {
-        print('cm not found in list ' + cm.toString());
     
         _oneToOneList.insert(0, cm);
 
         _chatController.sink.add(_oneToOneList);
 
       } else {
-        print('cm found in list ' + cm.toString());
       }
     }
   }
@@ -105,7 +103,6 @@ class ChatBloc {
   }
 
   getMoreData(String toUserId) async {
-    print('min chat id ' + _minChatId.toString());
     List<ChatModel> list = await SembastChat()
         .getChatsLessThanId(_minChatId, DBConstants.DATA_RETREIVE_COUNT);
     if (null != list && list.length > 0) {

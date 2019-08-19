@@ -112,7 +112,7 @@ _markedChatAsRead.add(widget.chat);
             },
           );
         } else if (snapshot.hasError) {
-          print('snapshot has error');
+          //print('snapshot has error');
           return Icon(Icons.error);
         } else if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(

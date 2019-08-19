@@ -42,7 +42,7 @@ class _PhoneLoginState extends State<PhoneLogin>
     FBAuth().doPhoneAuth(phNo, context, false);
     /*});
     }on Exception catch(e) {
-            print('error while login in ' + e.toString());
+            //print('error while login in ' + e.toString());
       Navigator.popUntil(context, (currentRoute){
              return currentRoute.settings.name == RouteConstants.PHONE_AUTH;
       });
@@ -115,7 +115,7 @@ class _PhoneLoginState extends State<PhoneLogin>
                   inputFormatters: [LengthLimitingTextInputFormatter(10)],
                   style: TextStyle(fontSize: 25, fontWeight: FontWeight.w400),
                   onSubmitted: (val) {
-                    print('in onsubmitted ' + val);
+                    //print('in onsubmitted ' + val);
                     if (isValidateNumber(val)) {
                       doOnSubmit(_textEditingController.text);
                     }

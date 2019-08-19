@@ -88,7 +88,7 @@ class ChatReceiptListener {
   _processData(QuerySnapshot data, DocumentChange change) {
     if (change.type == DocumentChangeType.modified) {
         ChatModel c = ChatModel.fromDocumentSnapshot(change.document);
-        print('got data from chat delivery listener ' + c.toString());
+        //print('got data from chat delivery listener ' + c.toString());
         SembastChat().upsertInChatStore(c, 'chatDelivery');
         NotificationBloc().addToNotificationController(c.id, c.delStat);
       

@@ -61,8 +61,8 @@ class ImageEnlargedView extends StatelessWidget {
                           placeholder: (context, url) =>
                               Image.asset('assets/images/blur_image.jpg'),
                           errorWidget: (context, url, error) {
-                            print('error occured while loading dp ' +
-                                error.toString());
+                            /*print('error occured while loading dp ' +
+                                error.toString());*/
                             return Image.asset('assets/images/blur_image.jpg');
                           },
                           imageUrl: baseModel.user.photoUrl,
@@ -82,7 +82,7 @@ class ImageEnlargedView extends StatelessWidget {
     }
 
     Widget getAppBarChat() {
-      print('date is '+date);
+      //print('date is '+date);
       return AppBar(
           backgroundColor: Colors.black,
           leading: IconButton(

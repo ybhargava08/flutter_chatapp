@@ -60,15 +60,12 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
   listenForChatCounts() {
     UserLatestChatBloc().openChatCountController();
 
-    print('opening chat count listener for ' + _toUser.id);
     if (null != UserLatestChatBloc().getChatCountController()) {
-      print('listening to UserLatestChatBloc controller ' + _toUser.id);
       _unreadChatSubs = UserLatestChatBloc()
           .getChatCountController()
           .stream
           .where((item) => item.toUserId.trim() == _toUser.id.trim())
           .listen((data) {
-        print('got chat count data in listener ' + data.toString());
         if (UserLatestChatModel.COUNT == data.key && _unreadMsg != data.value) {
           setState(() {
             _unreadMsg = data.value;

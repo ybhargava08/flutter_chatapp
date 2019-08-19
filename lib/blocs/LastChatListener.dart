@@ -21,17 +21,17 @@ class LastChatListener {
     if (!_chatCountListeners.containsKey(toUserId)) {
       String path =
           'ChatActivity/' + fromUserId + '/UnreadChat/' + toUserId+'/'+UserLatestChatModel.COUNT;
-          print('init listening for chat count at path '+path);
+          //print('init listening for chat count at path '+path);
       _chatCountListeners[toUserId] = FirebaseRealtimeDB()
           .getDBPathReference(path)
           .onValue
           .listen((event) {
-        print('got data from path ' +
+        /*print('got data from path ' +
             path +
             ' key ' +
             event.snapshot.key +
             ' value ' +
-            event.snapshot.value.toString());
+            event.snapshot.value.toString());*/
         sendDataToBloc(toUserId, event.snapshot.key,event.snapshot.value);
       });
     }

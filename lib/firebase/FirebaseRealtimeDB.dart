@@ -47,7 +47,7 @@ class FirebaseRealtimeDB {
                     return mutableData;
          });
          if(result.error!=null) {
-               print('error while commiting transaction '+result.error.toString());
+               //print('error while commiting transaction '+result.error.toString());
          }
     }else{
       countRef = _database.reference().child('ChatActivity').child(toUserId).child('UnreadChat').child(fromUserId).child('ct');

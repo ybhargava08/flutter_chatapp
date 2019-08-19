@@ -48,7 +48,7 @@ class ProgressBloc {
     }
 
     addToProgressController(ProgressModel data) {
-                print('start adding to progress bloc  status '+isProgressControllerClosed.toString()); 
+                //print('start adding to progress bloc  status '+isProgressControllerClosed.toString()); 
                 if(!isProgressControllerClosed()) {
                     getProgressController().sink.add(data);
                 }

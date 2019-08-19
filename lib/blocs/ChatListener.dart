@@ -36,7 +36,7 @@ class ChatListener {
     ChatModel lastChat = await SembastUserLastChat().getLastUserChat(id);
     int lastId = 0;
     if (null != lastChat && null!=lastChat.id) {
-      print('got last user chat '+lastChat.toString());
+      //print('got last user chat '+lastChat.toString());
       if(lastChat.delStat == ChatModel.READ_BY_USER) {
           lastId = lastChat.id;     
       }else{
@@ -64,7 +64,7 @@ class ChatListener {
           if (change.type == DocumentChangeType.added || change.type == DocumentChangeType.modified) {
               ChatModel cm = ChatModel.fromDocumentSnapshot(change.document);
               //cm.chatDate = Timestamp.now();
-              print('got last chat with timestamp '+cm.toString());
+              //print('got last chat with timestamp '+cm.toString());
               SembastUserLastChat().upsertUserLastChat(cm);
           } 
         });
@@ -100,7 +100,6 @@ class ChatListener {
   }
 
   listenForNewAddedChats(String toUserId, int maxChatId) {
-    print('listenForNewAddedChats ' + maxChatId.toString());
     _newChatSubs = Firebase()
         .getChatCollectionRef(
             Utils().getChatCollectionId(UserBloc().getCurrUser().id, toUserId),
@@ -114,7 +113,7 @@ class ChatListener {
       data.documentChanges.forEach((change) {
         if (change.type == DocumentChangeType.added) { 
               ChatModel c = ChatModel.fromDocumentSnapshot(change.document);
-              print('got to user chat ' + c.toString());
+              //print('got to user chat ' + c.toString());
               SembastChat().upsertInChatStore(c, 'newAddedChat');
           
         }

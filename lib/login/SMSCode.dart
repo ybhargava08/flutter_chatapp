@@ -100,7 +100,7 @@ class _SMSCodeState extends State<SMSCode> {
         onChanged: (val) {
           if (val != null && val != '') {
              if (i < _codeLength - 1) {
-              print('val changed for textfield ' + i.toString());
+              //print('val changed for textfield ' + i.toString());
               FocusScope.of(context).requestFocus(_focusNodes[i + 1]);
             }
           }
@@ -110,7 +110,7 @@ class _SMSCodeState extends State<SMSCode> {
           _codes[i] = val;
           if (val != null && val != '') {
             if (i < _codeLength - 1) {
-              print('val submitted for textfield ' + i.toString());
+              //print('val submitted for textfield ' + i.toString());
               FocusScope.of(context).requestFocus(_focusNodes[i + 1]);
             }
           }
@@ -144,7 +144,7 @@ class _SMSCodeState extends State<SMSCode> {
   }
 
   resendCode() {
-    print('ph no for resend ' + widget.phNo);
+    //print('ph no for resend ' + widget.phNo);
     FBAuth().doPhoneAuth(widget.phNo, context, true);
   }
 
