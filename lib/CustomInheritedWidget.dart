@@ -25,7 +25,7 @@ class CustomInheritedWidget extends StatefulWidget {
 class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
   UserModel _toUser;
 
-  int _unreadMsg=0;
+  int _unreadMsg=2;
 
   ChatModel _chatModel;
 
@@ -71,8 +71,8 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
         print('got chat count data in listener ' + data.toString());
         if (UserLatestChatModel.COUNT == data.key && _unreadMsg != data.value) {
           setState(() {
-            _unreadMsg = data.value;
-            //_unreadMsg = 2;
+          //  _unreadMsg = data.value;
+            _unreadMsg = 2;
           });
         }
       });
@@ -127,8 +127,8 @@ class ActualInheritedWidget extends InheritedWidget {
 
   final ChatModel chatModel;
 
-  final Color mainColor = Colors.white;
-  final Color otherColor = Colors.grey[200];
+  final Color mainColor = Colors.black;
+  final Color otherColor = Colors.grey[700];
 
   ActualInheritedWidget(
       {@required this.user,

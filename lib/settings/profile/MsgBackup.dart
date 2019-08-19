@@ -92,8 +92,7 @@ class _MsgBackupState extends State<MsgBackup> {
     String lastBkp = (_lastBackMillis > 0)
         ? Utils().getDateTimeInFormat(_lastBackMillis, null, 'backupDate')
         : 'Never';
-    return Container(
-      margin: EdgeInsets.fromLTRB(20, 40, 0, 0),
+    return Container(    
       width: 300,
       height: 200,
         child: Flex(
@@ -106,17 +105,18 @@ class _MsgBackupState extends State<MsgBackup> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     IconTheme(
-                      data: IconThemeData(color: Theme.of(context).accentColor),
+                      data: IconThemeData(color: Theme.of(context).accentColor,size: 40),
                       child: Icon(Icons.cloud_upload),
+                      
                     ),
                     Container(
                       margin: EdgeInsets.only(left: 10),
                       child: Text(
-                        'Last Backup',
+                        'Backup Settings',
                         style: TextStyle(
                             color: Theme.of(context).accentColor,
                             fontWeight: FontWeight.w600,
-                            fontSize: FONT_SIZE),
+                            fontSize: 25),
                       ),
                     )
                   ],
@@ -124,8 +124,8 @@ class _MsgBackupState extends State<MsgBackup> {
               ),
               Flexible(
                 child: Text(
-                  'Backup your messages',
-                  style: TextStyle(fontSize: FONT_SIZE),
+                  'Backup your messages to the cloud',
+                  style: TextStyle(fontSize: FONT_SIZE,color: Colors.grey[600],fontStyle: FontStyle.italic),
                 ),
               ),
               Flexible(

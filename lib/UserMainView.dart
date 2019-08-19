@@ -6,10 +6,7 @@ import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/blocs/UserListener.dart';
 import 'package:chatapp/blocs/VerificationBloc.dart';
 import 'package:chatapp/blocs/ChatListener.dart';
-import 'package:chatapp/database/SembastChat.dart';
-import 'package:chatapp/database/SembastUserLastChat.dart';
 import 'package:chatapp/firebase/Firebase.dart';
-import 'package:chatapp/firebase/FirebaseStorageUtil.dart';
 import 'package:chatapp/settings/profile/UserDisplayPicPage.dart';
 import 'package:chatapp/utils.dart';
 import 'package:flutter/material.dart';
@@ -133,19 +130,15 @@ class _UserMainViewState extends State<UserMainView> {
         Container(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage('assets/images/background.jpg'),
-                    fit: BoxFit.cover,
-                    colorFilter: ColorFilter.mode(
-                        Colors.purple[300], BlendMode.luminosity)))),
+            color: Colors.white,
+            ),
         Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
             title: Text('ChatApp'),
             actions: <Widget>[getPopMenu()],
             elevation: 5.0,
-            backgroundColor: Colors.transparent,
+            backgroundColor: Theme.of(context).accentColor,
           ),
           body: StreamBuilder<List<UserModel>>(
             initialData: widget.initUserList,

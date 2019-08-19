@@ -30,8 +30,14 @@ class UserDisplayPicPage extends StatelessWidget {
           children: <Widget>[
             Container(
               alignment: Alignment.topCenter,
-              margin: EdgeInsets.only(top: 50),
+              margin: EdgeInsets.only(top: 0),
               child: DisplayPic(user),
+            ),
+            Container(
+                width: MediaQuery.of(context).size.width,
+                height: 1,
+                color: Colors.blueGrey,
+                margin: EdgeInsets.only(bottom: 20),
             ),
             MsgBackup()
           ],
