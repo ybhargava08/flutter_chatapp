@@ -36,7 +36,7 @@ class UserViewLastMsg extends StatelessWidget {
               margin: EdgeInsets.only(right: 2),
               child: IconTheme(
                 child: iconType,
-                data: IconThemeData(size: 18, color: inherited),
+                data: IconThemeData(size: 18, color: inherited.otherColor),
               ),
             ),
           ):Container(width: 0,height: 0,),

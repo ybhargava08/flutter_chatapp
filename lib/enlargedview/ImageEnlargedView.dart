@@ -43,12 +43,84 @@ class ImageEnlargedView extends StatelessWidget {
     }
 
     Widget getImageForChat() {
-      return (baseModel.chat.id != null)
-          ? Hero(
-              child: Image.file(File(baseModel.chat.localPath)),
-              tag: baseModel.chat.id.toString(),
-            )
-          : Image.file(File(baseModel.chat.localPath));
+      if (showMediaPickerButton) {
+        return Flex(
+          direction: Axis.vertical,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Flexible(
+              flex: 7,
+              child: (baseModel.chat.id != null)
+                  ? Hero(
+                      child: Image.file(
+                        File(baseModel.chat.localPath),
+                        fit: BoxFit.cover,
+                      ),
+                      tag: baseModel.chat.id.toString(),
+                    )
+                  : Image.file(File(baseModel.chat.localPath)),
+            ),
+            Flexible(
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(10, 30, 90, 0),
+                  color: Colors.black,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Add a Caption',
+                      hintStyle: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                      border: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 18),
+                    cursorColor: Colors.white,
+                    autofocus: false,
+                    onChanged: (text) {
+                      baseModel.chat.chat = text;
+                    },
+                  ),
+                ),
+              ),
+            
+          ],
+        );
+      } else if (!Utils().isStringEmpty(baseModel.chat.chat)) {
+           return  Flex(
+          direction: Axis.vertical,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Flexible(
+              flex: 6,
+              child: (baseModel.chat.id != null)
+                  ? Hero(
+                      child: Image.file(
+                        File(baseModel.chat.localPath),
+                        fit: BoxFit.cover,
+                      ),
+                      tag: baseModel.chat.id.toString(),
+                    )
+                  : Image.file(File(baseModel.chat.localPath)),
+            ),
+            Flexible(
+              flex: 1,
+                child: Align(
+                  alignment: Alignment.center,
+                   child: Text(baseModel.chat.chat,style: TextStyle(fontSize: 19,color: Colors.white),),
+                )
+              ),
+            
+          ],
+        );
+      } else {
+        return (baseModel.chat.id != null)
+            ? Hero(
+                child: Image.file(File(baseModel.chat.localPath)),
+                tag: baseModel.chat.id.toString(),
+              )
+            : Image.file(File(baseModel.chat.localPath));
+      }
     }
 
     Widget getImageForUser() {
@@ -93,13 +165,11 @@ class ImageEnlargedView extends StatelessWidget {
             },
           ),
           title: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-             Text(name,
-                      style: TextStyle(color: Colors.white, fontSize: 22.0)),
-              Text(date,
-                      style: TextStyle(color: Colors.white, fontSize: 14.0))
+              Text(name, style: TextStyle(color: Colors.white, fontSize: 20.0)),
+              Text(date, style: TextStyle(color: Colors.white, fontSize: 13.0))
             ],
           ));
     }

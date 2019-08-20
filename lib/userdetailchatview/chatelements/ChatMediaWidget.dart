@@ -25,40 +25,46 @@ class ChatMediaWidget extends StatefulWidget {
 
   final ScrollController scrollController;
 
-  ChatMediaWidget(Key key, this.chat,this.index,this.totalLength,this.scrollController) : super(key: key);
+  ChatMediaWidget(
+      Key key, this.chat, this.index, this.totalLength, this.scrollController)
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _ChatMediaWidgetState();
-  
 }
 
 class _ChatMediaWidgetState extends State<ChatMediaWidget> {
-
   @override
   void initState() {
-    if(UserBloc().getCurrUser().id == widget.chat.toUserId && widget.chat.delStat!=ChatModel.READ_BY_USER) {
-           widget.chat.delStat = ChatModel.READ_BY_USER;
-           List<ChatModel> _markedChatAsRead = List();
-_markedChatAsRead.add(widget.chat);
-           Firebase().markChatsAsReadOrDelivered((widget.chat.fromUserId == UserBloc().getCurrUser().id?widget.chat.toUserId
-           :widget.chat.fromUserId),
-                      _markedChatAsRead, true, ChatModel.READ_BY_USER);
+    if (UserBloc().getCurrUser().id == widget.chat.toUserId &&
+        widget.chat.delStat != ChatModel.READ_BY_USER) {
+      widget.chat.delStat = ChatModel.READ_BY_USER;
+      List<ChatModel> _markedChatAsRead = List();
+      _markedChatAsRead.add(widget.chat);
+      Firebase().markChatsAsReadOrDelivered(
+          (widget.chat.fromUserId == UserBloc().getCurrUser().id
+              ? widget.chat.toUserId
+              : widget.chat.fromUserId),
+          _markedChatAsRead,
+          true,
+          ChatModel.READ_BY_USER);
     }
     super.initState();
-  
   }
 
-      Widget getVideoThumbnail(ChatModel chat, BuildContext context,
+  Widget getVideoThumbnail(ChatModel chat, BuildContext context,
       UserModel toUser, double dimension) {
     return GestureDetector(
       child: Stack(
         children: <Widget>[
           chat.thumbnailPath.startsWith('http')
-              ? 
-
-               CachedNetworkImage(
-                  placeholder: (context,url) => Image.asset('assets/images/blur_image.jpg',
-                  width: dimension,height: dimension,fit: BoxFit.cover,), 
+              ? CachedNetworkImage(
+                  placeholder: (context, url) => Image.asset(
+                    'assets/images/blur_image.jpg',
+                    width: dimension,
+                    height: dimension,
+                    fit: BoxFit.cover,
+                  ),
                   imageUrl: chat.thumbnailPath,
                   fit: BoxFit.cover,
                   width: dimension,
@@ -72,12 +78,12 @@ _markedChatAsRead.add(widget.chat);
                     fit: BoxFit.cover,
                   ),
                 ),
-          MediaPlayPause(UniqueKey(),chat)
+          MediaPlayPause(UniqueKey(), chat)
         ],
       ),
       onTap: () {
         Navigator.pushNamed(context, RouteConstants.MEDIA_VIEW,
-            arguments: MediaEnlargedViewArgs(chat, true, toUser, false,true));
+            arguments: MediaEnlargedViewArgs(chat, true, toUser, false, true));
       },
     );
   }
@@ -102,11 +108,11 @@ _markedChatAsRead.add(widget.chat);
                   ),
                   tag: chat.id.toString(),
                 ),
-                MediaPlayPause(UniqueKey(),chat)
+                MediaPlayPause(UniqueKey(), chat)
               ],
             ),
             onTap: () {
-              BaseModel base = BaseModel(chat,toUser,false);
+              BaseModel base = BaseModel(chat, toUser, false);
               Navigator.pushNamed(context, RouteConstants.IMAGE_VIEW,
                   arguments: ImageEnlargedViewArgs(base, false));
             },
@@ -148,11 +154,13 @@ _markedChatAsRead.add(widget.chat);
 
     bool isVideo = widget.chat.chatType == ChatModel.VIDEO;
 
+    final fontColor = inherited.textColorListItem;
+
     return Stack(
       children: <Widget>[
         Container(
           child: Flex(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             direction: Axis.vertical,
             children: <Widget>[
               Flexible(
@@ -163,20 +171,42 @@ _markedChatAsRead.add(widget.chat);
               ),
               Flexible(
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Text(
+                    Utils().isStringEmpty(widget.chat.chat)
+                        ? Container(
+                            width: 0,
+                            height: 0,
+                          )
+                        : Container(
+                              margin: EdgeInsets.fromLTRB(5, 5, 0, 0),
+                              child: Text(widget.chat.chat,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: (widget.chat.fromUserId !=
+                                              currUser.id)
+                                          ? Colors.black
+                                          : fontColor)),
+                            ),
+                          
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                       children: <Widget>[
+                         Text(
                       Utils().getDateTimeInFormat(
                           widget.chat.chatDate, 'time', 'userchatview'),
                       style:
                           TextStyle(color: Colors.blueGrey[400], fontSize: 12),
                     ),
                     (widget.chat.fromUserId == UserBloc().getCurrUser().id)
-                        ? ChatDeliveryNotification(UniqueKey(),widget.chat)
+                        ? ChatDeliveryNotification(UniqueKey(), widget.chat)
                         : Container(
                             width: 0,
                             height: 0,
-                          ),
+                          )
+                       ],
+                    ),
                   ],
                 ),
               )
@@ -185,7 +215,9 @@ _markedChatAsRead.add(widget.chat);
           margin: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
           padding: EdgeInsets.all(5),
           decoration: BoxDecoration(
-              color: (widget.chat.fromUserId != currUser.id) ? Colors.white : bgColor,
+              color: (widget.chat.fromUserId != currUser.id)
+                  ? Colors.white
+                  : bgColor,
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
@@ -194,7 +226,6 @@ _markedChatAsRead.add(widget.chat);
           width: dimension,
           height: dimension,
         ),
-        
         isVideo
             ? Positioned(
                 left: 30,

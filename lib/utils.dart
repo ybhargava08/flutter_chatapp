@@ -108,4 +108,8 @@ class Utils {
       Fluttertoast.showToast(msg: msg,gravity: gravity,toastLength: duration,backgroundColor: Colors.black.withOpacity(0.5)
       ,fontSize: 15,textColor: Colors.white);
   }
+
+  bool isStringEmpty(String s) {
+       return s== null || s.trim().length ==0;
+  }
 }
