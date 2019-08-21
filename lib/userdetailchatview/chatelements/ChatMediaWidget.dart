@@ -78,7 +78,8 @@ class _ChatMediaWidgetState extends State<ChatMediaWidget> {
                     fit: BoxFit.cover,
                   ),
                 ),
-          MediaPlayPause(UniqueKey(), chat)
+
+          MediaPlayPause(UniqueKey(), chat,dimension)
         ],
       ),
       onTap: () {
@@ -108,7 +109,7 @@ class _ChatMediaWidgetState extends State<ChatMediaWidget> {
                   ),
                   tag: chat.id.toString(),
                 ),
-                MediaPlayPause(UniqueKey(), chat)
+                MediaPlayPause(UniqueKey(), chat,dimension)
               ],
             ),
             onTap: () {
@@ -159,56 +160,56 @@ class _ChatMediaWidgetState extends State<ChatMediaWidget> {
     return Stack(
       children: <Widget>[
         Container(
-          child: Flex(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            direction: Axis.vertical,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Expanded(
-                child: isVideo
-                    ? getVideoThumbnail(widget.chat, context, toUser, dimension)
-                    : getImage(widget.chat, context, toUser, dimension),
-              ),
-             Wrap(
-                  children: <Widget>[
-                    Utils().isStringEmpty(widget.chat.chat)
+              isVideo
+                  ? getVideoThumbnail(widget.chat, context, toUser, dimension)
+                  : getImage(widget.chat, context, toUser, dimension),
+              Flex(
+                direction: Axis.horizontal,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Expanded(
+                    child: Utils().isStringEmpty(widget.chat.chat)
                         ? Container(
                             width: 0,
                             height: 0,
                           )
                         : Container(
-                              margin: EdgeInsets.fromLTRB(5, 5, 0, 0),
-                              child: Text(widget.chat.chat,
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      color: (widget.chat.fromUserId !=
-                                              currUser.id)
-                                          ? Colors.black
-                                          : fontColor)),
-                            ),
-                          
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                       children: <Widget>[
-                         Text(
-                      Utils().getDateTimeInFormat(
-                          widget.chat.chatDate, 'time', 'userchatview'),
-                      style:
-                          TextStyle(color: Colors.blueGrey[400], fontSize: 12),
-                    ),
-                    (widget.chat.fromUserId == UserBloc().getCurrUser().id)
-                        ? ChatDeliveryNotification(UniqueKey(), widget.chat)
-                        : Container(
-                            width: 0,
-                            height: 0,
-                          )
-                       ],
-                    ),
-                  ],
-                ),
-              
+                            margin: EdgeInsets.fromLTRB(5, 5, 10, 0),
+                            child: Text(widget.chat.chat,
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color:
+                                        (widget.chat.fromUserId != currUser.id)
+                                            ? Colors.black
+                                            : fontColor)),
+                          ),
+                  ),
+                  Flex(
+                    direction: Axis.horizontal,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Text(
+                        Utils().getDateTimeInFormat(
+                            widget.chat.chatDate, 'time', 'userchatview'),
+                        style: TextStyle(
+                            color: Colors.blueGrey[400], fontSize: 12),
+                      ),
+                      (widget.chat.fromUserId == UserBloc().getCurrUser().id)
+                          ? ChatDeliveryNotification(UniqueKey(), widget.chat)
+                          : Container(
+                              width: 0,
+                              height: 0,
+                            )
+                    ],
+                  )
+                ],
+              ),
             ],
           ),
+
           margin: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
           padding: EdgeInsets.all(5),
           decoration: BoxDecoration(
@@ -221,7 +222,6 @@ class _ChatMediaWidgetState extends State<ChatMediaWidget> {
                     color: Colors.grey, blurRadius: 1, offset: Offset(1.0, 1.0))
               ]),
           width: dimension,
-          height: dimension,
         ),
         isVideo
             ? Positioned(
