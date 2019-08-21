@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chatapp/blocs/UserBloc.dart';
+import 'package:chatapp/enlargedview/BaseEnlargedView.dart';
 import 'package:chatapp/firebase/FirebaseStorageUtil.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/model/UserModel.dart';
@@ -9,7 +10,7 @@ import 'package:chatapp/userdetailchatview/contentpick/MediaPickerButton.dart';
 import 'package:chatapp/utils.dart';
 import 'package:flutter/material.dart';
 
-class MediaEnlargedView extends StatelessWidget {
+class MediaEnlargedView extends StatelessWidget with BaseEnlargedView {
   final ChatModel chat;
   final UserModel toUser;
   final bool showPickerButton;
@@ -83,62 +84,9 @@ class MediaEnlargedView extends StatelessWidget {
           Utils().getDateTimeInFormat(chat.chatDate, 'time', 'userchatview');
     }
 
+
     Widget getFileWithCaption() {
-      if (showPickerButton) {
-        return Flex(
-          direction: Axis.vertical,
-          children: <Widget>[
-            Flexible(
-              flex: 7,
-              child: getFileFromFuture(chat, toUser),
-            ),
-            Flexible(
-              child: Container(
-                padding: EdgeInsets.fromLTRB(10, 30, 90, 0),
-                color: Colors.black,
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Add a Caption',
-                    hintStyle: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
-                    border: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                  ),
-                  style: TextStyle(color: Colors.white, fontSize: 18),
-                  cursorColor: Colors.white,
-                  autofocus: false,
-                  onChanged: (text) {
-                    chat.chat = text;
-                  },
-                ),
-              ),
-            )
-          ],
-        );
-      } else if (!Utils().isStringEmpty(chat.chat)) {
-        return Flex(
-          direction: Axis.vertical,
-          children: <Widget>[
-            Flexible(
-              flex: 6,
-              child: getFileFromFuture(chat, toUser),
-            ),
-            Flexible(
-                flex: 1,
-                child: Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    chat.chat,
-                    style: TextStyle(fontSize: 19, color: Colors.white),
-                  ),
-                )),
-          ],
-        );
-      } else {
-        return getFileFromFuture(chat, toUser);
-      }
+      return getFileFromFuture(chat, toUser);
     }
 
     return Scaffold(
@@ -147,6 +95,13 @@ class MediaEnlargedView extends StatelessWidget {
           children: <Widget>[
             Positioned(
               child: getFileWithCaption(),
+            ),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              child: showPickerButton?layoutFileWithAddCaption(chat,context):
+              !Utils().isStringEmpty(chat.chat)?layoutFileWithShowCaption(chat, context):
+              Container(width: 0,height: 0,),
             ),
             Positioned(
               bottom: 20,

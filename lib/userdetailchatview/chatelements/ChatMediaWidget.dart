@@ -163,15 +163,12 @@ class _ChatMediaWidgetState extends State<ChatMediaWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             direction: Axis.vertical,
             children: <Widget>[
-              Flexible(
-                flex: 12,
+              Expanded(
                 child: isVideo
                     ? getVideoThumbnail(widget.chat, context, toUser, dimension)
                     : getImage(widget.chat, context, toUser, dimension),
               ),
-              Flexible(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+             Wrap(
                   children: <Widget>[
                     Utils().isStringEmpty(widget.chat.chat)
                         ? Container(
@@ -190,7 +187,7 @@ class _ChatMediaWidgetState extends State<ChatMediaWidget> {
                             ),
                           
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.end,
                        children: <Widget>[
                          Text(
@@ -209,7 +206,7 @@ class _ChatMediaWidgetState extends State<ChatMediaWidget> {
                     ),
                   ],
                 ),
-              )
+              
             ],
           ),
           margin: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
