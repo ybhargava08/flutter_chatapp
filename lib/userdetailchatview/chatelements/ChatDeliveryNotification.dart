@@ -1,8 +1,6 @@
 import 'dart:async';
 
-import 'package:chatapp/blocs/ChatReceiptListener.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
-import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/database/SembastChat.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/userdetailchatview/chatelements/AnimatedRead.dart';
