@@ -1,30 +1,35 @@
-import 'package:chatapp/utils.dart';
+import 'package:chatapp/userdetailchatview/ChatViewInheritedWrapper.dart';
 import 'package:flutter/material.dart';
 
-class UserChatViewLastSeen extends StatelessWidget {
+class UserChatViewLastSeen extends StatefulWidget {
 
-  getLastSeenText() {
-      String result = '';
-     String date =  Utils().getDateTimeInFormat(0,'date','userchatview');
-     if(date == 'TODAY' || date == 'YESTERDAY') {
-         result = 'last seen '+date.toLowerCase()+' at ';
-     }else{
-       result = 'last seen on '+date+' at ';
-     }
 
-     result += Utils().getDateTimeInFormat(0,'time','userchatview');
-     return result;
+@override
+  State<StatefulWidget> createState() => _UserChatViewLastSeenState();
+}
+
+class _UserChatViewLastSeenState extends State<UserChatViewLastSeen> {
+
+  @override
+  void initState() {
+    super.initState();
   }
-    @override
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+     @override
   Widget build(BuildContext context) {
     
-
+    final inherited = ChatViewInheritedWidget.of(context);
     return Align(
-                    alignment: Alignment.topLeft,
-                    child: (/* !user.isOnline */false)
+                    alignment: Alignment.centerLeft,
+                    child: (inherited.typingInd)
                       ? Text(
-                          getLastSeenText(),
-                          style: TextStyle(fontSize: 13),
+                          'typing...',
+                          style: TextStyle(fontSize: 15,color: Colors.white,fontWeight: FontWeight.w400),
                         )
                       : Container(
                           width: 0,

@@ -1,4 +1,9 @@
+import 'dart:async';
+
+import 'package:chatapp/blocs/UserBloc.dart';
+import 'package:chatapp/blocs/WebsocketBloc.dart';
 import 'package:chatapp/firebase/Firebase.dart';
+import 'package:chatapp/model/WebSocModel.dart';
 import 'package:chatapp/userdetailchatview/ChatViewInheritedWrapper.dart';
 import 'package:chatapp/userdetailchatview/contentpick/CustomMediaPicker.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +18,23 @@ class UserChatViewInput extends StatefulWidget {
 class _UserChatViewInput extends State<UserChatViewInput> {
   TextEditingController _textEditingcontroller;
 
+  Timer _timer;
+
   @override
   void initState() {
     _textEditingcontroller = TextEditingController();
     super.initState();
+  }
+
+  void sendIndtoWS(String text,String targetUserId) {
+       if(null == _timer || !_timer.isActive) {
+            WebSocModel model = WebSocModel(WebSocModel.TYPING,UserBloc().getCurrUser().id,targetUserId, null, null);
+           WebsocketBloc().addDataToSocket(WebSocModel.TYPING,model);
+            _timer = Timer(Duration(milliseconds: 500), (){
+                  _timer.cancel();
+
+            });
+       }
   }
 
   @override
@@ -58,6 +76,11 @@ class _UserChatViewInput extends State<UserChatViewInput> {
                           border: InputBorder.none,
                         ),
                         controller: _textEditingcontroller,
+                        onChanged: (text) {
+                             if(text.length > 0) {
+                                  sendIndtoWS(text,toUser.id);
+                             }
+                        },
                       ),
                     ),
                     Expanded(

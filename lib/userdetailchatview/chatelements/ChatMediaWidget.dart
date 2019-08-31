@@ -3,13 +3,17 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatapp/RouteConstants.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
+import 'package:chatapp/blocs/WebsocketBloc.dart';
+import 'package:chatapp/database/ChatReceiptDB.dart';
+import 'package:chatapp/database/SembastChat.dart';
 import 'package:chatapp/enlargedview/ImageEnlargedView.dart';
 import 'package:chatapp/enlargedview/MediaEnlargedView.dart';
-import 'package:chatapp/firebase/Firebase.dart';
+import 'package:chatapp/firebase/FirebaseRealtimeDB.dart';
 import 'package:chatapp/firebase/FirebaseStorageUtil.dart';
 import 'package:chatapp/model/BaseModel.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/model/UserModel.dart';
+import 'package:chatapp/model/WebSocModel.dart';
 import 'package:chatapp/userdetailchatview/ChatViewInheritedWrapper.dart';
 import 'package:chatapp/userdetailchatview/chatelements/ChatDeliveryNotification.dart';
 import 'package:chatapp/userdetailchatview/chatelements/MediaPlayPause.dart';
@@ -39,15 +43,18 @@ class _ChatMediaWidgetState extends State<ChatMediaWidget> {
     if (UserBloc().getCurrUser().id == widget.chat.toUserId &&
         widget.chat.delStat != ChatModel.READ_BY_USER) {
       widget.chat.delStat = ChatModel.READ_BY_USER;
-      List<ChatModel> _markedChatAsRead = List();
-      _markedChatAsRead.add(widget.chat);
-      Firebase().markChatsAsReadOrDelivered(
-          (widget.chat.fromUserId == UserBloc().getCurrUser().id
-              ? widget.chat.toUserId
-              : widget.chat.fromUserId),
-          _markedChatAsRead,
-          true,
-          ChatModel.READ_BY_USER);
+      SembastChat()
+          .updateDeliveryReceipt(widget.chat.id.toString(), widget.chat.delStat)
+          .then((_) {
+        FirebaseRealtimeDB()
+            .incDecUnreadChatCount(
+                widget.chat.fromUserId, widget.chat.toUserId, null, 'dec', 1)
+            .then((_) {
+          ChatReceiptDB().upsertReceiptInDB(widget.chat).then((res) {
+            WebsocketBloc().addDataToSocket(WebSocModel.RECEIPT_DEL,res);
+          });
+        });
+      });
     }
     super.initState();
   }
@@ -78,8 +85,7 @@ class _ChatMediaWidgetState extends State<ChatMediaWidget> {
                     fit: BoxFit.cover,
                   ),
                 ),
-
-          MediaPlayPause(UniqueKey(), chat,dimension)
+          MediaPlayPause(UniqueKey(), chat, dimension)
         ],
       ),
       onTap: () {
@@ -109,7 +115,7 @@ class _ChatMediaWidgetState extends State<ChatMediaWidget> {
                   ),
                   tag: chat.id.toString(),
                 ),
-                MediaPlayPause(UniqueKey(), chat,dimension)
+                MediaPlayPause(UniqueKey(), chat, dimension)
               ],
             ),
             onTap: () {
@@ -209,7 +215,6 @@ class _ChatMediaWidgetState extends State<ChatMediaWidget> {
               ),
             ],
           ),
-
           margin: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
           padding: EdgeInsets.all(5),
           decoration: BoxDecoration(
@@ -226,7 +231,7 @@ class _ChatMediaWidgetState extends State<ChatMediaWidget> {
         isVideo
             ? Positioned(
                 left: 30,
-                bottom: 45,
+                top: dimension - 10,
                 child: IconTheme(
                     child: Icon(Icons.videocam),
                     data: IconThemeData(color: Colors.white)),

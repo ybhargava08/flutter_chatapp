@@ -105,7 +105,7 @@ class ChatModel {
     map["thumbnailPath"] = thumbnailPath;
     map["fileName"] = fileName;
     map["firebaseStorage"] = firebaseStorage;
-    map["delStat"] = delStat;
+    //map["delStat"] = delStat;
     return map;
   }
 

@@ -40,9 +40,8 @@ class ChatListener {
       if(lastChat.delStat == ChatModel.READ_BY_USER) {
           lastId = lastChat.id;     
       }else{
-        lastId = lastChat.id-1;
+        lastId = (lastChat.id-1 > 0)?lastChat.id-1:0;
       }
-      lastId = lastChat.id;
       String toUserId =
           (UserBloc().getCurrUser().id == lastChat.fromUserId)
               ? lastChat.toUserId
@@ -63,6 +62,9 @@ class ChatListener {
         data.documentChanges.forEach((change) {
           if (change.type == DocumentChangeType.added || change.type == DocumentChangeType.modified) {
               ChatModel cm = ChatModel.fromDocumentSnapshot(change.document);
+              if(null!=cm.delStat || '' == cm.delStat) {
+                   cm.delStat = ChatModel.DELIVERED_TO_SERVER;
+              }
               //cm.chatDate = Timestamp.now();
               //print('got last chat with timestamp '+cm.toString());
               SembastUserLastChat().upsertUserLastChat(cm);
@@ -113,6 +115,9 @@ class ChatListener {
       data.documentChanges.forEach((change) {
         if (change.type == DocumentChangeType.added) { 
               ChatModel c = ChatModel.fromDocumentSnapshot(change.document);
+              if(null!=c.delStat || '' == c.delStat) {
+                   c.delStat = ChatModel.DELIVERED_TO_SERVER;
+              }
               //print('got to user chat ' + c.toString());
               SembastChat().upsertInChatStore(c, 'newAddedChat');
           

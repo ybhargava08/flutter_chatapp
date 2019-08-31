@@ -1,4 +1,5 @@
 import 'package:chatapp/blocs/ChatBloc.dart';
+import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/database/SembastDatabase.dart';
 import 'package:chatapp/database/SembastUserLastChat.dart';
 import 'package:chatapp/model/ChatModel.dart';
@@ -84,7 +85,7 @@ class SembastChat {
 
   Future<List<ChatModel>> getChatsForUserFromSembast(
       String toUserId, int limit) async {
-    int start = DateTime.now().millisecondsSinceEpoch;
+    //int start = DateTime.now().millisecondsSinceEpoch;
     List<ChatModel> result;
     final finder = Finder(
         filter: Filter.or([
@@ -97,10 +98,10 @@ class SembastChat {
     List<RecordSnapshot> list = await _chatStore
         .find(await SembastDatabase().getDatabase(), finder: finder);
     if (list != null && list.length > 0) {
-      //print('found all chat list from sembast ' + list.toString());
+      print('found all chat list from sembast ' + list.toString());
       result = list.map((item) => ChatModel.fromRecordSnapshot(item)).toList();
     }
-    int diff = DateTime.now().millisecondsSinceEpoch - start;
+    //int diff = DateTime.now().millisecondsSinceEpoch - start;
     /*print(
         'time taken in fetching chats from sembast ' + diff.toString() + ' ms');*/
     return result;
@@ -121,6 +122,16 @@ class SembastChat {
       return list.map((item) => ChatModel.fromRecordSnapshot(item)).toList();
     }
     return null;
+  }
+
+  Future updateDeliveryReceipt(String chatId,String val) async {
+          int chatid = int.parse(chatId);
+          final finder = Finder(filter: Filter.equals('id', chatid));
+          RecordSnapshot rs = await _chatStore.findFirst(await SembastDatabase().getDatabase(),finder:finder);
+          print('val is '+val+' chatid '+chatid.toString()+' got record snap updateDeliveryReceipt '+rs.toString());
+          if(null!=rs && rs.key!=null && (null == rs['delStat'] || val.compareTo(rs['delStat']) > 0)) {
+              await _chatStore.record(rs.key).put(await SembastDatabase().getDatabase(), {'delStat':val},merge: true);
+          }
   }
 
   Future<int> deleteAllChats() async {

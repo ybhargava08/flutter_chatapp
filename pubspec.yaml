@@ -47,8 +47,9 @@ dependencies:
   fluttertoast: ^3.1.0
   connectivity: ^0.4.3+6
   synchronized: ^2.1.0+1
+  adhara_socket_io: ^0.3.4
+  flutter_socket_io: ^0.5.1
 
- 
 dev_dependencies:
   flutter_test:
     sdk: flutter

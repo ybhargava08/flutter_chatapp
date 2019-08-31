@@ -18,7 +18,7 @@ class UserChatView extends StatelessWidget {
       toUser: user,
       child: Scaffold(
         backgroundColor: Colors.orange[50],
-        appBar: AppBar(
+        appBar: AppBar( 
             automaticallyImplyLeading: false,
             centerTitle: false,
             titleSpacing: 0.0,
@@ -53,6 +53,7 @@ class UserChatView extends StatelessWidget {
                       ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Align(
                       alignment: Alignment.topLeft,

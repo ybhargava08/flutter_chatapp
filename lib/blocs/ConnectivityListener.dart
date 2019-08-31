@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:chatapp/blocs/WebsocketBloc.dart';
+import 'package:chatapp/database/ChatReceiptDB.dart';
 import 'package:chatapp/database/SembastChat.dart';
 import 'package:chatapp/firebase/FirebaseStorageUtil.dart';
 import 'package:chatapp/model/ChatModel.dart';
+import 'package:chatapp/model/WebSocModel.dart';
 import 'package:connectivity/connectivity.dart';
 
 class ConnectivityListener {
@@ -21,22 +24,25 @@ class ConnectivityListener {
         Connectivity().onConnectivityChanged.listen((connectivityResult) async {
       if (connectivityResult == ConnectivityResult.mobile ||
           connectivityResult == ConnectivityResult.wifi) {
-        List<ChatModel> list = await SembastChat().getMediaDataNotUploaded();
-        if (list != null && list.length > 0) {
-          //print('got connectivity ' + list.length.toString());
-          list.forEach((chat) async {
-          if (await pingGoogle()) {
-            FirebaseStorageUtil().addFileToFirebaseStorage(
-                chat, chat.chatType == ChatModel.IMAGE);
+               sendMediaData();
           }
-        });
-        } else {
-          //print(' got connectivity no list');
-        }
-
-        
-      }
     });
+  }
+
+
+  Future sendMediaData() async {
+    List<ChatModel> list = await SembastChat().getMediaDataNotUploaded();
+    if (list != null && list.length > 0) {
+      //print('got connectivity ' + list.length.toString());
+      list.forEach((chat) async {
+        if (await pingGoogle()) {
+          FirebaseStorageUtil()
+              .addFileToFirebaseStorage(chat, chat.chatType == ChatModel.IMAGE);
+        }
+      });
+    } else {
+      //print(' got connectivity no list');
+    }
   }
 
   Future<bool> pingGoogle() async {

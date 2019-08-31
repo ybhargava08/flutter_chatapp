@@ -111,8 +111,9 @@ class ChatBloc {
   }
 
   _setMinChatId(ChatModel chat) {
-    if(chat.localChatId!=null) {
-          _minChatId = chat.localChatId;
+    if(chat.id!=null) {
+          _minChatId = chat.id;
+          print('setting min chat id '+_minChatId.toString());
     }
     
   }

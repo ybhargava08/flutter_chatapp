@@ -6,6 +6,7 @@ import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/blocs/UserListener.dart';
 import 'package:chatapp/blocs/VerificationBloc.dart';
 import 'package:chatapp/blocs/ChatListener.dart';
+import 'package:chatapp/blocs/WebsocketBloc.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/settings/profile/UserDisplayPicPage.dart';
 import 'package:chatapp/utils.dart';
@@ -27,6 +28,7 @@ class UserMainView extends StatefulWidget {
 class _UserMainViewState extends State<UserMainView> {
   @override
   void initState() {
+    WebsocketBloc().openSocketConnection();
     VerificationBloc().closeController();
     UserListener().initLisener();
     UserBloc().initUserController();
@@ -44,6 +46,7 @@ class _UserMainViewState extends State<UserMainView> {
 
   @override
   void dispose() {
+    WebsocketBloc().closeSocket();
     setUserOffline();
     UserBloc().closeUserController();
     NotificationBloc().closeNotificationController();
