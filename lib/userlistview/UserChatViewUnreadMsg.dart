@@ -18,16 +18,17 @@ class UserChatViewUnreadMsg extends StatelessWidget {
 
     return Flex(
       direction: Axis.vertical,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: <Widget>[
         Flexible(
           child: Container(
-            padding: EdgeInsets.only(top: 15),
+            padding: EdgeInsets.only(top:15),
             child: Text(
               lastChatDateTime,
               style: TextStyle(
                   fontSize: 13,
                   color: (unreadMsg <= 0)
-                      ? Colors.grey[800]
+                      ? inherited.otherColor
                       : Theme.of(context).accentColor),
             ),
           ),
@@ -46,7 +47,7 @@ class UserChatViewUnreadMsg extends StatelessWidget {
                     child: Text(
                       unreadMsg.toString(),
                       style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.white),
+                          fontWeight: FontWeight.bold, color: Colors.white,fontSize: 12),
                     ),
                   ))
               : Container(

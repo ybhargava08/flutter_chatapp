@@ -21,8 +21,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   void initState() {
     _playerController = VideoPlayerController.file(widget.file)
       ..initialize().then((_) {
-        print('complete duration '+_playerController.value.duration.inSeconds.toString()
-        +' total size '+_playerController.value.volume.toString());
+        /*print('complete duration '+_playerController.value.duration.inSeconds.toString()
+        +' total size '+_playerController.value.volume.toString());*/
         setState(() {});
         if(widget.autoplay) {
              _playerController.play();
@@ -32,7 +32,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       
 
       _playerController.addListener(() {
-           print('current duration '+_playerController.value.position.inMilliseconds.toString());
+           //print('current duration '+_playerController.value.position.inMilliseconds.toString());
       });
       
     super.initState();
@@ -88,7 +88,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
               color: Colors.white,
               iconSize: 40,
               onPressed: () {
-                print('icon was pressed');
+                //print('icon was pressed');
                 setState(() {
                   _playerController.value.isPlaying
                       ? _playerController.pause()

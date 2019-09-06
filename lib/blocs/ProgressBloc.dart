@@ -29,7 +29,6 @@ class ProgressBloc {
     }
 
     openProgressController() {
-        print('opening progress controller ');
          if(isProgressControllerClosed()) {
                _progressController = StreamController.broadcast();
          }
@@ -43,14 +42,13 @@ class ProgressBloc {
     }
 
     closeProgressController() {
-      print('closing progress controller ');
             if(!isProgressControllerClosed()) {
                    _progressController.close(); 
             }
     }
 
     addToProgressController(ProgressModel data) {
-                print('start adding to progress bloc  status '+isProgressControllerClosed.toString()); 
+                //print('start adding to progress bloc  status '+isProgressControllerClosed.toString()); 
                 if(!isProgressControllerClosed()) {
                     getProgressController().sink.add(data);
                 }

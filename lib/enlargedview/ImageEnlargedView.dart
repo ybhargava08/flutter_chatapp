@@ -2,13 +2,14 @@ import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
+import 'package:chatapp/enlargedview/BaseEnlargedView.dart';
 import 'package:chatapp/model/BaseModel.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/userdetailchatview/contentpick/MediaPickerButton.dart';
 import 'package:chatapp/utils.dart';
 import 'package:flutter/material.dart';
 
-class ImageEnlargedView extends StatelessWidget {
+class ImageEnlargedView extends StatelessWidget with BaseEnlargedView{
   final BaseModel baseModel;
 
   final bool showMediaPickerButton;
@@ -43,12 +44,13 @@ class ImageEnlargedView extends StatelessWidget {
     }
 
     Widget getImageForChat() {
-      return (baseModel.chat.id != null)
-          ? Hero(
-              child: Image.file(File(baseModel.chat.localPath)),
-              tag: baseModel.chat.id.toString(),
-            )
-          : Image.file(File(baseModel.chat.localPath));
+     
+        return (baseModel.chat.id != null)
+            ? Hero(
+                child: Image.file(File(baseModel.chat.localPath),fit: BoxFit.contain,),
+                tag: baseModel.chat.id.toString(),
+              )
+            : Image.file(File(baseModel.chat.localPath),fit: BoxFit.contain,);
     }
 
     Widget getImageForUser() {
@@ -61,8 +63,8 @@ class ImageEnlargedView extends StatelessWidget {
                           placeholder: (context, url) =>
                               Image.asset('assets/images/blur_image.jpg'),
                           errorWidget: (context, url, error) {
-                            print('error occured while loading dp ' +
-                                error.toString());
+                            /*print('error occured while loading dp ' +
+                                error.toString());*/
                             return Image.asset('assets/images/blur_image.jpg');
                           },
                           imageUrl: baseModel.user.photoUrl,
@@ -82,9 +84,9 @@ class ImageEnlargedView extends StatelessWidget {
     }
 
     Widget getAppBarChat() {
-      print('date is '+date);
+      //print('date is '+date);
       return AppBar(
-          backgroundColor: Colors.black,
+          backgroundColor: Colors.black.withOpacity(0.3),
           leading: IconButton(
             color: Colors.white,
             icon: Icon(Icons.arrow_back),
@@ -93,13 +95,11 @@ class ImageEnlargedView extends StatelessWidget {
             },
           ),
           title: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-             Text(name,
-                      style: TextStyle(color: Colors.white, fontSize: 22.0)),
-              Text(date,
-                      style: TextStyle(color: Colors.white, fontSize: 14.0))
+              Text(name, style: TextStyle(color: Colors.white, fontSize: 20.0)),
+              Text(date, style: TextStyle(color: Colors.white, fontSize: 13.0))
             ],
           ));
     }
@@ -138,7 +138,14 @@ class ImageEnlargedView extends StatelessWidget {
                       : getImageForUser()),
             ),
             Positioned(
-              bottom: 20,
+              bottom: 0,
+              left: 0,
+              child: showMediaPickerButton?layoutFileWithAddCaption(baseModel.chat,context):
+              !Utils().isStringEmpty(baseModel.chat.chat)?layoutFileWithShowCaption(baseModel.chat, context):
+              Container(width: 0,height: 0,),
+            ),
+            Positioned(
+              bottom: 15,
               right: 20,
               child: (showMediaPickerButton)
                   ? MediaPickerButton(baseModel.chat, baseModel.user,

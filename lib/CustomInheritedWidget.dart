@@ -1,15 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 
-import 'package:chatapp/blocs/LastChatListener.dart';
 import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/blocs/UserListener.dart';
-import 'package:chatapp/database/SembastChat.dart';
 import 'package:chatapp/blocs/ChatListener.dart';
-import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/model/UserLatestChatModel.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:chatapp/model/UserModel.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
@@ -28,7 +26,7 @@ class CustomInheritedWidget extends StatefulWidget {
 class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
   UserModel _toUser;
 
-  int _unreadMsg = 0;
+  int _unreadMsg=0;
 
   ChatModel _chatModel;
 
@@ -42,11 +40,12 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
 
     _toUser = widget.toUser;
 
-    setInitData();
+    listenForUserUpdates();
+    listenForNewChats();
+    getInitChatCout();
+  }
 
-    if (ChatListener().getLatestChat(_toUser.id) != null) {
-      _chatModel = ChatListener().getLatestChat(_toUser.id);
-    }
+  listenForUserUpdates() {
     UserListener().openController(_toUser.id);
     if (UserListener().getController(_toUser.id) != null) {
       UserListener().getController(_toUser.id).stream.listen((data) {
@@ -57,88 +56,48 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
         }
       });
     }
-    listenForNewChats();
-    listenForChatCounts();
+  }
 
-    /* _unreadChatSubs = Firebase()
-        .unreadChatReference(UserBloc().getCurrUser().id)
-        .document(_toUser.id)
-        .snapshots()
-        .listen((data) {
-      if (data.exists) {
-        int unreadMsgCount = data["count"];
-        if (unreadMsgCount != _unreadMsg) {
+  getInitChatCout() async {
+        String uri  = 'https://chatapp-socketio-server.herokuapp.com/getUnreadChatCount?fromUserId='+_toUser.id+'&toUserId='
+          +UserBloc().getCurrUser().id;
+         var response = await http.get(uri);
+          Map<String,dynamic> responseData = jsonDecode(response.body);
           setState(() {
-            _unreadMsg = unreadMsgCount;
-          });
-        }
-      }
-    });*/
+            _unreadMsg = responseData['count'];
+          });    
+         listenForChatCounts();
   }
 
   listenForChatCounts() {
-    
-    UserLatestChatBloc().openChatCountController();
-    
-    print('opening chat count listener for ' + _toUser.id);
     if (null != UserLatestChatBloc().getChatCountController()) {
-      print('listening to UserLatestChatBloc controller ' + _toUser.id);
       _unreadChatSubs = UserLatestChatBloc()
           .getChatCountController()
           .stream
-          .where((item) => item.toUserId.trim() == _toUser.id.trim())
+          .where((item) => item.toUserId.trim().compareTo(_toUser.id.trim()) == 0)
           .listen((data) {
-        print('got chat count data in listener ' + data.toString());
-        if (UserLatestChatModel.COUNT == data.key && _unreadMsg != data.value) {
+        if (UserLatestChatModel.COUNT == data.key && (_unreadMsg+data.value >=0)) {
           setState(() {
-            _unreadMsg = data.value;
+            _unreadMsg = _unreadMsg+data.value;
           });
         }
       });
     }
-    LastChatListener()
-        .initLatestChatListeners(UserBloc().getCurrUser().id, _toUser.id);
+    /*LastChatListener()
+        .initLatestChatListeners(UserBloc().getCurrUser().id, _toUser.id);*/
   }
 
   listenForNewChats() async {
-    ChatModel localLastChat =
-        await SembastChat().getLastChatForUser(_toUser.id);
-    if (null != localLastChat && localLastChat.chatType != ChatModel.CHAT) {
-
-      if (_chatModel == null || _chatModel != localLastChat) {
-        setState(() {
-          _chatModel = localLastChat;
-        });
-      }
-    }
     ChatListener().openFirebaseListener(_toUser.id);
     if (ChatListener().getController(_toUser.id) != null) {
       _chatListenerSubs =
-          ChatListener().getController(_toUser.id).stream.listen((data) {
-                setState(() {
+          ChatListener().getController(_toUser.id).stream/*.where((item) => (_chatModel == null 
+          || (item.chatDate >= _chatModel.chatDate)))
+          */.listen((data) {
+        setState(() {
           _chatModel = data;
         });
       });
-    }
-  }
-
-  setInitData() async {
-    try {
-      DocumentSnapshot ds = await Firebase()
-          .unreadChatReference(UserBloc().getCurrUser().id)
-          .document(_toUser.id)
-          .get();
-
-      if (ds != null && ds.exists) {
-        int unreadMsgCount = ds["count"];
-        if (unreadMsgCount != _unreadMsg) {
-          setState(() {
-            _unreadMsg = unreadMsgCount;
-          });
-        }
-      }
-    } on Exception catch (e) {
-      print('got error while retriving doc from fb ' + e.toString());
     }
   }
 
@@ -150,7 +109,7 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
     if (_chatListenerSubs != null) {
       _chatListenerSubs.cancel();
     }
-    LastChatListener().closeIndividualListener(_toUser.id);
+    //LastChatListener().closeIndividualListener(_toUser.id);
 
     super.dispose();
   }
@@ -173,6 +132,9 @@ class ActualInheritedWidget extends InheritedWidget {
   final int unreadMsgCount;
 
   final ChatModel chatModel;
+
+  final Color mainColor = Colors.black;
+  final Color otherColor = Colors.grey[700];
 
   ActualInheritedWidget(
       {@required this.user,

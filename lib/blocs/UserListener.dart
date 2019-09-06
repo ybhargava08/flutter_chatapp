@@ -40,7 +40,7 @@ class UserListener {
             if (change.type == DocumentChangeType.added ||
                 change.type == DocumentChangeType.modified) {
               UserModel newUser = UserModel.fromDocSnapShot(data.documents[0]);
-              print('got user added in listen for user activity '+newUser.toString());
+              //print('got user added in listen for user activity '+newUser.toString());
               checkUserInContactList(newUser);
             }
           });
@@ -58,7 +58,7 @@ class UserListener {
             if (change.type == DocumentChangeType.added ||
                 change.type == DocumentChangeType.modified) {
               UserModel newUser = UserModel.fromDocSnapShot(data.documents[0]);
-              print('got user added in listen for user activity '+newUser.toString());
+              //print('got user added in listen for user activity '+newUser.toString());
               checkUserInContactList(newUser);
             }
           });
@@ -74,12 +74,12 @@ class UserListener {
         withThumbnails: false);
     if (contacts != null && contacts.length > 0) {
       contacts.forEach((contact) {
-        print('in contact list found user with name ' + contact.displayName);
+        //print('in contact list found user with name ' + contact.displayName);
         user.name = contact.displayName;
         addToController(user.id, user);
       });
     } else {
-      print('did not find user in contact '+user.toString());
+      //print('did not find user in contact '+user.toString());
       SembastUser().deleteContactFromUserContactStore(user);
     }
     }
@@ -94,10 +94,10 @@ class UserListener {
   }
 
   addToController(String id, UserModel user) {
-    print('adding to single user bloc controller ' +
+    /*print('adding to single user bloc controller ' +
         id +
         ' status ' +
-        _isControllerClosed(id).toString());
+        _isControllerClosed(id).toString());*/
     UserBloc().addUpdateUser(user);
     openController(id);
     SembastUser().upsertInUserContactStore(user, null);

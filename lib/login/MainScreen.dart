@@ -32,10 +32,10 @@ class _MainScreenState extends State<MainScreen> {
     await PermHandler().getContactPermissionsOnStartup();
     FirebaseUser user = await FBAuth().getCurrentUser();
     if (user != null && user.uid != null) {
-      print(' authenticated user ' + user.uid + ' ' + user.phoneNumber);
+      //print(' authenticated user ' + user.uid + ' ' + user.phoneNumber);
       LoginHandler().doAfterLogin(user, context);
     } else {
-      print('user not found routing to phone login screen');
+      //print('user not found routing to phone login screen');
       Navigator.pushReplacementNamed(context, RouteConstants.PHONE_AUTH);
     }
   }

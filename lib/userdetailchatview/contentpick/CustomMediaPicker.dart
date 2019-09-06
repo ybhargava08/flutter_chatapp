@@ -16,9 +16,9 @@ class CustomMediaPicker extends StatelessWidget {
     var image = await ImagePicker.pickImage(source: source);
 
     if (image != null) {
-      print('local image file path ' + image.path);
-      BaseModel base = BaseModel(ChatModel(0, '', '', '', '', '', image.path, '', '', '',
-                       '', 0), toUser,false); 
+      //print('local image file path ' + image.path);
+      BaseModel base = BaseModel(ChatModel(0, '', '', '', DateTime.now().millisecondsSinceEpoch, '', image.path, '', '', '',
+                       ''), toUser,false); 
                        
       Navigator.pushNamed(context, RouteConstants.IMAGE_VIEW,
               arguments: ImageEnlargedViewArgs(
@@ -26,12 +26,12 @@ class CustomMediaPicker extends StatelessWidget {
                   true))
           .then((val) async {
         if (val != null && val is BaseModel) {
-          print('val is ' + val.toString());
+          //print('val is ' + val.toString());
 
           if(null!=val.chat) {
                 val.chat.firebaseStorage = null;
-          print('upserting to sembast ' + val.chat.id.toString() + ' ' + val.chat.chatType);
-          SembastChat().upsertInChatStore(val.chat,true,'addImage');
+          //print('upserting to sembast ' + val.chat.id.toString() + ' ' + val.chat.chatType);
+          SembastChat().upsertInChatStore(val.chat,'addImage');
           } 
           
         } else {
@@ -47,8 +47,8 @@ class CustomMediaPicker extends StatelessWidget {
     if (video != null) {
       Navigator.pushNamed(context, RouteConstants.MEDIA_VIEW,
               arguments: MediaEnlargedViewArgs(
-                  ChatModel(0, "", toUser.id, "", "", ChatModel.VIDEO,
-                      video.path, "", "", "", '', 0),
+                  ChatModel(0, "", toUser.id, "", DateTime.now().millisecondsSinceEpoch, ChatModel.VIDEO,
+                      video.path, "", "", "", ''),
                   true,
                   toUser,
                   true,
@@ -57,7 +57,7 @@ class CustomMediaPicker extends StatelessWidget {
         if (val != null && val is BaseModel && val.chat!=null) {
           val.chat.thumbnailPath = await FirebaseStorageUtil().createThumbnail(val.chat);
           val.chat.firebaseStorage = null;
-          SembastChat().upsertInChatStore(val.chat,true,'addVideo');
+          SembastChat().upsertInChatStore(val.chat,'addVideo');
         } else {
           getVideo(context, toUser, source);
         }
@@ -106,7 +106,7 @@ class CustomMediaPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     var inherited = ChatViewInheritedWidget.of(context);
     final toUser = inherited.toUser;
-    print('in custom media picker touser '+toUser.toString());
+    //print('in custom media picker touser '+toUser.toString());
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,

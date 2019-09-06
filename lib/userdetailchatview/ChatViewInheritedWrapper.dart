@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:chatapp/blocs/ChatBloc.dart';
-import 'package:chatapp/blocs/ChatReceiptListener.dart';
 import 'package:chatapp/blocs/ProgressBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/blocs/UserListener.dart';
 import 'package:chatapp/blocs/ChatListener.dart';
+import 'package:chatapp/blocs/WebsocketBloc.dart';
 import 'package:chatapp/model/UserModel.dart';
+import 'package:chatapp/model/WebSocModel.dart';
 
 import 'package:flutter/material.dart';
 
@@ -29,7 +30,13 @@ class _ChatViewInheritedWrapperState extends State<ChatViewInheritedWrapper> {
   StreamSubscription _toUserSubs;
 
   StreamSubscription _singleUserListener;
+
+  bool _typingInd = false;
+
+  Timer _typingTimer;
   
+  static const int TYPING_IND_DURATION = 4;
+
   @override
   void initState() {
     super.initState();
@@ -40,25 +47,46 @@ class _ChatViewInheritedWrapperState extends State<ChatViewInheritedWrapper> {
     ChatBloc().initChatController();
     ProgressBloc().openProgressController();
 
-
     init();
 
-    if(UserListener().getController(_toUser.id)!=null) {
-         _singleUserListener= UserListener().getController(_toUser.id).stream.listen((data){
-                if(this.mounted && (_toUser == null || _toUser!=data)) {
-                      setState(() {
-                       _toUser = data;
-                  });
-                }
-                  
-          });
-    }
+    _listenForTypingInd();
 
+    if (UserListener().getController(_toUser.id) != null) {
+      _singleUserListener =
+          UserListener().getController(_toUser.id).stream.listen((data) {
+        if (this.mounted && (_toUser == null || _toUser != data)) {
+          setState(() {
+            _toUser = data;
+          });
+        }
+      });
+    }
+  }
+
+  _listenForTypingInd() {
+    WebsocketBloc().getStreamController().stream.where((item) => item.fromUserId == _toUser.id).listen((data) {
+      if (data.type == WebSocModel.TYPING &&
+          (_typingTimer == null || !_typingTimer.isActive)) {
+        if (this.mounted) {
+          setState(() {
+            _typingInd = true;
+          });
+        }
+
+        _typingTimer = Timer(Duration(seconds: TYPING_IND_DURATION), () {
+          if (this.mounted) {
+            setState(() {
+              _typingInd = false;
+            });
+          }
+        });
+      }
+    });
   }
 
   init() async {
-   int maxChatId = await ChatListener().getInitChatList(_toUser.id);
-    ChatListener().listenForNewAddedChats(_toUser.id,maxChatId);
+    int maxChatId = await ChatListener().getInitChatList(_toUser.id);
+    ChatListener().listenForNewAddedChats(_toUser.id, maxChatId);
   }
 
   @override
@@ -67,6 +95,7 @@ class _ChatViewInheritedWrapperState extends State<ChatViewInheritedWrapper> {
       child: widget.child,
       currUser: _currUser,
       toUser: _toUser,
+      typingInd: _typingInd,
     );
   }
 
@@ -79,11 +108,14 @@ class _ChatViewInheritedWrapperState extends State<ChatViewInheritedWrapper> {
       _toUserSubs.cancel();
     }
     ChatListener().closeChatDeliveryAndNewAddedListener();
-    if(_singleUserListener!=null) {
-        _singleUserListener.cancel();
+    if (_singleUserListener != null) {
+      _singleUserListener.cancel();
     }
     ChatListener().setDbCountPrefAtClose(_toUser.id);
-    ChatReceiptListener().closeAllListeners();
+    if (null != _typingTimer) {
+      _typingTimer.cancel();
+    }
+
     super.dispose();
   }
 }
@@ -95,11 +127,16 @@ class ChatViewInheritedWidget extends InheritedWidget {
 
   final Widget child;
 
+  final bool typingInd;
+
   final Color backgroundListItemColor = Colors.lightBlue[50];
   final Color textColorListItem = Colors.blueGrey[800];
 
   ChatViewInheritedWidget(
-      {@required this.child, @required this.toUser, @required this.currUser});
+      {@required this.child,
+      @required this.toUser,
+      @required this.currUser,
+      @required this.typingInd});
 
   @override
   bool updateShouldNotify(ChatViewInheritedWidget oldWidget) {

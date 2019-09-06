@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/firebase/FirebaseRealtimeDB.dart';
 import 'package:chatapp/model/UserLatestChatModel.dart';
-import 'package:firebase_database/firebase_database.dart';
 
 class LastChatListener {
   static LastChatListener _lastChatListener;
@@ -22,17 +21,17 @@ class LastChatListener {
     if (!_chatCountListeners.containsKey(toUserId)) {
       String path =
           'ChatActivity/' + fromUserId + '/UnreadChat/' + toUserId+'/'+UserLatestChatModel.COUNT;
-          print('init listening for chat count at path '+path);
+          //print('init listening for chat count at path '+path);
       _chatCountListeners[toUserId] = FirebaseRealtimeDB()
           .getDBPathReference(path)
           .onValue
           .listen((event) {
-        print('got data from path ' +
+        /*print('got data from path ' +
             path +
             ' key ' +
             event.snapshot.key +
             ' value ' +
-            event.snapshot.value.toString());
+            event.snapshot.value.toString());*/
         sendDataToBloc(toUserId, event.snapshot.key,event.snapshot.value);
       });
     }

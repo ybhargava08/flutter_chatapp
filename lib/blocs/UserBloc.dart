@@ -36,13 +36,13 @@ class UserBloc {
 
   _addInUserController(List<UserModel> list) {
     if (_controller != null && !_controller.isClosed) {
-      print('adding user list to user sink ' + list.toString());
+      //print('adding user list to user sink ' + list.toString());
       _controller.sink.add(list);
     }
   }
 
   List<UserModel> _setInitList(List<UserModel> list, bool isAddController) {
-    print('setting init list is  ' + _list.toString());
+    //print('setting init list is  ' + _list.toString());
     _list = list;
     if (isAddController) {
       _addInUserController(_list);
@@ -52,7 +52,7 @@ class UserBloc {
   }
 
   addUpdateUser(UserModel user) {
-    print('adding user ' + user.toString() + ' list is  ' + _list.toString());
+    //print('adding user ' + user.toString() + ' list is  ' + _list.toString());
     int index = _list.indexWhere((item) => item.id == user.id);
 
     if (index < 0) {

@@ -49,7 +49,7 @@ class UserView extends StatelessWidget {
         ),
         Flexible(
           flex: 9,
-          child: ListTile(
+          child: ListTile(    
               title: UserViewName(),
               subtitle: UserViewLastMsg(),
               trailing: UserChatViewUnreadMsg(),
@@ -64,7 +64,7 @@ class UserView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('build for ' + toUser.id + ' called');
+    //print('build for ' + toUser.id + ' called');
     return Container(
       margin: EdgeInsets.only(left: 10.0),
       child: CustomInheritedWidget(toUser: toUser, child: buildContent(context)),

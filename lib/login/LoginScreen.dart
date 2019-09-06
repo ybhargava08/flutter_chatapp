@@ -34,10 +34,10 @@ class _LoginScreenState extends State<LoginScreen> {
       await PermHandler().getContactPermissionsOnStartup();
       Iterable<Contact> contacts =  await ContactsService.getContacts();
       contacts.forEach((contact){
-           print('contact name '+contact.displayName); 
+           //print('contact name '+contact.displayName); 
            contact.phones.forEach((phone){
                     if(null!=phone) {
-                         print('ph no '+phone.label+' '+phone.value);
+                         //print('ph no '+phone.label+' '+phone.value);
                     }
            });
       });
@@ -47,10 +47,10 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       Utils().runSafe(() async {
         bool isSignedin = await _googleSignIn.isSignedIn();
-        print('user signed in '+isSignedin.toString());
+        //print('user signed in '+isSignedin.toString());
         GoogleSignInAccount _googleUser = _googleSignIn.currentUser;
         if (null != _googleUser) {
-          print('in google login ' + _googleUser.displayName);
+          //print('in google login ' + _googleUser.displayName);
         }
 
         if (null == _googleUser) {
@@ -61,14 +61,14 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         if (null != _googleUser) {
-          print('got google user ' + _googleUser.displayName);
+          //print('got google user ' + _googleUser.displayName);
           _doOnLogin(_googleUser);
         } else {
-          print('dint get google user');
+          //print('dint get google user');
         }
       });
     } on Exception catch (e) {
-      print('got login error ' + e.toString());
+      //print('got login error ' + e.toString());
     }
   }
 
@@ -93,11 +93,11 @@ class _LoginScreenState extends State<LoginScreen> {
           Navigator.pushReplacementNamed(context, RouteConstants.USER_VIEW,
               arguments: UserMainViewArgs(userList));
         } else {
-          print('fcm is null');
+          //print('fcm is null');
         }
       });
     } on Exception catch (e) {
-      print('got error while getting token ' + e.toString());
+      //print('got error while getting token ' + e.toString());
     }
   }
 

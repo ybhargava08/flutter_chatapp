@@ -20,7 +20,7 @@ class SembastUser {
     if(null!=user && user.ph!=UserBloc().getCurrUser().ph) {
         Map<String,dynamic> dataToStore = (data!=null)?data:user.toJson();
     Map<String,dynamic> snap = await _userContactStore.record(user.localId).put(await SembastDatabase().getDatabase(), dataToStore,merge: true);
-   print('after upserting contactUserStore data is '+snap.toString());
+   //print('after upserting contactUserStore data is '+snap.toString());
     }
     
   }
@@ -29,7 +29,7 @@ class SembastUser {
        final finder = Finder(sortOrders: [SortOrder('lastActivityTime',false)]);
        List<RecordSnapshot> list= await _userContactStore.find(await SembastDatabase().getDatabase(),finder: finder);
        if(null!=list && list.length > 0) {
-         print('found user contacts from local sembase length '+list.length.toString());
+         //print('found user contacts from local sembase length '+list.length.toString());
             return list.map((item) => UserModel.fromRecordSnapshot(item)).toList();
        } 
        return null;
@@ -38,6 +38,6 @@ class SembastUser {
   Future deleteContactFromUserContactStore(UserModel user) async {
            final finder = Finder(filter: Filter.equals('id', user.id));
          int records =  await _userContactStore.delete(await SembastDatabase().getDatabase(),finder:finder);
-         print('delted '+records.toString()+' from sembast user contact store');
+         //print('delted '+records.toString()+' from sembast user contact store');
   }
 }

@@ -7,9 +7,9 @@ import 'package:chatapp/CustomInheritedWidget.dart';
 
 class UserViewLastMsg extends StatelessWidget {
   Widget getMsgWidget(
-      ChatModel chatModel, var unreadMsgCount, BuildContext context) {
+      ChatModel chatModel, var unreadMsgCount, BuildContext context,var inherited) {
     if (null != chatModel) {
-      print('in getmsg widget  '+chatModel.toString()); 
+      //print('in getmsg widget  '+chatModel.toString()); 
       Widget iconType = (chatModel.chatType == ChatModel.IMAGE)
           ? Icon(Icons.photo_camera)
           : Icon(Icons.videocam);
@@ -36,22 +36,22 @@ class UserViewLastMsg extends StatelessWidget {
               margin: EdgeInsets.only(right: 2),
               child: IconTheme(
                 child: iconType,
-                data: IconThemeData(size: 18, color: Colors.grey[500]),
+                data: IconThemeData(size: 18, color: inherited.otherColor),
               ),
             ),
           ):Container(width: 0,height: 0,),
-          Flexible(child: getText(txt, unreadMsgCount, context))
+          Flexible(child: getText(txt, unreadMsgCount, context,inherited))
         ],
       );
     }
     return Container(width: 0,height: 0,); 
   }
 
-  Widget getText(var lastMessage, var unreadMsgCount, BuildContext context) {
+  Widget getText(var lastMessage, var unreadMsgCount, BuildContext context,var inherited) {
     return Text(
       lastMessage,
       overflow: TextOverflow.ellipsis,
-      style: TextStyle(fontSize: 15, color: Colors.grey[800]),
+      style: TextStyle(fontSize: 15, color: inherited.otherColor),
     );
   }
 
@@ -63,7 +63,7 @@ class UserViewLastMsg extends StatelessWidget {
 
     return Align(
       alignment: Alignment.topLeft,
-      child: getMsgWidget(chatModel, unreadMsgCount, context),
+      child: getMsgWidget(chatModel, unreadMsgCount, context,inherited),
     );
   }
 }

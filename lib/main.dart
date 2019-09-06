@@ -17,7 +17,7 @@ main() => runApp(MaterialApp(
       //showPerformanceOverlay: true,
       debugShowCheckedModeBanner:false,
       onGenerateRoute: (RouteSettings settings) {
-        print('route name ' + settings.name);
+        //print('route name ' + settings.name);
         switch (settings.name) { 
           case RouteConstants.PHONE_AUTH:
             return MaterialPageRoute(builder: (context)=> PhoneLogin());

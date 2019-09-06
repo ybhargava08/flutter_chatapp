@@ -1,9 +1,7 @@
-import 'package:chatapp/RouteConstants.dart';
 import 'package:chatapp/blocs/VerificationBloc.dart';
 import 'package:chatapp/firebase/auth/FBAuth.dart';
 import 'package:chatapp/model/VerificaitionModel.dart';
 import 'package:chatapp/snackbars/MessageSnackbar.dart';
-import 'package:chatapp/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -22,10 +20,14 @@ class _PhoneLoginState extends State<PhoneLogin>
 
   @override
   void initState() {
+    _showLoader = false;
     VerificationBloc().getController().stream.listen((data) {
       if (this.mounted) {
-        _scaffoldKey.currentState
-            .showSnackBar(MessageSnackbar().showSnackBar(data));
+        if (data.msg != VerificaitionModel.SHOW_PH_SC_LOADER) {
+          _scaffoldKey.currentState
+              .showSnackBar(MessageSnackbar().showSnackBar(data));
+        }
+
         setState(() {
           _showLoader = false;
         });
@@ -34,13 +36,13 @@ class _PhoneLoginState extends State<PhoneLogin>
     super.initState();
   }
 
-  doPhoneAuth (String phNo) async {
-     /* try{
+  doPhoneAuth(String phNo) async {
+    /* try{
         Utils().runSafe(() async {*/
-        FBAuth().doPhoneAuth(phNo, context, false);
+    FBAuth().doPhoneAuth(phNo, context, false);
     /*});
     }on Exception catch(e) {
-            print('error while login in ' + e.toString());
+            //print('error while login in ' + e.toString());
       Navigator.popUntil(context, (currentRoute){
              return currentRoute.settings.name == RouteConstants.PHONE_AUTH;
       });
@@ -48,7 +50,7 @@ class _PhoneLoginState extends State<PhoneLogin>
           VerificaitionModel(false, VerificaitionModel.AFTER_VER_ERR));
     }*/
   }
- 
+
   @override
   void dispose() {
     if (null != _textEditingController) {
@@ -63,7 +65,6 @@ class _PhoneLoginState extends State<PhoneLogin>
     });
     FocusScope.of(context).unfocus();
     doPhoneAuth(phNo);
-    
   }
 
   bool isValidateNumber(String ph) {
@@ -114,7 +115,7 @@ class _PhoneLoginState extends State<PhoneLogin>
                   inputFormatters: [LengthLimitingTextInputFormatter(10)],
                   style: TextStyle(fontSize: 25, fontWeight: FontWeight.w400),
                   onSubmitted: (val) {
-                    print('in onsubmitted ' + val);
+                    //print('in onsubmitted ' + val);
                     if (isValidateNumber(val)) {
                       doOnSubmit(_textEditingController.text);
                     }
@@ -128,13 +129,13 @@ class _PhoneLoginState extends State<PhoneLogin>
             height: 50,
             child: _showLoader
                 ? Container(
-                    color: Colors.teal[300],
+                   // color: Colors.teal[300],
                     alignment: Alignment.center,
-                    child: Text(
+                    child: /*Text(
                       'Verifying. Please Wait...',
                       style: TextStyle(
                           color: Colors.white.withOpacity(0.7), fontSize: 20),
-                    ),
+                    )*/CircularProgressIndicator(),
                   )
                 : RaisedButton(
                     color: Colors.teal[300],

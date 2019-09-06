@@ -1,6 +1,8 @@
 import 'package:chatapp/blocs/ChatBloc.dart';
 import 'package:chatapp/model/ChatModel.dart';
+import 'package:chatapp/model/UserModel.dart';
 import 'package:chatapp/userdetailchatview/ChatListDate.dart';
+import 'package:chatapp/userdetailchatview/chatelements/ChatElementSelection.dart';
 import 'package:chatapp/userdetailchatview/chatelements/ChatMediaWidget.dart';
 import 'package:chatapp/userdetailchatview/chatelements/ChatTextWidget.dart';
 import 'package:flutter/cupertino.dart';
@@ -66,16 +68,29 @@ class _UserChatViewListState extends State<UserChatViewList> {
         alignment: (currChat.fromUserId == currUser.id)
             ? Alignment.centerRight
             : Alignment.centerLeft,
-        child: getChatType(currChat, index, totalLength));
+        child: IntrinsicHeight(
+          child: Stack(
+            children: <Widget>[
+              getChatType(currChat, index, totalLength),
+              ChatElementSelection(currChat)
+            ],
+          ),
+        ));
   }
 
-  checkIfDateShown(String date) {
-    String datePart = date.substring(0, date.indexOf(' '));
+  checkIfDateShown(int ts) {
+    String datePart = getDatePart(ts);
+
     return _dateShownMap.containsKey(datePart) && _dateShownMap[datePart];
   }
 
-  String getDatePart(String date) {
-    return date.substring(0, date.indexOf(' '));
+  String getDatePart(int ts) {
+    DateTime date = DateTime.fromMillisecondsSinceEpoch(ts);
+    return date.day.toString() +
+        '/' +
+        date.month.toString() +
+        '/' +
+        date.year.toString();
   }
 
   Widget loaderList() {
@@ -98,6 +113,27 @@ class _UserChatViewListState extends State<UserChatViewList> {
     );
   }
 
+  Widget getDisplayWidget(ChatModel currChat, UserModel currUser, int index,
+      AsyncSnapshot<List<ChatModel>> snapshot) {
+    if (!checkIfDateShown(currChat.chatDate) &&
+        (index == snapshot.data.length - 1 ||
+            getDatePart(snapshot.data[index].chatDate) !=
+                getDatePart(snapshot.data[index + 1].chatDate))) {
+      _dateShownMap[getDatePart(currChat.chatDate)] = true;
+      return Flex(
+        direction: Axis.vertical,
+        children: <Widget>[
+          Center(
+              child: ChatListDate(Utils().getDateTimeInFormat(
+                  currChat.chatDate, 'date', 'userchatview'))),
+          buildListElement(currChat, currUser, index, snapshot.data.length),
+        ],
+      );
+    } else {
+      return buildListElement(currChat, currUser, index, snapshot.data.length);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final inherited = ChatViewInheritedWidget.of(context);
@@ -117,26 +153,7 @@ class _UserChatViewListState extends State<UserChatViewList> {
             itemBuilder: (BuildContext context, int index) {
               ChatModel currChat = snapshot.data[index];
 
-              if (!checkIfDateShown(currChat.chatDate) &&
-                  (index == snapshot.data.length - 1 ||
-                      getDatePart(snapshot.data[index].chatDate) !=
-                          getDatePart(snapshot.data[index + 1].chatDate))) {
-                _dateShownMap[currChat.chatDate
-                    .substring(0, currChat.chatDate.indexOf(' '))] = true;
-                return Flex(
-                  direction: Axis.vertical,
-                  children: <Widget>[
-                    Center(
-                        child: ChatListDate(Utils().getDateTimeInFormat(
-                            currChat.chatDate, 'date', 'userchatview'))),
-                    buildListElement(
-                        currChat, currUser, index, snapshot.data.length),
-                  ],
-                );
-              } else {
-                return buildListElement(
-                    currChat, currUser, index, snapshot.data.length);
-              }
+              return getDisplayWidget(currChat, currUser, index, snapshot);
             },
             itemCount: snapshot.data.length,
           );

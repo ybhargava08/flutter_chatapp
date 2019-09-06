@@ -16,9 +16,11 @@ class Utils {
 
   Utils._();
 
-  static final String _timeFormat = 'h:mm a';
-  static final String _dfShort = 'M/d/yy';
-  static final String _dfLong = 'yMMMMd';
+  static const String _timeFormat = 'h:mm a';
+  static const String _dfShort = 'M/d/yy';
+  static const String _dfLong = 'yMMMMd';
+  static const String _dfLongTime = 'M/d/yy h:mm a'; 
+
 
   static AudioCache _cache = AudioCache();
 
@@ -27,7 +29,7 @@ class Utils {
   }
 
   getChatFromMsg(Map<String, dynamic> map) {
-    print('got chat message ' + map.toString());
+    //print('got chat message ' + map.toString());
     return ChatModel.fromJson(map);
   }
 
@@ -35,9 +37,9 @@ class Utils {
     return DateFormat('yyyyMMdd HH:mm:ss').format(DateTime.now());
   }
 
-  String getDateTimeInFormat(String inputDate, String type, String from) {
-    if (inputDate != null && inputDate.trim().length > 0) {
-      DateTime dateTime = DateTime.parse(inputDate);
+  String getDateTimeInFormat(int timeMillis, String type, String from) {
+    if (null!=timeMillis && timeMillis > 0) {
+      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timeMillis);
       DateTime currTime = DateTime.now();
       if (from == 'userview') {
         if (currTime.year == dateTime.year &&
@@ -67,6 +69,8 @@ class Utils {
         } else if (type == 'time') {
           return DateFormat(_timeFormat).format(dateTime);
         }
+      }else if(from == 'backupDate') {
+          return DateFormat(_dfLongTime).format(dateTime);
       }
     }
     return "";
@@ -103,5 +107,9 @@ class Utils {
   showToast(String msg,BuildContext context,Toast duration,ToastGravity gravity) {
       Fluttertoast.showToast(msg: msg,gravity: gravity,toastLength: duration,backgroundColor: Colors.black.withOpacity(0.5)
       ,fontSize: 15,textColor: Colors.white);
+  }
+
+  bool isStringEmpty(String s) {
+       return s== null || s.trim().length ==0;
   }
 }

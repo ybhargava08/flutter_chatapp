@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:chatapp/firebase/FirebaseStorageUtil.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sembast/sembast.dart';
@@ -30,9 +31,11 @@ class SembastDatabase {
 
     final dbPath = join(docDir.path, 'chatapp.db');
 
+    await FirebaseStorageUtil().downloadLocalDB(dbPath);
+
     final database = await databaseFactoryIo.openDatabase(dbPath);
 
-    print('created / opened database at path '+dbPath.toString());
+    //print('created / opened database at path '+dbPath.toString());
 
     _dbCompleter.complete(database);
   }

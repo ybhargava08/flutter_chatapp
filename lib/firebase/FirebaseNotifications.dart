@@ -15,7 +15,7 @@ class FirebaseNotifications {
   Future<String> setUpListeners() async {
     try{
 return Utils().runSafe(() async {
-  print('starting get fcm token');
+  //print('starting get fcm token');
   String token;
   try{
      await Utils().runSafe(()async {
@@ -24,22 +24,22 @@ return Utils().runSafe(() async {
            });
      });
   }on Exception catch(e){
-      print('in excp get token error');
+      //print('in excp get token error');
   }
-    print('got fcm token ' + token);
+    //print('got fcm token ' + token);
 
     _messaging.configure(onMessage: (Map<String, dynamic> message) {
-        print('got fcm onMessage $message');
+        //print('got fcm onMessage $message');
     }, onResume: (Map<String, dynamic> message) async {
-      print('got fcm onResume $message');
+      //print('got fcm onResume $message');
       
     }, onLaunch: (Map<String, dynamic> message) async {
-      print('got fcm onLaunch $message');
+      //print('got fcm onLaunch $message');
     });
     return token;
 });
     }on Exception catch(e) {
-         print('error while getting token '+e.toString());
+         //print('error while getting token '+e.toString());
     }
     
     return null;

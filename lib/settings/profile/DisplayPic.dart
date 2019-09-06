@@ -59,29 +59,28 @@ class _DisplayPicState extends State<DisplayPic> {
                           ExactAssetImage('assets/images/blur_image.jpg'),
                     ),
                     errorWidget: (context, url, error) {
-                      print(
-                          'error occured while loading dp ' + error.toString());
+                      /*print(
+                          'error occured while loading dp ' + error.toString());*/
                       return CircleAvatar(
                         minRadius: 0,
                         maxRadius: 75,
-                        backgroundImage: 
+                        backgroundImage:
                             ExactAssetImage('assets/images/blur_image.jpg'),
                       );
                     },
                     imageUrl: _user.photoUrl,
                   )
                 : CircleAvatar(
-                        minRadius: 0,
-                        maxRadius: 75,
-                        backgroundImage: 
-                            FileImage(File(_user.photoUrl)),
-                      )
+                    minRadius: 0,
+                    maxRadius: 75,
+                    backgroundImage: FileImage(File(_user.photoUrl)),
+                  )
             : CircleAvatar(
-                        minRadius: 0,
-                        maxRadius: 75,
-                        backgroundImage: 
-                            ExactAssetImage('assets/images/acc_placeholder_enlarged.jpg'),
-                      ),
+                minRadius: 0,
+                maxRadius: 75,
+                backgroundImage: ExactAssetImage(
+                    'assets/images/acc_placeholder_enlarged.jpg'),
+              ),
         tag: _user.id,
       ),
       onTap: () {
@@ -92,7 +91,7 @@ class _DisplayPicState extends State<DisplayPic> {
     );
   }
 
-  Widget getImageUploadIcon() {
+  /*Widget getImageUploadIcon() {
     return GestureDetector(
       child: Container(
         width: 50,
@@ -109,7 +108,7 @@ class _DisplayPicState extends State<DisplayPic> {
         _showModal();
       },
     );
-  }
+  }*/
 
   _showModal() {
     showModalBottomSheet(
@@ -154,7 +153,7 @@ class _DisplayPicState extends State<DisplayPic> {
 
     if (image != null) {
       UserModel u = UserModel(_user.id, _user.name, image.path,
-          _user.lastSeenTime, _user.fcmToken, _user.ph,_user.localId);
+          _user.lastSeenTime, _user.fcmToken, _user.ph, _user.localId);
       BaseModel base = BaseModel(null, u, true);
 
       Navigator.pushNamed(context, RouteConstants.IMAGE_VIEW,
@@ -181,13 +180,13 @@ class _DisplayPicState extends State<DisplayPic> {
         .listen((data) {
       if (data.data == ProgressModel.START && this.mounted) {
         setState(() {
-          _showLoader = true; 
+          _showLoader = true;
         });
       } else if (data.data == ProgressModel.END && this.mounted) {
         cancelSubs();
         setState(() {
           _showLoader = false;
-           _user.photoUrl = user.photoUrl;
+          _user.photoUrl = user.photoUrl;
         });
         Utils().showToast("Pic uploaded successfully", context,
             Toast.LENGTH_LONG, ToastGravity.CENTER);
@@ -219,31 +218,54 @@ class _DisplayPicState extends State<DisplayPic> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      overflow: Overflow.visible,
-      children: <Widget>[
-        getImage(),
-        Positioned(
-          left: 60,
-          top: 60,
-          child: Container(
-            decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(50)),
-            child: _showLoader
-                ? CircularProgressIndicator()
-                : Container(
-                    width: 0,
-                    height: 0,
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      height: 0.4 * MediaQuery.of(context).size.height,
+      child: Flex(
+        direction: Axis.vertical,
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Flexible(
+            child: Stack(
+              overflow: Overflow.visible,
+              children: <Widget>[
+                getImage(),
+                Positioned(
+                  left: 60,
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(50)),
+                    child: _showLoader
+                        ? CircularProgressIndicator()
+                        : Container(
+                            width: 0,
+                            height: 0,
+                          ),
                   ),
+                ),
+              
+              ],
+            ),
           ),
-        ),
-        Positioned(
-          left: 120,
-          bottom: 10,
-          child: getImageUploadIcon(),
-        )
-      ],
+          Flexible(
+            child: RaisedButton(
+              child: Text(
+                'Add Profile Pic',
+                style: TextStyle(fontSize: 17),
+              ),
+              textColor: Colors.white,
+              color: Theme.of(context).accentColor,
+              splashColor: Colors.cyan,
+              elevation: 5.0,
+              onPressed: () {
+                _showModal();
+              },
+            ),
+          )
+        ],
+      ),
     );
   }
 }

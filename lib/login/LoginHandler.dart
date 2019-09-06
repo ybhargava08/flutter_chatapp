@@ -59,7 +59,7 @@ class LoginHandler {
           userList = await sortUserList(userList);
           }
           int diff = DateTime.now().millisecondsSinceEpoch - startTime;
-          print('total time taken preparing contact list '+diff.toString()+' ms'); 
+          //print('total time taken preparing contact list '+diff.toString()+' ms'); 
           
           UserBloc().setInitUserAvtivityCS(userList, false);
 
@@ -67,11 +67,11 @@ class LoginHandler {
               (Route<dynamic> route) => false,
               arguments: UserMainViewArgs(userList));
         } else {
-          print('fcm is null');
+          //print('fcm is null');
         }
       });
     } on Exception catch (e) {
-      print('got error while getting token ' + e.toString());
+      //print('got error while getting token ' + e.toString());
     }
   }
 
@@ -92,7 +92,7 @@ class LoginHandler {
         
       });
       int diff = DateTime.now().millisecondsSinceEpoch - start;
-      print('time taken in sorting '+diff.toString()+' ms') ; 
+      //print('time taken in sorting '+diff.toString()+' ms') ; 
     }
     return userList;
   }
@@ -105,7 +105,7 @@ class LoginHandler {
         .get(); */
       int time = await FirebaseRealtimeDB().getUserLastActivityTime(user.id);
       int diff = DateTime.now().millisecondsSinceEpoch - start;
-      print('time taken in getting time '+diff.toString()+' ms') ; 
+      //print('time taken in getting time '+diff.toString()+' ms') ; 
     if (time > 0) {
       user.lastActivityTime = time;
     }
@@ -118,7 +118,7 @@ class LoginHandler {
     Iterable<Contact> contacts =
         await ContactsService.getContacts(withThumbnails: false);
     int diff = DateTime.now().millisecondsSinceEpoch - starttime;
-    print('timetaken in getting CS ' + diff.toString() + ' ms ');
+    //print('timetaken in getting CS ' + diff.toString() + ' ms ');
     List<Future> futureList = List();
     contacts.forEach((contact) async {
       String name = contact.displayName;
@@ -133,11 +133,11 @@ class LoginHandler {
           0);
       contact.phones.forEach((phone) {
         if (phone.label.toLowerCase().contains('mobile')) {
-          /*  print(
+          /*  //print(
               'label ' + phone.label + ' val ' + phone.value + ' name ' + name);*/
           String validPhNo = getValidPhoneNo(phone.value);
           if (validPhNo.length >= 10) {
-            // print('VALID !!!!!! phn no ' + validPhNo + ' for user ' + name);
+            // //print('VALID !!!!!! phn no ' + validPhNo + ' for user ' + name);
             user.ph = validPhNo;
           }
         }
@@ -165,7 +165,7 @@ class LoginHandler {
         .getDocuments();
     if (snap != null && snap.documents.length > 0) {
       DocumentSnapshot docSnap = snap.documents[0];
-      print('got snap for ph ' + docSnap['ph']);
+      //print('got snap for ph ' + docSnap['ph']);
       user.id = docSnap['id'];
       user.fcmToken = docSnap['fcmToken'];
       user.lastSeenTime = docSnap['lastSeenTime'];
