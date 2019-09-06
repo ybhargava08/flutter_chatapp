@@ -49,6 +49,8 @@ dependencies:
   synchronized: ^2.1.0+1
   adhara_socket_io: ^0.3.4
   flutter_socket_io: ^0.5.1
+  http: ^0.12.0+2
+ 
 
 dev_dependencies:
   flutter_test:

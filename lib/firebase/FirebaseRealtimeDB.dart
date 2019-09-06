@@ -31,35 +31,10 @@ class FirebaseRealtimeDB {
     return -1;
   }
 
-  Future incDecUnreadChatCount(String fromUserId, String toUserId,
-      Map<String, dynamic> data, String type, int count) async {
-    DatabaseReference countRef;
-
-    if(type == 'inc') {
-      countRef = _database.reference().child('ChatActivity').child(toUserId).child('UnreadChat').child(fromUserId);
-         final TransactionResult result = await countRef.runTransaction((MutableData mutableData) async {
-                    if(mutableData.value == null || mutableData.value['ct'] == null) {
-                         data['ct'] = count;
-                    } else{
-                       data['ct'] = mutableData.value['ct']+count;
-                    }
-                    mutableData.value = data;
-                    return mutableData;
-         });
-         if(result.error!=null) {
-               //print('error while commiting transaction '+result.error.toString());
-         }
-    }else{
-      countRef = _database.reference().child('ChatActivity').child(toUserId).child('UnreadChat').child(fromUserId).child('ct');
-      countRef.runTransaction((MutableData mutableData) async {
-            if (mutableData.value != null) {
-          mutableData.value = (mutableData.value - count > 0)
-              ? (mutableData.value - count)
-              : 0;
-        }
-        return mutableData;
-      });
-    }
+  Future setLastChatRealtimeDB(String fromUserId, String toUserId,
+      Map<String, dynamic> data) async {
+    DatabaseReference countRef=_database.reference().child('ChatActivity').child(toUserId).child('UnreadChat').child(fromUserId);
+    countRef.set(data);
   }
 
   Future<int> setUserLastActivityTime(ChatModel chat) async {

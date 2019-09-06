@@ -13,12 +13,15 @@ static const String TYPING = 'typing';
 static const String RECEIPT_DEL = 'delivery';
 static const String ACK = 'ack';
 static const String RECEIVED_FROM_SERVER = 'ReceivedFromServer';
+static const String DELIVERED_COUNT = 'deliveredCount';
 
   WebSocModel(this.type,this.fromUserId, this.toUserId, this.chatId, this.value);
 
   factory WebSocModel.fromJson(Map<String, dynamic> map) {
+    String chatid = map['chatId'].toString();
+    
     return WebSocModel(
-        map['type'],map['fromUserId'], map['toUserId'], map['chatId'], map['value']);
+        map['type'],map['fromUserId'], map['toUserId'], chatid, map['value']);
   }
 
   Map<String,dynamic> toJson() {

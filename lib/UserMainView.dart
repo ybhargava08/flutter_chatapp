@@ -34,6 +34,7 @@ class _UserMainViewState extends State<UserMainView> {
     UserBloc().initUserController();
     NotificationBloc().openNotificationController();
     ConnectivityListener().initListener();
+    UserLatestChatBloc().openChatCountController();
     super.initState();
   }
 
@@ -53,7 +54,7 @@ class _UserMainViewState extends State<UserMainView> {
     ChatListener().closeAllListeners();
     UserListener().closeControllers();
     ConnectivityListener().closeListener();
-    LastChatListener().closeAllListeners();
+    //LastChatListener().closeAllListeners();
     UserLatestChatBloc().closeChatCountController();
     super.dispose();
   }

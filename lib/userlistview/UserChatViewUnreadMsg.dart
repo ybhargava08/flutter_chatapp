@@ -47,7 +47,7 @@ class UserChatViewUnreadMsg extends StatelessWidget {
                     child: Text(
                       unreadMsg.toString(),
                       style: TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.white),
+                          fontWeight: FontWeight.bold, color: Colors.white,fontSize: 12),
                     ),
                   ))
               : Container(

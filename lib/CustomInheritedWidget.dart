@@ -1,12 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 
-import 'package:chatapp/blocs/LastChatListener.dart';
 import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/blocs/UserListener.dart';
 import 'package:chatapp/blocs/ChatListener.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/model/UserLatestChatModel.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import 'package:chatapp/model/UserModel.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
@@ -41,7 +42,7 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
 
     listenForUserUpdates();
     listenForNewChats();
-    listenForChatCounts();
+    getInitChatCout();
   }
 
   listenForUserUpdates() {
@@ -57,24 +58,33 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
     }
   }
 
-  listenForChatCounts() {
-    UserLatestChatBloc().openChatCountController();
+  getInitChatCout() async {
+        String uri  = 'https://chatapp-socketio-server.herokuapp.com/getUnreadChatCount?fromUserId='+_toUser.id+'&toUserId='
+          +UserBloc().getCurrUser().id;
+         var response = await http.get(uri);
+          Map<String,dynamic> responseData = jsonDecode(response.body);
+          setState(() {
+            _unreadMsg = responseData['count'];
+          });    
+         listenForChatCounts();
+  }
 
+  listenForChatCounts() {
     if (null != UserLatestChatBloc().getChatCountController()) {
       _unreadChatSubs = UserLatestChatBloc()
           .getChatCountController()
           .stream
-          .where((item) => item.toUserId.trim() == _toUser.id.trim())
+          .where((item) => item.toUserId.trim().compareTo(_toUser.id.trim()) == 0)
           .listen((data) {
-        if (UserLatestChatModel.COUNT == data.key && _unreadMsg != data.value) {
+        if (UserLatestChatModel.COUNT == data.key && (_unreadMsg+data.value >=0)) {
           setState(() {
-            _unreadMsg = data.value;
+            _unreadMsg = _unreadMsg+data.value;
           });
         }
       });
     }
-    LastChatListener()
-        .initLatestChatListeners(UserBloc().getCurrUser().id, _toUser.id);
+    /*LastChatListener()
+        .initLatestChatListeners(UserBloc().getCurrUser().id, _toUser.id);*/
   }
 
   listenForNewChats() async {
@@ -99,7 +109,7 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
     if (_chatListenerSubs != null) {
       _chatListenerSubs.cancel();
     }
-    LastChatListener().closeIndividualListener(_toUser.id);
+    //LastChatListener().closeIndividualListener(_toUser.id);
 
     super.dispose();
   }

@@ -8,7 +8,6 @@ import 'package:chatapp/database/ChatReceiptDB.dart';
 import 'package:chatapp/database/SembastChat.dart';
 import 'package:chatapp/enlargedview/ImageEnlargedView.dart';
 import 'package:chatapp/enlargedview/MediaEnlargedView.dart';
-import 'package:chatapp/firebase/FirebaseRealtimeDB.dart';
 import 'package:chatapp/firebase/FirebaseStorageUtil.dart';
 import 'package:chatapp/model/BaseModel.dart';
 import 'package:chatapp/model/ChatModel.dart';
@@ -46,13 +45,8 @@ class _ChatMediaWidgetState extends State<ChatMediaWidget> {
       SembastChat()
           .updateDeliveryReceipt(widget.chat.id.toString(), widget.chat.delStat)
           .then((_) {
-        FirebaseRealtimeDB()
-            .incDecUnreadChatCount(
-                widget.chat.fromUserId, widget.chat.toUserId, null, 'dec', 1)
-            .then((_) {
           ChatReceiptDB().upsertReceiptInDB(widget.chat).then((res) {
             WebsocketBloc().addDataToSocket(WebSocModel.RECEIPT_DEL,res);
-          });
         });
       });
     }

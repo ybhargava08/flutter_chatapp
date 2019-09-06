@@ -65,8 +65,8 @@ class Firebase {
             chatRef.setData(chat.toFirestoreJson(),merge:true)
         .then((_) async {
           
-          FirebaseRealtimeDB().incDecUnreadChatCount(chat.fromUserId, chat.toUserId,
-          prepareDataForCountUpdate(chat) , 'inc', 1);
+          FirebaseRealtimeDB().setLastChatRealtimeDB(chat.fromUserId, chat.toUserId,
+          prepareDataForCountUpdate(chat));
           int time = await FirebaseRealtimeDB().setUserLastActivityTime(chat);
           String userSearchId = (chat.fromUserId == UserBloc().getCurrUser().id)?chat.toUserId:chat.fromUserId;
           SembastUser().upsertInUserContactStore(UserBloc().findUser(userSearchId), {'lastActivityTime':time});
@@ -93,33 +93,6 @@ class Firebase {
     } catch (e) {
       //print('exception while add / update chat in FB ' + e.toString());
     }
-  }
-
-  markChatsAsReadOrDelivered(String otherUserId, List<ChatModel> chats,
-      bool shouldUpdateCount, String type) async {
-    if(chats.length > 0)  {
-        WriteBatch batch = _firestore.batch();
-    chats.forEach((chat) {
-      DocumentReference docRef = getChatCollectionRef(
-              Utils().getChatCollectionId(
-                  UserBloc().getCurrUser().id, otherUserId),
-              CHAT_COL_COMPLETE)
-          .document(chat.id.toString());
-      Map<String, dynamic> data = Map();
-      if (type == ChatModel.READ_BY_USER) {
-        data = {'delStat': ChatModel.READ_BY_USER};
-      } else {
-        data = {'delStat': ChatModel.DELIVERED_TO_USER};
-      }
-      batch.setData(docRef, data, merge: true);
-    });
-    batch.commit().then((val) {
-           if(type == ChatModel.READ_BY_USER) {
-                  ChatModel cm = chats[0];
-            FirebaseRealtimeDB().incDecUnreadChatCount(cm.fromUserId, cm.toUserId, null, 'dec', chats.length);
-           }
-    });
-    }   
   }
 
   Map<String,dynamic> prepareDataForCountUpdate(ChatModel chat) {

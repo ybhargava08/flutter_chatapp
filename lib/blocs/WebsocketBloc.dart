@@ -2,8 +2,10 @@ import 'dart:async';
 import 'package:adhara_socket_io/adhara_socket_io.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
+import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/database/ChatReceiptDB.dart';
 import 'package:chatapp/database/SembastChat.dart';
+import 'package:chatapp/model/UserLatestChatModel.dart';
 import 'package:chatapp/model/WebSocModel.dart';
 
 class WebsocketBloc {
@@ -38,6 +40,7 @@ class WebsocketBloc {
                _addInStreamController(WebSocModel.fromJson(data));
     }); 
     socket.on(WebSocModel.RECEIPT_DEL,(data) {
+         print('got data from socket io '+data.toString());
         if(data is List) {
             data.forEach((item) {
                 doOnChatReceiptsReceived(item,socket);
@@ -48,12 +51,17 @@ class WebsocketBloc {
          
     });
 
+    socket.on(WebSocModel.DELIVERED_COUNT, (data){
+              UserLatestChatModel userLatestChatModel = UserLatestChatModel(data['fromUserId'],UserLatestChatModel.COUNT,1);
+               UserLatestChatBloc().addToChatCountController(userLatestChatModel);
+    });
+
     socket.onConnectError((data) {
         print('got error '+data);  
     });
 
     socket.onDisconnect((data){
-                print('client dissconnected '+data.toString());
+                print('client disconnected '+data.toString());
     }); 
   }
 
@@ -72,8 +80,9 @@ class WebsocketBloc {
       if (event == WebSocModel.TYPING) {
         socket.emit(event, [modelData.toJson()]);
       } else if (event == WebSocModel.RECEIPT_DEL) {
+        UserLatestChatBloc().addToChatCountController(UserLatestChatModel(modelData.fromUserId,UserLatestChatModel.COUNT,-1));
         socket.emitWithAck(event, [modelData.toJson()]).then((chatId) {
-          print('callback called got data ' + chatId[0]);
+          print('callback called got data ' + chatId[0].toString());
           ChatReceiptDB().deleteReceiptInDB(chatId[0]);
         });
       }

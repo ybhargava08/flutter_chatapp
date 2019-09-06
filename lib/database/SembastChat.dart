@@ -1,8 +1,10 @@
 import 'package:chatapp/blocs/ChatBloc.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
+import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/database/SembastDatabase.dart';
 import 'package:chatapp/database/SembastUserLastChat.dart';
 import 'package:chatapp/model/ChatModel.dart';
+import 'package:chatapp/model/UserLatestChatModel.dart';
 import 'package:sembast/sembast.dart';
 import 'package:synchronized/synchronized.dart';
 
@@ -30,12 +32,14 @@ class SembastChat {
           .findFirst(await SembastDatabase().getDatabase(), finder: finder);
       if (snap != null && snap.key != null) {
         chat.localChatId = snap.key;
-        if (ChatModel.CHAT!=snap['chatType'] && snap['firebaseStorage'] == null 
-        && null!=chat.firebaseStorage && ''!=chat.firebaseStorage) {
+        if (ChatModel.CHAT != snap['chatType'] &&
+            snap['firebaseStorage'] == null &&
+            null != chat.firebaseStorage &&
+            '' != chat.firebaseStorage) {
           data['firebaseStorage'] = chat.firebaseStorage;
           shouldUpdate = true;
         }
-        if (snap['delStat'] == null && chat.delStat!=null ||
+        if (snap['delStat'] == null && chat.delStat != null ||
             chat.delStat.compareTo(snap['delStat']) > 0) {
           data['delStat'] = chat.delStat;
           shouldUpdate = true;
@@ -124,14 +128,24 @@ class SembastChat {
     return null;
   }
 
-  Future updateDeliveryReceipt(String chatId,String val) async {
-          int chatid = int.parse(chatId);
-          final finder = Finder(filter: Filter.equals('id', chatid));
-          RecordSnapshot rs = await _chatStore.findFirst(await SembastDatabase().getDatabase(),finder:finder);
-          print('val is '+val+' chatid '+chatid.toString()+' got record snap updateDeliveryReceipt '+rs.toString());
-          if(null!=rs && rs.key!=null && (null == rs['delStat'] || val.compareTo(rs['delStat']) > 0)) {
-              await _chatStore.record(rs.key).put(await SembastDatabase().getDatabase(), {'delStat':val},merge: true);
-          }
+  Future updateDeliveryReceipt(String chatId, String val) async {
+    int chatid = int.parse(chatId);
+    final finder = Finder(filter: Filter.equals('id', chatid));
+    RecordSnapshot rs = await _chatStore
+        .findFirst(await SembastDatabase().getDatabase(), finder: finder);
+    print('val is ' +
+        val +
+        ' chatid ' +
+        chatid.toString() +
+        ' got record snap updateDeliveryReceipt ' +
+        rs.toString());
+    if (null != rs &&
+        rs.key != null &&
+        (null == rs['delStat'] || val.compareTo(rs['delStat']) > 0)) {
+      await _chatStore.record(rs.key).put(
+          await SembastDatabase().getDatabase(), {'delStat': val},
+          merge: true);
+    }
   }
 
   Future<int> deleteAllChats() async {
