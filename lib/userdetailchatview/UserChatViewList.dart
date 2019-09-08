@@ -64,18 +64,19 @@ class _UserChatViewListState extends State<UserChatViewList> {
 
   Widget buildListElement(
       ChatModel currChat, var currUser, int index, int totalLength) {
-    return Align(
-        alignment: (currChat.fromUserId == currUser.id)
-            ? Alignment.centerRight
-            : Alignment.centerLeft,
-        child: IntrinsicHeight(
-          child: Stack(
-            children: <Widget>[
-              getChatType(currChat, index, totalLength),
-              ChatElementSelection(currChat)
-            ],
+    return IntrinsicHeight(
+      child: Stack(
+        children: <Widget>[
+          Align(
+            alignment: (currChat.fromUserId == currUser.id)
+                ? Alignment.centerRight
+                : Alignment.centerLeft,
+            child: getChatType(currChat, index, totalLength),
           ),
-        ));
+          ChatElementSelection(currChat)
+        ],
+      ),
+    );
   }
 
   checkIfDateShown(int ts) {

@@ -43,9 +43,6 @@ class SembastUserLastChat {
           .findFirst(await SembastDatabase().getDatabase(), finder: finder);
       if (rs != null) {
         key = rs.key;
-        /*print('found key in upsertuserlastchat current last chat '+rs['chat'].toString()+" current last time "+rs['chatDate'].toString()
-        +' new chat '+chat.chat+' new date '+chat.chatDate.toString()+" new chat delstat "+chat.delStat
-        +" old del stat "+rs['delStat'].toString());*/
         if(chat.chatDate.compareTo(rs['chatDate']) < 0) {
              return;
         }
@@ -57,12 +54,23 @@ class SembastUserLastChat {
           .record(key)
           .put(await SembastDatabase().getDatabase(), chat.toJson()).then((map) {
                   ChatListener().addToController(toUserId, chat);
-            //print('upsert last user chat '+c.toString());
           });
     });
   }
 
   Future deleteAllLastChats() async {
        return await _userLastChatStore.delete(await SembastDatabase().getDatabase());
+  }
+
+  Future updateLastChatDelivery(int chatId,String value) async {
+       final finder = Finder(filter: Filter.equals('id', chatId));
+    RecordSnapshot rs = await _userLastChatStore
+        .findFirst(await SembastDatabase().getDatabase(), finder: finder);
+        if(null!=rs) {
+        }
+        
+    if (rs != null && (rs['delStat'] == null || (rs['delStat'] != null && value.compareTo(rs['delStat'])>0))) {
+          await _userLastChatStore.update(await SembastDatabase().getDatabase(), {'delStat':value},finder: finder);
+    }
   }
 }

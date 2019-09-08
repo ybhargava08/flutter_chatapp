@@ -7,6 +7,8 @@ import 'package:chatapp/database/ChatReceiptDB.dart';
 import 'package:chatapp/database/SembastChat.dart';
 import 'package:chatapp/model/UserLatestChatModel.dart';
 import 'package:chatapp/model/WebSocModel.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class WebsocketBloc {
   static WebsocketBloc _websocketBloc;
@@ -25,66 +27,80 @@ class WebsocketBloc {
 
   openSocketConnection() async {
     _openStreamController();
-  
-      manager = SocketIOManager();
-     socket = await manager.createInstance(SocketOptions(uri
-    ,query:{'userId':UserBloc().getCurrUser().id},enableLogging:true,nameSpace: '/')); 
-    
+
+    manager = SocketIOManager();
+    socket = await manager.createInstance(SocketOptions(uri,
+        query: {'userId': UserBloc().getCurrUser().id},
+        enableLogging: true,
+        nameSpace: '/'));
+
     socket.connect();
 
-    socket.onConnect((data){
-          print('connected');
+    socket.onConnect((data) {
+      print('connected');
     });
 
     socket.on(WebSocModel.TYPING, (data) {
-               _addInStreamController(WebSocModel.fromJson(data));
-    }); 
-    socket.on(WebSocModel.RECEIPT_DEL,(data) {
-         print('got data from socket io '+data.toString());
-        if(data is List) {
-            data.forEach((item) {
-                doOnChatReceiptsReceived(item,socket);
-            });
-        }else{
-          doOnChatReceiptsReceived(data,socket);
-        }
-         
+      _addInStreamController(WebSocModel.fromJson(data));
+    });
+    socket.on(WebSocModel.RECEIPT_DEL, (data) {
+      print('got data from socket io ' + data.toString());
+      if (data is List) {
+        data.forEach((item) {
+          doOnChatReceiptsReceived(item, socket);
+        });
+      } else {
+        doOnChatReceiptsReceived(data, socket);
+      }
     });
 
-    socket.on(WebSocModel.DELIVERED_COUNT, (data){
-              UserLatestChatModel userLatestChatModel = UserLatestChatModel(data['fromUserId'],UserLatestChatModel.COUNT,1);
-               UserLatestChatBloc().addToChatCountController(userLatestChatModel);
+    socket.on(WebSocModel.DELIVERED_COUNT, (data) {
+      UserLatestChatModel userLatestChatModel =
+          UserLatestChatModel(data['fromUserId'], UserLatestChatModel.COUNT, 1);
+      UserLatestChatBloc().addToChatCountController(userLatestChatModel);
     });
 
     socket.onConnectError((data) {
-        print('got error '+data);  
+      print('got error ' + data);
     });
 
-    socket.onDisconnect((data){
-                print('client disconnected '+data.toString());
-    }); 
+    socket.onDisconnect((data) {
+      print('client disconnected ' + data.toString());
+    });
   }
 
-  doOnChatReceiptsReceived(Map<String,dynamic> data,SocketIO socket) async {
-      WebSocModel model = WebSocModel.fromJson(data);
-            SembastChat()
-            .updateDeliveryReceipt(model.chatId, model.value)
-            .then((_) {
-             NotificationBloc().addToNotificationController(int.parse(model.chatId), model.value); 
-             socket.emit(WebSocModel.RECEIVED_FROM_SERVER, [model.chatId]);
-        });
+  doOnChatReceiptsReceived(Map<String, dynamic> data, SocketIO socket) async {
+    WebSocModel model = WebSocModel.fromJson(data);
+    SembastChat()
+        .updateDeliveryReceipt(model.chatId, model.value)
+        .then((isUpdated) {
+      if (isUpdated) {
+        NotificationBloc()
+            .addToNotificationController(int.parse(model.chatId), model.value);
+        socket.emit(WebSocModel.RECEIVED_FROM_SERVER, [model.chatId]);
+      }
+    });
   }
 
-  addDataToSocket(String event, WebSocModel modelData) {
+  addDataToSocket(String event, WebSocModel modelData) async {
     if (null != socket) {
       if (event == WebSocModel.TYPING) {
         socket.emit(event, [modelData.toJson()]);
       } else if (event == WebSocModel.RECEIPT_DEL) {
-        UserLatestChatBloc().addToChatCountController(UserLatestChatModel(modelData.fromUserId,UserLatestChatModel.COUNT,-1));
-        socket.emitWithAck(event, [modelData.toJson()]).then((chatId) {
-          print('callback called got data ' + chatId[0].toString());
-          ChatReceiptDB().deleteReceiptInDB(chatId[0]);
-        });
+        UserLatestChatBloc().addToChatCountController(UserLatestChatModel(
+            modelData.fromUserId, UserLatestChatModel.COUNT, -1));
+        http.Response resp = await http.post(
+            'https://chatapp-socketio-server.herokuapp.com/delivery',
+            body: modelData.toJson()).catchError((err) {
+                      print('got err while sending delivery '+err.toString()); 
+            });
+        if (200 == resp.statusCode) {
+          if (null != resp.body) {
+            Map<String, dynamic> response =
+                json.decode(resp.body);
+            ChatReceiptDB().deleteReceiptInDB(response['resp']);
+          }
+        }
       }
     }
   }

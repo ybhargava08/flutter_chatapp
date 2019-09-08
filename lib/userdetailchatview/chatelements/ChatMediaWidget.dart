@@ -44,10 +44,12 @@ class _ChatMediaWidgetState extends State<ChatMediaWidget> {
       widget.chat.delStat = ChatModel.READ_BY_USER;
       SembastChat()
           .updateDeliveryReceipt(widget.chat.id.toString(), widget.chat.delStat)
-          .then((_) {
+          .then((isUpdated) {
+        if (isUpdated) {
           ChatReceiptDB().upsertReceiptInDB(widget.chat).then((res) {
-            WebsocketBloc().addDataToSocket(WebSocModel.RECEIPT_DEL,res);
-        });
+            WebsocketBloc().addDataToSocket(WebSocModel.RECEIPT_DEL, res);
+          });
+        }
       });
     }
     super.initState();

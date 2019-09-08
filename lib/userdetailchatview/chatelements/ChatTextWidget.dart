@@ -34,10 +34,12 @@ class _ChatTextWidgetState extends State<ChatTextWidget> {
       widget.chat.delStat = ChatModel.READ_BY_USER;
       SembastChat()
           .updateDeliveryReceipt(widget.chat.id.toString(), widget.chat.delStat)
-          .then((_) {
-        ChatReceiptDB().upsertReceiptInDB(widget.chat).then((res) {
-          WebsocketBloc().addDataToSocket(WebSocModel.RECEIPT_DEL, res);
-        });
+          .then((isUpdated) {
+        if (isUpdated) {
+          ChatReceiptDB().upsertReceiptInDB(widget.chat).then((res) {
+            WebsocketBloc().addDataToSocket(WebSocModel.RECEIPT_DEL, res);
+          });
+        }
       });
     }
     super.initState();
@@ -55,56 +57,54 @@ class _ChatTextWidgetState extends State<ChatTextWidget> {
     var h = MediaQuery.of(context).size.height;
     var w = MediaQuery.of(context).size.width;
 
-         return ConstrainedBox(
-            constraints: BoxConstraints(
-              minWidth: 0.0,
-              maxWidth: 0.79 * ((h < w) ? h : w),
-            ),
-            child: Container(
-              margin: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-              padding: EdgeInsets.all(7.0),
-              decoration: BoxDecoration(
-                  color: (widget.chat.fromUserId != currUser.id)
-                      ? Colors.white
-                      : bgColor,
-                  borderRadius: BorderRadius.circular(5.0),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.grey,
-                        blurRadius: 1,
-                        offset: Offset(1.0, 1.0))
-                  ]),
-              child: Flex(
-                direction: Axis.horizontal,
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  Flexible(
-                    flex: 1,
-                    child: Container(
-                      margin: EdgeInsets.only(right: 10),
-                      child: Text(widget.chat.chat,
-                          style: TextStyle(
-                              fontSize: 16,
-                              color: (widget.chat.fromUserId != currUser.id)
-                                  ? Colors.black
-                                  : fontColor)),
-                    ),
-                  ),
-                  Text(
-                    Utils().getDateTimeInFormat(
-                        widget.chat.chatDate, 'time', 'userchatview'),
-                    style: TextStyle(color: Colors.blueGrey[400], fontSize: 11),
-                  ),
-                  (widget.chat.fromUserId == UserBloc().getCurrUser().id)
-                      ? ChatDeliveryNotification(UniqueKey(), widget.chat)
-                      : Container(
-                          width: 0,
-                          height: 0,
-                        )
-                ],
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minWidth: 0.0,
+        maxWidth: 0.79 * ((h < w) ? h : w),
+      ),
+      child: Container(
+        margin: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+        padding: EdgeInsets.all(7.0),
+        decoration: BoxDecoration(
+            color: (widget.chat.fromUserId != currUser.id)
+                ? Colors.white
+                : bgColor,
+            borderRadius: BorderRadius.circular(5.0),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.grey, blurRadius: 1, offset: Offset(1.0, 1.0))
+            ]),
+        child: Flex(
+          direction: Axis.horizontal,
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            Flexible(
+              flex: 1,
+              child: Container(
+                margin: EdgeInsets.only(right: 10),
+                child: Text(widget.chat.chat,
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: (widget.chat.fromUserId != currUser.id)
+                            ? Colors.black
+                            : fontColor)),
               ),
             ),
+            Text(
+              Utils().getDateTimeInFormat(
+                  widget.chat.chatDate, 'time', 'userchatview'),
+              style: TextStyle(color: Colors.blueGrey[400], fontSize: 11),
+            ),
+            (widget.chat.fromUserId == UserBloc().getCurrUser().id)
+                ? ChatDeliveryNotification(UniqueKey(), widget.chat)
+                : Container(
+                    width: 0,
+                    height: 0,
+                  )
+          ],
+        ),
+      ),
     );
   }
 }

@@ -42,7 +42,7 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
 
     listenForUserUpdates();
     listenForNewChats();
-    getInitChatCout();
+    getInitChatCount();
   }
 
   listenForUserUpdates() {
@@ -58,7 +58,7 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
     }
   }
 
-  getInitChatCout() async {
+  getInitChatCount() async {
         String uri  = 'https://chatapp-socketio-server.herokuapp.com/getUnreadChatCount?fromUserId='+_toUser.id+'&toUserId='
           +UserBloc().getCurrUser().id;
          var response = await http.get(uri);
@@ -83,17 +83,13 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
         }
       });
     }
-    /*LastChatListener()
-        .initLatestChatListeners(UserBloc().getCurrUser().id, _toUser.id);*/
   }
 
   listenForNewChats() async {
     ChatListener().openFirebaseListener(_toUser.id);
     if (ChatListener().getController(_toUser.id) != null) {
       _chatListenerSubs =
-          ChatListener().getController(_toUser.id).stream/*.where((item) => (_chatModel == null 
-          || (item.chatDate >= _chatModel.chatDate)))
-          */.listen((data) {
+          ChatListener().getController(_toUser.id).stream.listen((data) {
         setState(() {
           _chatModel = data;
         });
@@ -109,8 +105,6 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
     if (_chatListenerSubs != null) {
       _chatListenerSubs.cancel();
     }
-    //LastChatListener().closeIndividualListener(_toUser.id);
-
     super.dispose();
   }
 

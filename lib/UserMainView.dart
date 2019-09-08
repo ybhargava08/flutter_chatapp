@@ -1,6 +1,5 @@
 import 'package:chatapp/RouteConstants.dart';
 import 'package:chatapp/blocs/ConnectivityListener.dart';
-import 'package:chatapp/blocs/LastChatListener.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/blocs/UserListener.dart';
@@ -54,7 +53,6 @@ class _UserMainViewState extends State<UserMainView> {
     ChatListener().closeAllListeners();
     UserListener().closeControllers();
     ConnectivityListener().closeListener();
-    //LastChatListener().closeAllListeners();
     UserLatestChatBloc().closeChatCountController();
     super.dispose();
   }
