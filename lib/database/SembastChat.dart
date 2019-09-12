@@ -27,23 +27,29 @@ class SembastChat {
       final finder = Finder(filter: Filter.equals('id', chat.id));
       RecordSnapshot snap = await _chatStore
           .findFirst(await SembastDatabase().getDatabase(), finder: finder);
-      if (snap != null && snap.key != null) {
-        chat.localChatId = snap.key;
-        if (ChatModel.CHAT != snap['chatType'] &&
-            snap['firebaseStorage'] == null &&
-            null != chat.firebaseStorage &&
-            '' != chat.firebaseStorage) {
-          data['firebaseStorage'] = chat.firebaseStorage;
-          shouldUpdate = true;
-        }
-        if (snap['delStat'] == null && chat.delStat != null ||
-            chat.delStat.compareTo(snap['delStat']) > 0) {
-          data['delStat'] = chat.delStat;
-          shouldUpdate = true;
-        }
+
+      if (chat.isD) {
+        data = chat.toDeleteJson(chat.chatDate, false);
+        shouldUpdate = true;
       } else {
-        shoulInsert = true;
-        chat.localChatId = DateTime.now().millisecondsSinceEpoch;
+        if (snap != null && snap.key != null) {
+          chat.localChatId = snap.key;
+          if (ChatModel.CHAT != snap['chatType'] &&
+              snap['firebaseStorage'] == null &&
+              null != chat.firebaseStorage &&
+              '' != chat.firebaseStorage) {
+            data['firebaseStorage'] = chat.firebaseStorage;
+            shouldUpdate = true;
+          }
+          if (snap['delStat'] == null && chat.delStat != null ||
+              chat.delStat.compareTo(snap['delStat']) > 0) {
+            data['delStat'] = chat.delStat;
+            shouldUpdate = true;
+          }
+        } else {
+          shoulInsert = true;
+          chat.localChatId = DateTime.now().millisecondsSinceEpoch;
+        }
       }
 
       if (shoulInsert) {
@@ -59,10 +65,13 @@ class SembastChat {
       }
 
       if (shouldUpdate) {
-        await _chatStore.update(await SembastDatabase().getDatabase(), data,
+        int noUpdates = await _chatStore.update(
+            await SembastDatabase().getDatabase(), data,
             finder: finder);
-        ChatBloc().addInChatController(chat);
-        SembastUserLastChat().upsertUserLastChat(chat);
+        if (noUpdates > 0) {
+          ChatBloc().addInChatController(chat);
+          SembastUserLastChat().upsertUserLastChat(chat);
+        }
       }
     });
   }
@@ -128,10 +137,10 @@ class SembastChat {
       await _chatStore.record(rs.key).put(
           await SembastDatabase().getDatabase(), {'delStat': val},
           merge: true);
-          SembastUserLastChat().updateLastChatDelivery(chatid,val);
-      return true;    
+      SembastUserLastChat().updateLastChatDelivery(chatid, val);
+      return true;
     }
-    SembastUserLastChat().updateLastChatDelivery(chatid,val);
+    SembastUserLastChat().updateLastChatDelivery(chatid, val);
     return false;
   }
 

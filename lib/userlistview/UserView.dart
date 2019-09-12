@@ -3,7 +3,6 @@ import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/enlargedview/ImageEnlargedView.dart';
 import 'package:chatapp/model/BaseModel.dart';
 import 'package:chatapp/userlistview/UserChatViewUnreadMsg.dart';
-import 'package:chatapp/userlistview/UserEnlargedImgDialog.dart';
 import 'package:chatapp/userlistview/UserViewLastMsg.dart';
 import 'package:flutter/material.dart';
 

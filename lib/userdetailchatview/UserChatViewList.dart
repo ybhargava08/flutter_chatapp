@@ -3,6 +3,7 @@ import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/model/UserModel.dart';
 import 'package:chatapp/userdetailchatview/ChatListDate.dart';
 import 'package:chatapp/userdetailchatview/chatelements/ChatElementSelection.dart';
+import 'package:chatapp/userdetailchatview/chatelements/ChatElementType.dart';
 import 'package:chatapp/userdetailchatview/chatelements/ChatMediaWidget.dart';
 import 'package:chatapp/userdetailchatview/chatelements/ChatTextWidget.dart';
 import 'package:flutter/cupertino.dart';
@@ -47,23 +48,37 @@ class _UserChatViewListState extends State<UserChatViewList> {
     super.dispose();
   }
 
-  Widget getChatType(ChatModel chat, int index, int totalLength) {
-    if (chat.chatType == ChatModel.CHAT) {
-      return ChatTextWidget(
-          ValueKey(chat.id), chat, index, totalLength, _scrollController);
-    } else if (chat.chatType == ChatModel.IMAGE ||
-        chat.chatType == ChatModel.VIDEO) {
-      return ChatMediaWidget(
-          ValueKey(chat.id), chat, index, totalLength, _scrollController);
+  /*Widget _getChatType(ChatModel _chat) {
+     print('in getChatType '+_chat.chat+' chat type '+_chat.chatType+' isD '+_chat.isD.toString());
+    if (_chat.chatType == ChatModel.CHAT) {
+      return ChatTextWidget(ValueKey(_chat.id), _chat);
+    } else if (_chat.chatType == ChatModel.IMAGE ||
+        _chat.chatType == ChatModel.VIDEO) {
+      return ChatMediaWidget(ValueKey(_chat.id), _chat);
     }
     return Container(
       width: 0,
       height: 0,
     );
+  }*/
+
+  Widget getChatChild(ChatModel chat) {
+       if (chat.chatType != ChatModel.CHAT) {
+          return ChatMediaWidget(ValueKey(chat.id));
+       }else{
+          return ChatTextWidget(ValueKey(chat.id));
+       }
   }
 
+  Widget _getChatType(ChatModel chat) {
+       return ChatElementType(UniqueKey(), 
+       getChatChild(chat),
+        chat);
+  }
+
+
   Widget buildListElement(
-      ChatModel currChat, var currUser, int index, int totalLength) {
+      ChatModel currChat, var currUser) {
     return IntrinsicHeight(
       child: Stack(
         children: <Widget>[
@@ -71,9 +86,9 @@ class _UserChatViewListState extends State<UserChatViewList> {
             alignment: (currChat.fromUserId == currUser.id)
                 ? Alignment.centerRight
                 : Alignment.centerLeft,
-            child: getChatType(currChat, index, totalLength),
+            child: _getChatType(currChat),
           ),
-          ChatElementSelection(currChat)
+          ChatElementSelection(UniqueKey(), currChat)
         ],
       ),
     );
@@ -127,11 +142,11 @@ class _UserChatViewListState extends State<UserChatViewList> {
           Center(
               child: ChatListDate(Utils().getDateTimeInFormat(
                   currChat.chatDate, 'date', 'userchatview'))),
-          buildListElement(currChat, currUser, index, snapshot.data.length),
+          buildListElement(currChat, currUser)
         ],
       );
     } else {
-      return buildListElement(currChat, currUser, index, snapshot.data.length);
+      return buildListElement(currChat, currUser);
     }
   }
 
@@ -153,7 +168,6 @@ class _UserChatViewListState extends State<UserChatViewList> {
             reverse: true,
             itemBuilder: (BuildContext context, int index) {
               ChatModel currChat = snapshot.data[index];
-
               return getDisplayWidget(currChat, currUser, index, snapshot);
             },
             itemCount: snapshot.data.length,

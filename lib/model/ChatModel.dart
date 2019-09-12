@@ -14,12 +14,11 @@ class ChatModel {
   String firebaseStorage;
   String delStat = DELIVERED_TO_LOCAL;
   int localChatId = 0;
-  // int fbId;
-  // int compareId = 0;
+  bool isD = false;
 
-  static const String CHAT = "chat";
-  static const String IMAGE = "image";
-  static const String VIDEO = "video";
+  static const String CHAT = "c";
+  static const String IMAGE = "i";
+  static const String VIDEO = "v";
 
   static const String DELIVERED_TO_SERVER = 'ds';
   static const String DELIVERED_TO_LOCAL = 'dl';
@@ -38,7 +37,8 @@ class ChatModel {
         map["thumbnailPath"],
         map["fileName"],
         map["firebaseStorage"],
-        map["delStat"]);
+        map["delStat"],
+        map["isD"]);
   }
 
   factory ChatModel.fromRecordSnapshot(RecordSnapshot ds) {
@@ -53,7 +53,8 @@ class ChatModel {
         ds["thumbnailPath"],
         ds["fileName"],
         ds["firebaseStorage"],
-        ds["delStat"]);
+        ds["delStat"],
+        ds["isD"]);
   }
 
   factory ChatModel.fromDocumentSnapshot(firestore.DocumentSnapshot ds) {
@@ -69,7 +70,8 @@ class ChatModel {
         ds["thumbnailPath"],
         ds["fileName"],
         ds["firebaseStorage"],
-        ds["delStat"]);
+        ds["delStat"],
+        ds["isD"]);
   }
 
   Map<String, dynamic> toJson() {
@@ -80,7 +82,7 @@ class ChatModel {
     map["chat"] = chat;
     if (null == chatDate || chatDate == 0) {
       map["chatDate"] = DateTime.now().millisecondsSinceEpoch;
-    }else{
+    } else {
       map["chatDate"] = chatDate;
     }
 
@@ -90,23 +92,47 @@ class ChatModel {
     map["fileName"] = fileName;
     map["firebaseStorage"] = firebaseStorage;
     map["delStat"] = delStat;
+    map["isD"] = isD;
     return map;
   }
 
   Map<String, dynamic> toFirestoreJson() {
     Map<String, dynamic> map = Map();
+    map["chatDate"] = firestore.FieldValue.serverTimestamp();
+    putNotNullMap(map, "id", id);
+    putNotNullMap(map, "fromUserId", fromUserId);
+    putNotNullMap(map, "toUserId", toUserId);
+    putNotNullMap(map, "chat", chat);
+    putNotNullMap(map, "chatType", chatType);
+    putNotNullMap(map, "localPath", localPath);
+    putNotNullMap(map, "thumbnailPath", thumbnailPath);
+    putNotNullMap(map, "fileName", fileName);
+    putNotNullMap(map, "firebaseStorage", firebaseStorage);
+    putNotNullMap(map, "isD", isD);
+    return map;
+  }
+
+  Map<String, dynamic> toDeleteJson(int ms, bool isFirestore) {
+    Map<String, dynamic> map = Map();
     map["id"] = id;
     map["fromUserId"] = fromUserId;
     map["toUserId"] = toUserId;
-    map["chat"] = chat;
-    map["chatDate"] = firestore.FieldValue.serverTimestamp();
-    map["chatType"] = chatType;
-    map["localPath"] = localPath;
-    map["thumbnailPath"] = thumbnailPath;
-    map["fileName"] = fileName;
-    map["firebaseStorage"] = firebaseStorage;
-    //map["delStat"] = delStat;
+    map["chat"] = 'This message was deleted';
+    if (isFirestore) {
+      map["chatDate"] = firestore.Timestamp.fromMillisecondsSinceEpoch(ms);
+    } else {
+      map["chatDate"] = ms;
+    }
+
+    map["chatType"] = ChatModel.CHAT;
+    map["isD"] = true;
     return map;
+  }
+
+  void putNotNullMap(Map<String, dynamic> map, String key, dynamic value) {
+    if (null != value) {
+      map[key] = value;
+    }
   }
 
   ChatModel(
@@ -120,7 +146,8 @@ class ChatModel {
       this.thumbnailPath,
       this.fileName,
       this.firebaseStorage,
-      this.delStat);
+      this.delStat,
+      this.isD);
 
   @override
   String toString() {
@@ -137,17 +164,19 @@ class ChatModel {
         ' chattype ' +
         chatType +
         ' chatDate ' +
-        chatDate.toString()
-        /*+fbId.toString()*/ +
+        chatDate.toString() +
         ' ' +
         delStat +
-        ' ' /*+compareId.toString()*/;
+        ' ' +
+        isD.toString();
   }
 
   bool operator ==(dynamic other) {
-    return other.id == id /*&& other.fbId == fbId*/ &&
+    return other.id == id &&
         other.localChatId == localChatId &&
-        other.delStat == delStat &&
+        other.thumbnailPath == thumbnailPath &&
+        other.fileName == fileName &&
+        other.isD == isD &&
         other.firebaseStorage == firebaseStorage;
   }
 }

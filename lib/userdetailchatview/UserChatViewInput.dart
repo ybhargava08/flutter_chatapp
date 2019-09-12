@@ -26,15 +26,15 @@ class _UserChatViewInput extends State<UserChatViewInput> {
     super.initState();
   }
 
-  void sendIndtoWS(String text,String targetUserId) {
-       if(null == _timer || !_timer.isActive) {
-            WebSocModel model = WebSocModel(WebSocModel.TYPING,UserBloc().getCurrUser().id,targetUserId, null, null);
-           WebsocketBloc().addDataToSocket(WebSocModel.TYPING,model);
-            _timer = Timer(Duration(milliseconds: 500), (){
-                  _timer.cancel();
-
-            });
-       }
+  void sendIndtoWS(String text, String targetUserId) {
+    if (null == _timer || !_timer.isActive) {
+      WebSocModel model = WebSocModel(WebSocModel.TYPING,
+          UserBloc().getCurrUser().id, targetUserId, null, null);
+      WebsocketBloc().addDataToSocket(WebSocModel.TYPING, model);
+      _timer = Timer(Duration(milliseconds: 500), () {
+        _timer.cancel();
+      });
+    }
   }
 
   @override
@@ -68,7 +68,6 @@ class _UserChatViewInput extends State<UserChatViewInput> {
                     Expanded(
                       flex: 7,
                       child: TextField(
-                        autofocus: true,
                         style: TextStyle(fontSize: 17.0, color: Colors.black),
                         decoration: InputDecoration(
                           contentPadding: EdgeInsets.fromLTRB(10, 0, 0, 0),
@@ -77,9 +76,9 @@ class _UserChatViewInput extends State<UserChatViewInput> {
                         ),
                         controller: _textEditingcontroller,
                         onChanged: (text) {
-                             if(text.length > 0) {
-                                  sendIndtoWS(text,toUser.id);
-                             }
+                          if (text.length > 0) {
+                            sendIndtoWS(text, toUser.id);
+                          }
                         },
                       ),
                     ),
@@ -107,19 +106,19 @@ class _UserChatViewInput extends State<UserChatViewInput> {
                   var txt = _textEditingcontroller.text;
                   if (null != txt && txt != "") {
                     ChatModel chat = ChatModel(
-                        DateTime.now().millisecondsSinceEpoch,
-                        currUser.id,
-                        toUser.id,
-                        txt,
-                        DateTime.now().millisecondsSinceEpoch,
-                        ChatModel.CHAT,
-                        "",
-                        "",
-                        "",
-                        "",
-                        ChatModel.DELIVERED_TO_LOCAL,
-                        );
-                        Firebase()
+                      DateTime.now().millisecondsSinceEpoch,
+                      currUser.id,
+                      toUser.id,
+                      txt,
+                      DateTime.now().millisecondsSinceEpoch,
+                      ChatModel.CHAT,
+                      null,
+                      null,
+                      null,
+                      null,
+                      ChatModel.DELIVERED_TO_LOCAL,
+                    false);
+                    Firebase()
                         .addUpdateChat(chat, Firebase.CHAT_COL_COMPLETE, true);
                     _textEditingcontroller.clear();
                     //Utils().playSound('sounds/Tick.mp3');

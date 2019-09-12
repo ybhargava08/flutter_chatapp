@@ -34,43 +34,61 @@ class SembastUserLastChat {
       String toUserId = (UserBloc().getCurrUser().id == chat.fromUserId)
           ? chat.toUserId
           : chat.fromUserId;
-      final finder = Finder(filter: Filter.or([
-        Filter.equals('toUserId', toUserId),
-        Filter.equals('fromUserId', toUserId)
-      ]));
-      int key;
-      RecordSnapshot rs = await _userLastChatStore
-          .findFirst(await SembastDatabase().getDatabase(), finder: finder);
-      if (rs != null) {
-        key = rs.key;
-        if(chat.chatDate.compareTo(rs['chatDate']) < 0) {
-             return;
-        }
+      if (chat.isD) {
+        final finder = Finder(filter: Filter.equals('id', chat.id));
+        _userLastChatStore
+            .update(await SembastDatabase().getDatabase(),
+                chat.toDeleteJson(chat.chatDate, false),
+                finder: finder)
+            .then((count) {
+          if (count > 0) {
+            ChatListener().addToController(toUserId, chat);
+          }
+        });
       } else {
-        key = DateTime.now().microsecondsSinceEpoch;
-        
+        final finder = Finder(
+            filter: Filter.or([
+          Filter.equals('toUserId', toUserId),
+          Filter.equals('fromUserId', toUserId)
+        ]));
+        int key;
+        RecordSnapshot rs = await _userLastChatStore
+            .findFirst(await SembastDatabase().getDatabase(), finder: finder);
+        if (rs != null) {
+          key = rs.key;
+          if (chat.chatDate.compareTo(rs['chatDate']) < 0) {
+            return;
+          }
+        } else {
+          key = DateTime.now().microsecondsSinceEpoch;
+        }
+        _userLastChatStore
+            .record(key)
+            .put(await SembastDatabase().getDatabase(), chat.toJson())
+            .then((map) {
+          ChatListener().addToController(toUserId, chat);
+        });
       }
-      _userLastChatStore
-          .record(key)
-          .put(await SembastDatabase().getDatabase(), chat.toJson()).then((map) {
-                  ChatListener().addToController(toUserId, chat);
-          });
     });
   }
 
   Future deleteAllLastChats() async {
-       return await _userLastChatStore.delete(await SembastDatabase().getDatabase());
+    return await _userLastChatStore
+        .delete(await SembastDatabase().getDatabase());
   }
 
-  Future updateLastChatDelivery(int chatId,String value) async {
-       final finder = Finder(filter: Filter.equals('id', chatId));
+  Future updateLastChatDelivery(int chatId, String value) async {
+    final finder = Finder(filter: Filter.equals('id', chatId));
     RecordSnapshot rs = await _userLastChatStore
         .findFirst(await SembastDatabase().getDatabase(), finder: finder);
-        if(null!=rs) {
-        }
-        
-    if (rs != null && (rs['delStat'] == null || (rs['delStat'] != null && value.compareTo(rs['delStat'])>0))) {
-          await _userLastChatStore.update(await SembastDatabase().getDatabase(), {'delStat':value},finder: finder);
+    if (null != rs) {}
+
+    if (rs != null &&
+        (rs['delStat'] == null ||
+            (rs['delStat'] != null && value.compareTo(rs['delStat']) > 0))) {
+      await _userLastChatStore.update(
+          await SembastDatabase().getDatabase(), {'delStat': value},
+          finder: finder);
     }
   }
 }

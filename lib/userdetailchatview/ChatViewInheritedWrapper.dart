@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:chatapp/blocs/ChatBloc.dart';
+import 'package:chatapp/blocs/ChatDeleteBloc.dart';
 import 'package:chatapp/blocs/ProgressBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/blocs/UserListener.dart';
@@ -42,6 +43,8 @@ class _ChatViewInheritedWrapperState extends State<ChatViewInheritedWrapper> {
     super.initState();
     _toUser = widget.toUser;
     _currUser = UserBloc().getCurrUser();
+
+   ChatDeleteBloc().openController(); 
 
     ChatBloc().addOpenScreenId(_toUser.id);
     ChatBloc().initChatController();
@@ -115,6 +118,7 @@ class _ChatViewInheritedWrapperState extends State<ChatViewInheritedWrapper> {
     if (null != _typingTimer) {
       _typingTimer.cancel();
     }
+    ChatDeleteBloc().closeController();
 
     super.dispose();
   }

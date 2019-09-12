@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chatapp/blocs/ChatUpdateBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/database/DBConstants.dart';
 import 'package:chatapp/database/SembastChat.dart';
@@ -44,7 +45,8 @@ class ChatBloc {
 
   initChatController() {
     closeChatController();
-    _chatController = StreamController();
+    _chatController = StreamController.broadcast();
+    ChatUpdateBloc().openChatUpdateController();
   }
 
   checkIfChatControllerClosed() {
@@ -70,22 +72,19 @@ class ChatBloc {
 
     _chatController.sink.add(_oneToOneList);
     _setMinChatId(_oneToOneList[_oneToOneList.length - 1]);
-    //print('setting max id ' + maxId.toString());
     return maxId;
   }
 
   addInChatController(ChatModel cm) {
     if (!checkIfChatControllerClosed()) {
-      List<ChatModel> foundItem =
-          _oneToOneList.where((item) => item.id == cm.id).toList();
-
-      if (foundItem == null || foundItem.isEmpty) {
-    
+      int index = _oneToOneList.indexWhere((item) => item.id == cm.id);
+      if (index < 0) {
+        print('will add complete list');
         _oneToOneList.insert(0, cm);
-
         _chatController.sink.add(_oneToOneList);
-
       } else {
+        _oneToOneList[index] = cm;
+        ChatUpdateBloc().addToChatUpdateController(cm);
       }
     }
   }
@@ -100,6 +99,7 @@ class ChatBloc {
     if (!checkIfChatControllerClosed()) {
       _chatController.close();
     }
+    ChatUpdateBloc().closeUpdateChatController();
   }
 
   getMoreData(String toUserId) async {
@@ -111,10 +111,8 @@ class ChatBloc {
   }
 
   _setMinChatId(ChatModel chat) {
-    if(chat.id!=null) {
-          _minChatId = chat.id;
-          print('setting min chat id '+_minChatId.toString());
+    if (chat.id != null) {
+      _minChatId = chat.id;
     }
-    
   }
 }
