@@ -2,10 +2,9 @@ import 'package:chatapp/blocs/ChatBloc.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/model/UserModel.dart';
 import 'package:chatapp/userdetailchatview/ChatListDate.dart';
+import 'package:chatapp/userdetailchatview/chatelements/ChatElementChatType.dart';
 import 'package:chatapp/userdetailchatview/chatelements/ChatElementSelection.dart';
 import 'package:chatapp/userdetailchatview/chatelements/ChatElementType.dart';
-import 'package:chatapp/userdetailchatview/chatelements/ChatMediaWidget.dart';
-import 'package:chatapp/userdetailchatview/chatelements/ChatTextWidget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -48,31 +47,9 @@ class _UserChatViewListState extends State<UserChatViewList> {
     super.dispose();
   }
 
-  /*Widget _getChatType(ChatModel _chat) {
-     print('in getChatType '+_chat.chat+' chat type '+_chat.chatType+' isD '+_chat.isD.toString());
-    if (_chat.chatType == ChatModel.CHAT) {
-      return ChatTextWidget(ValueKey(_chat.id), _chat);
-    } else if (_chat.chatType == ChatModel.IMAGE ||
-        _chat.chatType == ChatModel.VIDEO) {
-      return ChatMediaWidget(ValueKey(_chat.id), _chat);
-    }
-    return Container(
-      width: 0,
-      height: 0,
-    );
-  }*/
-
-  Widget getChatChild(ChatModel chat) {
-       if (chat.chatType != ChatModel.CHAT) {
-          return ChatMediaWidget(ValueKey(chat.id));
-       }else{
-          return ChatTextWidget(ValueKey(chat.id));
-       }
-  }
-
   Widget _getChatType(ChatModel chat) {
        return ChatElementType(UniqueKey(), 
-       getChatChild(chat),
+       ChatElementChatType(),
         chat);
   }
 

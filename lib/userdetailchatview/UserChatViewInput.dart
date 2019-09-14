@@ -117,7 +117,7 @@ class _UserChatViewInput extends State<UserChatViewInput> {
                       null,
                       null,
                       ChatModel.DELIVERED_TO_LOCAL,
-                    false);
+                    false,0);
                     Firebase()
                         .addUpdateChat(chat, Firebase.CHAT_COL_COMPLETE, true);
                     _textEditingcontroller.clear();

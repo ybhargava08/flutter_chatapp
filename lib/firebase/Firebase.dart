@@ -1,5 +1,4 @@
 import 'package:chatapp/blocs/ChatBloc.dart';
-import 'package:chatapp/blocs/ChatDeleteBloc.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/database/SembastChat.dart';
@@ -64,7 +63,7 @@ class Firebase {
             chat.fileName,
             chat.firebaseStorage,
             ChatModel.DELIVERED_TO_LOCAL,
-            false);
+            false,chat.ts);
         ChatBloc().addInChatController(localChat);
         SembastChat().upsertInChatStore(localChat, 'addUpdateChatBefore');
       }
@@ -76,6 +75,7 @@ class Firebase {
             .document(chat.id.toString());
         chat.delStat = ChatModel.DELIVERED_TO_SERVER;
         chatRef.setData(chat.toFirestoreJson(), merge: true).then((_) async {
+          
           FirebaseRealtimeDB().setLastChatRealtimeDB(
               chat.fromUserId, chat.toUserId, prepareDataForCountUpdate(chat));
           int time = await FirebaseRealtimeDB().setUserLastActivityTime(chat);
@@ -123,7 +123,7 @@ class Firebase {
                 Utils().getChatCollectionId(chatDelModel.chat.fromUserId, chatDelModel.chat.toUserId),
                 Firebase.CHAT_COL_COMPLETE)
             .document(chatDelModel.chat.id.toString());
-        batch.setData(_reference, chatDelModel.chat.toDeleteJson(chatDelModel.chat.chatDate,true));
+        batch.setData(_reference, chatDelModel.chat.toDeleteJson(chatDelModel.chat.ts,chatDelModel.chat.chatDate,true));
       });
 
       await batch.commit();

@@ -1,7 +1,6 @@
 import 'package:chatapp/RouteConstants.dart';
 import 'package:chatapp/UserMainView.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
-import 'package:chatapp/database/SembastDatabase.dart';
 import 'package:chatapp/database/SembastUser.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/firebase/FirebaseNotifications.dart';
@@ -51,15 +50,12 @@ class LoginHandler {
           }
           
 
-          int startTime = DateTime.now().millisecondsSinceEpoch;
           List<UserModel> userList = await SembastUser().getAllContacts();
           if(null == userList) {
                  userList = await getDataFromContactList(true);
               
           userList = await sortUserList(userList);
           }
-          int diff = DateTime.now().millisecondsSinceEpoch - startTime;
-          //print('total time taken preparing contact list '+diff.toString()+' ms'); 
           
           UserBloc().setInitUserAvtivityCS(userList, false);
 

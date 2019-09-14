@@ -20,7 +20,7 @@ class CustomMediaPicker extends StatelessWidget {
     if (image != null) {
       //print('local image file path ' + image.path);
       BaseModel base = BaseModel(ChatModel(0, null, null, null, DateTime.now().millisecondsSinceEpoch, null, image.path, null, null, null,
-                       null,false), toUser,false); 
+                       null,false,0), toUser,false); 
                        
       Navigator.pushNamed(context, RouteConstants.IMAGE_VIEW,
               arguments: ImageEnlargedViewArgs(
@@ -50,7 +50,7 @@ class CustomMediaPicker extends StatelessWidget {
       Navigator.pushNamed(context, RouteConstants.MEDIA_VIEW,
               arguments: MediaEnlargedViewArgs(
                   ChatModel(0, UserBloc().getCurrUser().id, toUser.id, null, DateTime.now().millisecondsSinceEpoch, ChatModel.VIDEO,
-                      video.path, null, null, null, null,false),
+                      video.path, null, null, null, null,false,0),
                   true,
                   toUser,
                   true,

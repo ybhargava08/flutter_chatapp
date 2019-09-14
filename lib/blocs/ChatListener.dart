@@ -36,7 +36,6 @@ class ChatListener {
     ChatModel lastChat = await SembastUserLastChat().getLastUserChat(id);
     int lastId = 0;
     if (null != lastChat && null != lastChat.id) {
-      //print('got last user chat '+lastChat.toString());
       if (lastChat.isD || lastChat.delStat == ChatModel.READ_BY_USER) {
         lastId = lastChat.id;
       } else {
@@ -100,26 +99,27 @@ class ChatListener {
     }
   }
 
-  listenForNewAddedChats(String toUserId, int maxChatId) {
+  listenForNewAddedChats(String toUserId, int maxTS) {
     _newChatSubs = Firebase()
         .getChatCollectionRef(
             Utils().getChatCollectionId(UserBloc().getCurrUser().id, toUserId),
             Firebase.CHAT_COL_COMPLETE)
         .where('toUserId', isEqualTo: UserBloc().getCurrUser().id)
-        .where('id', isGreaterThan: maxChatId)
-        .orderBy('id', descending: false)
-        .orderBy('chatDate', descending: false)
+        .where('ts', isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(maxTS))
+        .orderBy('ts', descending: false)
         .snapshots()
         .listen((data) {
       data.documentChanges.forEach((change) {
-        if (change.type == DocumentChangeType.added ||
-            change.type == DocumentChangeType.modified) {
-          ChatModel c = ChatModel.fromDocumentSnapshot(change.document);
-          if (null != c.delStat || '' == c.delStat) {
-            c.delStat = ChatModel.DELIVERED_TO_SERVER;
+        ChatModel cm = ChatModel.fromDocumentSnapshot(change.document);
+        print('got new added / updated chat '+cm.id.toString());
+        if (change.type == DocumentChangeType.added) {
+          
+          if (null != cm.delStat || '' == cm.delStat) {
+            cm.delStat = ChatModel.DELIVERED_TO_SERVER;
           }
-          //print('got to user chat ' + c.toString());
-          SembastChat().upsertInChatStore(c, 'newAddedChat / updated chat');
+        } else if (change.type == DocumentChangeType.modified) {
+          SembastChat()
+              .upsertInChatStore(cm, 'newAddedChat / updated / deleted chat');
         }
       });
     });

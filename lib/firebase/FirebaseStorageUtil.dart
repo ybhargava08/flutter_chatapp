@@ -275,12 +275,6 @@ class FirebaseStorageUtil {
       _checkPathInFBStorageAndDelete(thumbnailPath);
     
     _checkPathInLocalAndDelete(localPath);
-   /* if (!isDeleted) {
-      String appDir = (await getApplicationDocumentsDirectory()).path;
-      String dirPath = '$appDir/' + PathConstants.CHATAPP_MEDIA;
-      String completePath = dirPath + '/' + fbPath.split("/").last;
-      _checkPathInLocalAndDelete(completePath);
-    }*/
   }
 
   Future<bool> _checkPathInFBStorageAndDelete(String path) async {

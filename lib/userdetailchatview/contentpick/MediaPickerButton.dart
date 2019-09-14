@@ -48,7 +48,7 @@ class MediaPickerButton extends StatelessWidget {
                     null,
                     null,
                     ChatModel.DELIVERED_TO_LOCAL,
-                    false), toUser, isUser);
+                    false,0), toUser, isUser);
                 }
                 Navigator.of(context).pop(base);
               },

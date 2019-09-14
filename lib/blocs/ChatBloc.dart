@@ -59,12 +59,12 @@ class ChatBloc {
 
   int setInitList(List<ChatModel> list, String toUserId) {
     _oneToOneList.clear();
-    int maxId = 0;
+    int maxTS = 0;
     list.forEach((chat) {
       if (chat.fromUserId != UserBloc().getCurrUser().id &&
           chat.delStat != ChatModel.DELIVERED_TO_LOCAL &&
-          chat.id > maxId) {
-        maxId = chat.id;
+          chat.ts > maxTS) {
+        maxTS = chat.ts;
       }
     });
 
@@ -72,7 +72,7 @@ class ChatBloc {
 
     _chatController.sink.add(_oneToOneList);
     _setMinChatId(_oneToOneList[_oneToOneList.length - 1]);
-    return maxId;
+    return maxTS;
   }
 
   addInChatController(ChatModel cm) {

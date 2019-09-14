@@ -18,6 +18,10 @@ class ChatUpdateBloc {
     }
 
    addToChatUpdateController(ChatModel chat) {
+     if(null!=chat) {
+       print('got chat model addToChatUpdateController '+chat.toString());
+     }
+     
           if(!_isChatUpdateControllerClosed()) {
                 _controller.sink.add(chat);
           }

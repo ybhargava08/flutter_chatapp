@@ -10,18 +10,16 @@ import 'package:chatapp/model/WebSocModel.dart';
 import 'package:flutter/material.dart';
 
 class ChatElementType extends StatefulWidget {
-
   final ChatModel chat;
   final Widget child;
 
-   ChatElementType(Key key,this.child,this.chat):super(key:key);
+  ChatElementType(Key key, this.child, this.chat) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _ChatElementTypeState();
 }
 
 class _ChatElementTypeState extends State<ChatElementType> {
-
   ChatModel _chat;
 
   StreamSubscription _subs;
@@ -29,20 +27,25 @@ class _ChatElementTypeState extends State<ChatElementType> {
   @override
   void initState() {
     _chat = widget.chat;
-    if(ChatUpdateBloc().getChatUpdateController()!=null) {
-         _subs=ChatUpdateBloc().getChatUpdateController().stream.where((item) => (item.id == _chat.id && item != _chat))
-         .listen((data){
-                   setState(() {
-                       _chat = data; 
-                   });
-         });
+    if (ChatUpdateBloc().getChatUpdateController() != null) {
+      _subs = ChatUpdateBloc()
+          .getChatUpdateController()
+          .stream
+          .where((item) => (item.id == _chat.id && item != _chat))
+          .listen((data) {
+        print('setting chat in chat element type ' + data.toString());
+        setState(() {
+          _chat = data;
+        });
+      });
     }
     _markChatRead();
     super.initState();
   }
 
   _markChatRead() {
-      if(!_chat.isD && UserBloc().getCurrUser().id == _chat.toUserId &&
+    if (!_chat.isD &&
+        UserBloc().getCurrUser().id == _chat.toUserId &&
         _chat.delStat != ChatModel.READ_BY_USER) {
       _chat.delStat = ChatModel.READ_BY_USER;
       SembastChat()
@@ -59,35 +62,31 @@ class _ChatElementTypeState extends State<ChatElementType> {
 
   @override
   void dispose() {
-    if(null!=_subs) {
-       _subs.cancel();
+    if (null != _subs) {
+      _subs.cancel();
     }
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return ChatInheritedWidget(chat: _chat,child: widget.child);
+    return ChatInheritedWidget(chat: _chat, child: widget.child);
   }
-    
 }
 
 class ChatInheritedWidget extends InheritedWidget {
+  final ChatModel chat;
 
-   final ChatModel chat;
+  final Widget child;
 
-   final Widget child;
-
-    ChatInheritedWidget({@required this.chat,@required this.child});
+  ChatInheritedWidget({@required this.chat, @required this.child});
 
   @override
   bool updateShouldNotify(ChatInheritedWidget oldWidget) {
-    return oldWidget.chat!=chat;
+    return oldWidget.chat != chat;
   }
 
   static ChatInheritedWidget of(BuildContext context) {
-      return context.inheritFromWidgetOfExactType(ChatInheritedWidget);
+    return context.inheritFromWidgetOfExactType(ChatInheritedWidget);
   }
-
 }

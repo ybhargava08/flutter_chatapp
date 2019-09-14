@@ -1,4 +1,5 @@
 import 'package:chatapp/blocs/ChatDeleteBloc.dart';
+import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/model/ChatDeleteModel.dart';
 import 'package:chatapp/model/ChatModel.dart';
@@ -17,7 +18,7 @@ class ChatDeleteIcon extends StatelessWidget {
         chat.id,
         chat.fromUserId,
         chat.toUserId,
-        'This message was deleted',
+        'You deleted the message',
         chat.chatDate,
         ChatModel.CHAT,
         null,
@@ -25,7 +26,7 @@ class ChatDeleteIcon extends StatelessWidget {
         null,
         null,
         null,
-        true);
+        true,0);
  }
 
   @override

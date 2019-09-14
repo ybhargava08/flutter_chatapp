@@ -1,20 +1,19 @@
 import 'package:chatapp/blocs/UserBloc.dart';
+import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/userdetailchatview/ChatViewInheritedWrapper.dart';
 import 'package:chatapp/userdetailchatview/chatelements/ChatDeliveryNotification.dart';
-import 'package:chatapp/userdetailchatview/chatelements/ChatElementType.dart';
 import 'package:chatapp/utils.dart';
 import 'package:flutter/material.dart';
 
 class ChatTextWidget extends StatelessWidget {
-  ChatTextWidget(Key key) : super(key: key);
+  
+  final ChatModel _chat; 
+
+  ChatTextWidget(Key key,this._chat) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final inherited = ChatViewInheritedWidget.of(context);
-
-    final inheritedChat = ChatInheritedWidget.of(context);
-
-    final _chat = inheritedChat.chat;
 
     final currUser = inherited.currUser;
 

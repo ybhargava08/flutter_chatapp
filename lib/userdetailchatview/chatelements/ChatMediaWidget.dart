@@ -7,13 +7,13 @@ import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/model/UserModel.dart';
 import 'package:chatapp/userdetailchatview/ChatViewInheritedWrapper.dart';
 import 'package:chatapp/userdetailchatview/chatelements/ChatDeliveryNotification.dart';
-import 'package:chatapp/userdetailchatview/chatelements/ChatElementType.dart';
 import 'package:chatapp/userdetailchatview/chatelements/MediaPlayPause.dart';
 import 'package:chatapp/utils.dart';
 import 'package:flutter/material.dart';
 
 class ChatMediaWidget extends StatelessWidget {
-  ChatMediaWidget(Key key) : super(key: key);
+  final ChatModel _chat;
+  ChatMediaWidget(Key key,this._chat) : super(key: key);
 
   Widget getVideoThumbnail(ChatModel chat, BuildContext context,
       UserModel toUser, double dimension) {
@@ -88,10 +88,6 @@ class ChatMediaWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final inherited = ChatViewInheritedWidget.of(context);
-
-    final inheritedChat = ChatInheritedWidget.of(context);
-
-    final _chat = inheritedChat.chat;
 
     final toUser = inherited.toUser;
 

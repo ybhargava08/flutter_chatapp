@@ -1,3 +1,5 @@
+import 'package:chatapp/blocs/UserBloc.dart';
+import 'package:chatapp/model/UserModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 import 'package:sembast/sembast.dart';
 
@@ -15,6 +17,7 @@ class ChatModel {
   String delStat = DELIVERED_TO_LOCAL;
   int localChatId = 0;
   bool isD = false;
+  int ts;
 
   static const String CHAT = "c";
   static const String IMAGE = "i";
@@ -38,7 +41,9 @@ class ChatModel {
         map["fileName"],
         map["firebaseStorage"],
         map["delStat"],
-        map["isD"]);
+        map["isD"],
+        map["ts"]
+        );
   }
 
   factory ChatModel.fromRecordSnapshot(RecordSnapshot ds) {
@@ -54,24 +59,42 @@ class ChatModel {
         ds["fileName"],
         ds["firebaseStorage"],
         ds["delStat"],
-        ds["isD"]);
+        ds["isD"],
+        ds["ts"]
+        );
   }
 
   factory ChatModel.fromDocumentSnapshot(firestore.DocumentSnapshot ds) {
     firestore.Timestamp ts = ds['chatDate'];
+    firestore.Timestamp timestamp = ds['ts'];
+    bool isD = ds['isD'];
+    String chatType = ds['chatType']; 
+    String chat = ds['chat'];
+    if(isD) {
+                chatType = ChatModel.CHAT;
+                UserModel delUser = UserBloc().findUser(ds['fromUserId']);
+                print('found delUser '+delUser.toString());
+                if(delUser.name!=null || ''!=delUser.name) {
+                  chat = delUser.name+' deleted the message';
+                }else{
+                  chat = 'This message was deleted';
+                }
+          }
     return ChatModel(
         ds["id"],
         ds["fromUserId"],
         ds["toUserId"],
-        ds["chat"],
+        chat,
         ts.millisecondsSinceEpoch,
-        ds["chatType"],
+        chatType,
         ds["localPath"],
         ds["thumbnailPath"],
         ds["fileName"],
         ds["firebaseStorage"],
-        ds["delStat"],
-        ds["isD"]);
+        ds['delStat'],
+        isD,
+        timestamp.millisecondsSinceEpoch
+        );
   }
 
   Map<String, dynamic> toJson() {
@@ -84,6 +107,12 @@ class ChatModel {
       map["chatDate"] = DateTime.now().millisecondsSinceEpoch;
     } else {
       map["chatDate"] = chatDate;
+    }
+
+    if (null == ts || ts == 0) {
+      map["ts"] = DateTime.now().millisecondsSinceEpoch;
+    } else {
+      map["ts"] = ts;
     }
 
     map["chatType"] = chatType;
@@ -99,6 +128,7 @@ class ChatModel {
   Map<String, dynamic> toFirestoreJson() {
     Map<String, dynamic> map = Map();
     map["chatDate"] = firestore.FieldValue.serverTimestamp();
+    map['ts'] = firestore.FieldValue.serverTimestamp();
     putNotNullMap(map, "id", id);
     putNotNullMap(map, "fromUserId", fromUserId);
     putNotNullMap(map, "toUserId", toUserId);
@@ -112,19 +142,30 @@ class ChatModel {
     return map;
   }
 
-  Map<String, dynamic> toDeleteJson(int ms, bool isFirestore) {
+  Map<String, dynamic> toDeleteJson(int timestamp,int ms, bool isFirestore) {
     Map<String, dynamic> map = Map();
+    if(isFirestore) {
+        map['ts'] = firestore.FieldValue.serverTimestamp();
+    }else{
+       map['ts'] = timestamp;
+    }
+    
     map["id"] = id;
     map["fromUserId"] = fromUserId;
     map["toUserId"] = toUserId;
-    map["chat"] = 'This message was deleted';
+    if(!isFirestore) {
+        map["chat"] = 'You deleted the message';
+    }
+    
     if (isFirestore) {
       map["chatDate"] = firestore.Timestamp.fromMillisecondsSinceEpoch(ms);
     } else {
       map["chatDate"] = ms;
     }
-
-    map["chatType"] = ChatModel.CHAT;
+    if(!isFirestore) {
+        map["chatType"] = ChatModel.CHAT;
+    }
+    
     map["isD"] = true;
     return map;
   }
@@ -147,34 +188,40 @@ class ChatModel {
       this.fileName,
       this.firebaseStorage,
       this.delStat,
-      this.isD);
+      this.isD,
+      this.ts
+      );
 
   @override
   String toString() {
+    String delSta = (null==delStat)?'':delStat;
+    String cha = (chat == null)?'':chat;
     return 'fromUser ' +
         fromUserId +
         ' toUser ' +
         toUserId +
         ' chat ' +
-        chat +
-        ' local chat id ' +
-        localChatId.toString() +
+        cha +
+        /*' local chat id ' +
+        localChatId.toString() +*/
         ' chat-id ' +
         id.toString() +
         ' chattype ' +
         chatType +
-        ' chatDate ' +
-        chatDate.toString() +
+        /*' chatDate ' +
+        chatDate.toString() +*/
         ' ' +
-        delStat +
+        delSta +
         ' ' +
         isD.toString();
   }
 
   bool operator ==(dynamic other) {
     return other.id == id &&
-        other.localChatId == localChatId &&
+        other.chatType == chatType &&
         other.thumbnailPath == thumbnailPath &&
+        other.ts == ts &&
+        other.chatDate == chatDate &&
         other.fileName == fileName &&
         other.isD == isD &&
         other.firebaseStorage == firebaseStorage;

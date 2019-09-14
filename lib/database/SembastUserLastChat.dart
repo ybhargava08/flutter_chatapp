@@ -38,7 +38,7 @@ class SembastUserLastChat {
         final finder = Finder(filter: Filter.equals('id', chat.id));
         _userLastChatStore
             .update(await SembastDatabase().getDatabase(),
-                chat.toDeleteJson(chat.chatDate, false),
+                chat.toDeleteJson(chat.ts,chat.chatDate, false),
                 finder: finder)
             .then((count) {
           if (count > 0) {

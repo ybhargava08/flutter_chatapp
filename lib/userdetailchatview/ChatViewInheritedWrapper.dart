@@ -88,8 +88,9 @@ class _ChatViewInheritedWrapperState extends State<ChatViewInheritedWrapper> {
   }
 
   init() async {
-    int maxChatId = await ChatListener().getInitChatList(_toUser.id);
-    ChatListener().listenForNewAddedChats(_toUser.id, maxChatId);
+    int maxTS = await ChatListener().getInitChatList(_toUser.id);
+    ChatListener().listenForNewAddedChats(_toUser.id, maxTS);
+    //ChatListener().listenForDeletedChats(_toUser.id);
   }
 
   @override
@@ -119,7 +120,7 @@ class _ChatViewInheritedWrapperState extends State<ChatViewInheritedWrapper> {
       _typingTimer.cancel();
     }
     ChatDeleteBloc().closeController();
-
+   // ChatListener().closeDeletedSubs();
     super.dispose();
   }
 }
