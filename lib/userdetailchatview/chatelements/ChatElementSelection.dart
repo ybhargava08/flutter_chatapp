@@ -89,12 +89,14 @@ class _ChatElementSelectionState extends State<ChatElementSelection> {
           }
         },
         onLongPress: () {
-          if (!widget.chat.isD) {
-            Utils().doVibrate(100);
-            ChatDeleteBloc().addRemoveDeleteList(widget.chat);
-          } else {
-            Utils().showToast('Message already deleted', context,
-                Toast.LENGTH_LONG, ToastGravity.CENTER);
+          if (widget.chat.fromUserId == UserBloc().getCurrUser().id) {
+            if (!widget.chat.isD) {
+              Utils().doVibrate(100);
+              ChatDeleteBloc().addRemoveDeleteList(widget.chat);
+            } else {
+              Utils().showToast('Message already deleted', context,
+                  Toast.LENGTH_LONG, ToastGravity.CENTER);
+            }
           }
         },
         onLongPressEnd: (LongPressEndDetails details) {

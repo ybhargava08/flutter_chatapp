@@ -72,12 +72,10 @@ class WebsocketBloc {
     WebSocModel model = WebSocModel.fromJson(data);
     OfflineDBChat()
         .updateDeliveryReceipt(model.chatId, model.value)
-        .then((isUpdated) {
-      if (isUpdated) {
+        .then((_) {
         NotificationBloc()
             .addToNotificationController(int.parse(model.chatId), model.value);
         socket.emit(WebSocModel.RECEIVED_FROM_SERVER, [model.chatId]);
-      }
     });
   }
 
