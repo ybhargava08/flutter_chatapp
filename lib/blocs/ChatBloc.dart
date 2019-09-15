@@ -82,11 +82,9 @@ class ChatBloc {
       if (index < 0) {
         _oneToOneList.insert(0, cm);
         _chatController.sink.add(_oneToOneList);
-        if (cm.fromUserId.compareTo(UserBloc().getCurrUser().id) == 0) {
-          Utils().playSound('sounds/send_msg.mp3');
-        } else {
+        if (cm.fromUserId.compareTo(UserBloc().getCurrUser().id) != 0) {
           Utils().playSound('sounds/incoming_msg.mp3');
-        }
+        } 
       } else {
         _oneToOneList[index] = cm;
         ChatUpdateBloc().addToChatUpdateController(cm);

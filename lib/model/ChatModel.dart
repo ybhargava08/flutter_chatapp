@@ -155,7 +155,8 @@ class ChatModel {
     map["fromUserId"] = fromUserId;
     map["toUserId"] = toUserId;
     if(!isFirestore) {
-        map["chat"] = 'You deleted the message';
+        String name = (fromUserId == UserBloc().getCurrUser().id)?'You':UserBloc().findUser(fromUserId).name;
+        map["chat"] = name+' deleted the message';
     }
     
     if (isFirestore) {

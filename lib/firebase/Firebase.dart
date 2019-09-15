@@ -1,6 +1,7 @@
 import 'package:chatapp/blocs/ChatBloc.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
+import 'package:chatapp/blocs/WebsocketBloc.dart';
 import 'package:chatapp/database/OfflineDBChat.dart';
 import 'package:chatapp/database/OfflineDBUser.dart';
 import 'package:chatapp/firebase/FirebaseRealtimeDB.dart';
@@ -96,6 +97,7 @@ class Firebase {
             NotificationBloc().addToNotificationController(
                 chat.id, ChatModel.DELIVERED_TO_SERVER);
           }
+          Utils().playSound('sounds/send_msg.mp3');
         });
       } else {
         getChatCollectionRef(
@@ -126,7 +128,9 @@ class Firebase {
       });
 
       await batch.commit();
-
+         
+      List<int> chatIdList = list.map((item) => item.chat.id).toList();
+      WebsocketBloc().deleteChatReceiptsFromServer(chatIdList);   
       list.forEach((chatDelModel) {
           FirebaseStorageUtil().removeChatFromFBandLocalStorage(chatDelModel);
         

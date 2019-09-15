@@ -110,13 +110,16 @@ class ChatMediaWidget extends StatelessWidget {
         Container(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
             children: <Widget>[
               isVideo
                   ? getVideoThumbnail(_chat, context, toUser, dimension)
                   : getImage(_chat, context, toUser, dimension),
-              Flex(
+              Expanded(
+                  child: Flex(
                 direction: Axis.horizontal,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
                   Expanded(
                     child: Utils().isStringEmpty(_chat.chat)
@@ -154,6 +157,8 @@ class ChatMediaWidget extends StatelessWidget {
                   )
                 ],
               ),
+              )    
+              ,
             ],
           ),
           margin: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),

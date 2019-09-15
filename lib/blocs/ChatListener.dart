@@ -111,12 +111,12 @@ class ChatListener {
         .listen((data) {
       data.documentChanges.forEach((change) {
         ChatModel cm = ChatModel.fromDocumentSnapshot(change.document);
-        if (change.type == DocumentChangeType.added) {
-          
+        if (change.type == DocumentChangeType.added ||
+            change.type == DocumentChangeType.modified) {
           if (null != cm.delStat || '' == cm.delStat) {
             cm.delStat = ChatModel.DELIVERED_TO_SERVER;
           }
-        } else if (change.type == DocumentChangeType.modified) {
+
           OfflineDBChat()
               .upsertInChatStore(cm, 'newAddedChat / updated / deleted chat');
         }

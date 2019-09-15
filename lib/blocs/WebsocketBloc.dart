@@ -5,6 +5,7 @@ import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/database/ChatReceiptDB.dart';
 import 'package:chatapp/database/OfflineDBChat.dart';
+import 'package:chatapp/firebase/PathConstants.dart';
 import 'package:chatapp/model/UserLatestChatModel.dart';
 import 'package:chatapp/model/WebSocModel.dart';
 import 'package:http/http.dart' as http;
@@ -23,13 +24,11 @@ class WebsocketBloc {
 
   SocketIOManager manager;
 
-  static const String uri = 'https://chatapp-socketio-server.herokuapp.com';
-
   openSocketConnection() async {
     _openStreamController();
 
     manager = SocketIOManager();
-    socket = await manager.createInstance(SocketOptions(uri,
+    socket = await manager.createInstance(SocketOptions(PathConstants.BASE_REST_URI,
         query: {'userId': UserBloc().getCurrUser().id},
         enableLogging: true,
         nameSpace: '/'));
@@ -44,6 +43,7 @@ class WebsocketBloc {
       _addInStreamController(WebSocModel.fromJson(data));
     });
     socket.on(WebSocModel.RECEIPT_DEL, (data) {
+      print('got websocket receipt '+data.toString());
       if (data is List) {
         data.forEach((item) {
           doOnChatReceiptsReceived(item, socket);
@@ -89,7 +89,7 @@ class WebsocketBloc {
         UserLatestChatBloc().addToChatCountController(UserLatestChatModel(
             modelData.fromUserId, UserLatestChatModel.COUNT, -1));
         http.Response resp = await http.post(
-            'https://chatapp-socketio-server.herokuapp.com/delivery',
+            PathConstants.BASE_REST_URI+'/delivery',
             body: modelData.toJson()).catchError((err) {
                       print('got err while sending delivery '+err.toString()); 
             });
@@ -102,6 +102,24 @@ class WebsocketBloc {
         }
       }
     }
+  }
+
+  deleteChatReceiptsFromServer(List<int> chatIdList) async {
+     String chatIdJson = json.encode(chatIdList);
+     print('deleting chat reeipts '+chatIdJson);
+     Map<String, String> requestHeaders = {
+       'Content-type': 'application/json',
+       'Accept': 'application/json',
+     };
+      http.Response response = await http.post(
+       PathConstants.BASE_REST_URI+'/deleteReceipts',headers: requestHeaders,body: chatIdJson 
+      ).catchError((err) {
+print('got err while deleteChatReceiptsFromServer '+err.toString()); 
+      });
+      if(200 == response.statusCode) {
+          print('got resp '+response.body);
+      }
+      
   }
 
   closeSocket() {
