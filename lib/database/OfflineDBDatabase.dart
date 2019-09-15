@@ -5,17 +5,15 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sembast/sembast.dart';
 import 'package:sembast/sembast_io.dart';
 
-class SembastDatabase {
+class OfflineDBDatabase {
   
-  static SembastDatabase _sembastDatabase;
+  static OfflineDBDatabase _sembastDatabase;
 
-  factory SembastDatabase() => _sembastDatabase ??= SembastDatabase._();
+  factory OfflineDBDatabase() => _sembastDatabase ??= OfflineDBDatabase._();
 
-  SembastDatabase._();
+  OfflineDBDatabase._();
 
   static Completer<Database> _dbCompleter;
-
-  
 
   Future<Database> getDatabase() async {
     if (_dbCompleter == null) {
@@ -34,8 +32,6 @@ class SembastDatabase {
     await FirebaseStorageUtil().downloadLocalDB(dbPath);
 
     final database = await databaseFactoryIo.openDatabase(dbPath);
-
-    //print('created / opened database at path '+dbPath.toString());
 
     _dbCompleter.complete(database);
   }

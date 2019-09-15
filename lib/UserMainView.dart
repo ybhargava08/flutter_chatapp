@@ -54,6 +54,7 @@ class _UserMainViewState extends State<UserMainView> {
     UserListener().closeControllers();
     ConnectivityListener().closeListener();
     UserLatestChatBloc().closeChatCountController();
+    Utils().clearSoundCache();
     super.dispose();
   }
 

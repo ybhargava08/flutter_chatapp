@@ -8,21 +8,22 @@ import 'package:intl/intl.dart';
 import 'package:chatapp/model/UserModel.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:vibration/vibration.dart';
 
 class Utils {
   static Utils _utils;
 
   factory Utils() => _utils ??= Utils._();
+  static AudioCache _cache = AudioCache();
 
-  Utils._();
+  Utils._(){
+      _cache.disableLog();  
+  }
 
   static const String _timeFormat = 'h:mm a';
   static const String _dfShort = 'M/d/yy';
   static const String _dfLong = 'yMMMMd';
-  static const String _dfLongTime = 'M/d/yy h:mm a'; 
-
-
-  static AudioCache _cache = AudioCache();
+  static const String _dfLongTime = 'M/d/yy h:mm a';
 
   getUserModelFromMsg(Map<String, dynamic> map) {
     return UserModel.fromJson(map);
@@ -38,7 +39,7 @@ class Utils {
   }
 
   String getDateTimeInFormat(int timeMillis, String type, String from) {
-    if (null!=timeMillis && timeMillis > 0) {
+    if (null != timeMillis && timeMillis > 0) {
       DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timeMillis);
       DateTime currTime = DateTime.now();
       if (from == 'userview') {
@@ -69,8 +70,8 @@ class Utils {
         } else if (type == 'time') {
           return DateFormat(_timeFormat).format(dateTime);
         }
-      }else if(from == 'backupDate') {
-          return DateFormat(_dfLongTime).format(dateTime);
+      } else if (from == 'backupDate') {
+        return DateFormat(_dfLongTime).format(dateTime);
       }
     }
     return "";
@@ -101,15 +102,37 @@ class Utils {
   }
 
   playSound(String mp3) {
-       _cache.play(mp3);
+    _cache.play(mp3,isNotification: true);
   }
 
-  showToast(String msg,BuildContext context,Toast duration,ToastGravity gravity) {
-      Fluttertoast.showToast(msg: msg,gravity: gravity,toastLength: duration,backgroundColor: Colors.black.withOpacity(0.5)
-      ,fontSize: 15,textColor: Colors.white);
+  clearSoundCache() {
+    _cache.clearCache();
+  }
+
+  showToast(
+      String msg, BuildContext context, Toast duration, ToastGravity gravity) {
+    Fluttertoast.showToast(
+        msg: msg,
+        gravity: gravity,
+        toastLength: duration,
+        backgroundColor: Colors.black.withOpacity(0.5),
+        fontSize: 15,
+        textColor: Colors.white);
   }
 
   bool isStringEmpty(String s) {
-       return s== null || s.trim().length ==0;
+    return s == null || s.trim().length == 0;
+  }
+
+  doVibrate(int duration) async {
+    bool hasVibrator = await Vibration.hasVibrator();
+    if (hasVibrator) {
+      bool hasAmplitude = await Vibration.hasAmplitudeControl();
+      if (hasAmplitude) {
+        Vibration.vibrate(duration: duration, amplitude: 128);
+      } else {
+        Vibration.vibrate(duration: duration);
+      }
+    }
   }
 }

@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:chatapp/blocs/ChatBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/database/DBConstants.dart';
-import 'package:chatapp/database/SembastChat.dart';
-import 'package:chatapp/database/SembastUserLastChat.dart';
+import 'package:chatapp/database/OfflineDBChat.dart';
+import 'package:chatapp/database/OfflineDBUserLastChat.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/utils.dart';
@@ -33,19 +33,17 @@ class ChatListener {
   }
 
   openFirebaseListener(String id) async {
-    ChatModel lastChat = await SembastUserLastChat().getLastUserChat(id);
+    ChatModel lastChat = await OfflineDBUserLastChat().getLastUserChat(id);
     int lastId = 0;
-    if (null != lastChat && null!=lastChat.id) {
-      //print('got last user chat '+lastChat.toString());
-      if(lastChat.delStat == ChatModel.READ_BY_USER) {
-          lastId = lastChat.id;     
-      }else{
-        lastId = (lastChat.id-1 > 0)?lastChat.id-1:0;
+    if (null != lastChat && null != lastChat.id) {
+      if (lastChat.isD || lastChat.delStat == ChatModel.READ_BY_USER) {
+        lastId = lastChat.id;
+      } else {
+        lastId = (lastChat.id - 1 > 0) ? lastChat.id - 1 : 0;
       }
-      String toUserId =
-          (UserBloc().getCurrUser().id == lastChat.fromUserId)
-              ? lastChat.toUserId
-              : lastChat.fromUserId;
+      String toUserId = (UserBloc().getCurrUser().id == lastChat.fromUserId)
+          ? lastChat.toUserId
+          : lastChat.fromUserId;
       addToController(toUserId, lastChat);
     }
     if (_listeners.containsKey(id) && _listeners[id].length == 0) {
@@ -54,21 +52,21 @@ class ChatListener {
               Utils().getChatCollectionId(UserBloc().getCurrUser().id, id),
               Firebase.CHAT_COL_COMPLETE)
           .where('toUserId', isEqualTo: UserBloc().getCurrUser().id)
-          .where('id', isGreaterThan: lastId).
-          orderBy('id',descending: true)
+          .where('id', isGreaterThan: lastId)
+          .orderBy('id', descending: true)
           .limit(1)
-          .snapshots()  
+          .snapshots()
           .listen((data) {
         data.documentChanges.forEach((change) {
-          if (change.type == DocumentChangeType.added || change.type == DocumentChangeType.modified) {
-              ChatModel cm = ChatModel.fromDocumentSnapshot(change.document);
-              if(null!=cm.delStat || '' == cm.delStat) {
-                   cm.delStat = ChatModel.DELIVERED_TO_SERVER;
-              }
-              //cm.chatDate = Timestamp.now();
-              //print('got last chat with timestamp '+cm.toString());
-              SembastUserLastChat().upsertUserLastChat(cm);
-          } 
+          ChatModel cm = ChatModel.fromDocumentSnapshot(change.document);
+          if (change.type == DocumentChangeType.added) {
+            if (null != cm.delStat || '' == cm.delStat) {
+              cm.delStat = ChatModel.DELIVERED_TO_SERVER;
+            }
+            OfflineDBUserLastChat().upsertUserLastChat(cm);
+          } else if (change.type == DocumentChangeType.modified) {
+            OfflineDBUserLastChat().upsertUserLastChat(cm);
+          }
         });
       }));
     }
@@ -101,26 +99,26 @@ class ChatListener {
     }
   }
 
-  listenForNewAddedChats(String toUserId, int maxChatId) {
+  listenForNewAddedChats(String toUserId, int maxTS) {
     _newChatSubs = Firebase()
         .getChatCollectionRef(
             Utils().getChatCollectionId(UserBloc().getCurrUser().id, toUserId),
             Firebase.CHAT_COL_COMPLETE)
         .where('toUserId', isEqualTo: UserBloc().getCurrUser().id)
-        .where('id', isGreaterThan: maxChatId)
-        .orderBy('id',descending: false)
-        .orderBy('chatDate',descending: false)
+        .where('ts', isGreaterThan: Timestamp.fromMillisecondsSinceEpoch(maxTS))
+        .orderBy('ts', descending: false)
         .snapshots()
         .listen((data) {
       data.documentChanges.forEach((change) {
-        if (change.type == DocumentChangeType.added) { 
-              ChatModel c = ChatModel.fromDocumentSnapshot(change.document);
-              if(null!=c.delStat || '' == c.delStat) {
-                   c.delStat = ChatModel.DELIVERED_TO_SERVER;
-              }
-              //print('got to user chat ' + c.toString());
-              SembastChat().upsertInChatStore(c, 'newAddedChat');
-          
+        ChatModel cm = ChatModel.fromDocumentSnapshot(change.document);
+        if (change.type == DocumentChangeType.added ||
+            change.type == DocumentChangeType.modified) {
+          if (null != cm.delStat || '' == cm.delStat) {
+            cm.delStat = ChatModel.DELIVERED_TO_SERVER;
+          }
+
+          OfflineDBChat()
+              .upsertInChatStore(cm, 'newAddedChat / updated / deleted chat');
         }
       });
     });
@@ -138,7 +136,7 @@ class ChatListener {
             : chatLimit;
     List<ChatModel> completeList = List();
     completeList =
-        await SembastChat().getChatsForUserFromSembast(toUserId, chatLimit);
+        await OfflineDBChat().getChatsForUserFromOfflineDB(toUserId, chatLimit);
     if (null != completeList && completeList.length > 0) {
       return ChatBloc().setInitList(completeList, toUserId);
     }

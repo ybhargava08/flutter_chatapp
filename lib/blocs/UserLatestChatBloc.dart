@@ -25,9 +25,7 @@ class UserLatestChatBloc {
   }
 
   addToChatCountController(UserLatestChatModel data) {
-    //openChatCountController();
-    print('adding to UserLatestChatBloc sink '+data.toString());
-    _controller.sink.add(data);
+   _controller.sink.add(data);
   }
 
   checkIfChatCountControllerClosed() {

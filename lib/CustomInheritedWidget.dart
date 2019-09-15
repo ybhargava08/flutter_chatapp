@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/blocs/UserListener.dart';
 import 'package:chatapp/blocs/ChatListener.dart';
+import 'package:chatapp/firebase/PathConstants.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/model/UserLatestChatModel.dart';
 import 'package:flutter/material.dart';
@@ -59,7 +60,7 @@ class _CustomInheritedWidgetState extends State<CustomInheritedWidget> {
   }
 
   getInitChatCount() async {
-        String uri  = 'https://chatapp-socketio-server.herokuapp.com/getUnreadChatCount?fromUserId='+_toUser.id+'&toUserId='
+        String uri  = PathConstants.BASE_REST_URI+'/getUnreadChatCount?fromUserId='+_toUser.id+'&toUserId='
           +UserBloc().getCurrUser().id;
          var response = await http.get(uri);
           Map<String,dynamic> responseData = jsonDecode(response.body);

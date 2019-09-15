@@ -95,9 +95,9 @@ class _ChatDeliveryNotificationState extends State<ChatDeliveryNotification>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return !widget.chat.isD?Container(
       margin: EdgeInsets.only(left: 5),
       child: getIcon(),
-    );
+    ):Container(width: 0,height: 0,);
   }
 }

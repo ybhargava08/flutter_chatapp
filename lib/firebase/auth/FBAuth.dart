@@ -25,11 +25,6 @@ class FBAuth {
     return await FirebaseAuth.instance.currentUser();
   }
 
-  printIfNotNull(String prop) {
-    if (null != prop) {
-      //print('prop is ' + prop);
-    }
-  }
 
   doPhoneAuth(String phoneNo, BuildContext context, bool resendCode) async {
     String phoneNumber;
@@ -40,34 +35,18 @@ class FBAuth {
     }
 
     doAutoVerification = true;
-    //print('inside doPhone Auth ' + phoneNumber);
 
     final PhoneVerificationCompleted verficationCompleted =
         (AuthCredential credential) async {
-      /*print('phone verifcation completed ' +
-          credential.toString() +
-          ' ' +
-          phoneNumber +
-          ' ');*/
-
-    //  if (doAutoVerification) {
-        FirebaseUser user = await FirebaseAuth.instance.currentUser();
+     FirebaseUser user = await FirebaseAuth.instance.currentUser();
         if (user == null) {
           user = await FirebaseAuth.instance.signInWithCredential(credential);
-          //print('user cred ' + user.uid);
         }
-        printIfNotNull(user.uid);
-        printIfNotNull(user.phoneNumber);
-        printIfNotNull(user.photoUrl);
-        printIfNotNull(user.displayName);
-        printIfNotNull(user.email);
-
         _verificationId = null;
         _forceResendingToken = -1;
         try {
           await LoginHandler().doAfterLogin(user, context);
         } on Exception catch (e) {
-          //print('error while login in ' + e.toString());
           Navigator.popUntil(context, (currentRoute) {
             return currentRoute.settings.name == RouteConstants.PHONE_AUTH;
           });
@@ -78,7 +57,6 @@ class FBAuth {
     };
 
     final PhoneVerificationFailed verficationFailed = (AuthException excp) {
-      //print('got ph excp ' + excp.message);
       Navigator.popUntil(context, (currentRoute) {
         return currentRoute.settings.name == RouteConstants.PHONE_AUTH;
       });
@@ -88,26 +66,16 @@ class FBAuth {
 
     final PhoneCodeSent codeSent =
         (String verificationId, [int forceResendingToken]) {
-      /*print('got verification id ' +
-          verificationId +
-          ' forceresend ' +
-          forceResendingToken.toString());*/
       _verificationId = verificationId;
       _forceResendingToken = forceResendingToken;
       doAutoVerification = false;
-     // String routeName = ModalRoute.of(context).settings.name;
-     // //print('current route '+routeName);
-      //if (routeName != RouteConstants.SMS_CODE) {
         Navigator.pushNamed(context, RouteConstants.SMS_CODE,
             arguments: SMSCodeArgs(phoneNumber));
-      //}
     };
 
     final PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
         (String verificationId) {
-      //print('codeAutoRetrievalTimeout ' + verificationId);
     };
-    //print('phone no used for auth ' + phoneNumber);
     if (resendCode) {
       await FirebaseAuth.instance.verifyPhoneNumber(
           phoneNumber: phoneNumber,
@@ -137,13 +105,11 @@ class FBAuth {
 
     FirebaseUser user =
         await FirebaseAuth.instance.signInWithCredential(authCredential).catchError((e){
-            //print('got error singwin cred '+e.toString());
                    throw Exception(e);
         });
     
       await LoginHandler().doAfterLogin(user, context);
     } on Exception catch (e) {
-      //print('error while login in ' + e.toString());
       Navigator.popUntil(context, (currentRoute){
              return currentRoute.settings.name == RouteConstants.PHONE_AUTH;
       });

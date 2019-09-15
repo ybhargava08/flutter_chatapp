@@ -44,11 +44,11 @@ class MediaPickerButton extends StatelessWidget {
                     DateTime.now().millisecondsSinceEpoch,
                     type,
                     chat.localPath,
-                    "",
-                    "",
-                    "",
+                    null,
+                    null,
+                    null,
                     ChatModel.DELIVERED_TO_LOCAL,
-                    ), toUser, isUser);
+                    false,0), toUser, isUser);
                 }
                 Navigator.of(context).pop(base);
               },
