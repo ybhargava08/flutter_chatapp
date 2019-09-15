@@ -14,15 +14,16 @@ class Utils {
   static Utils _utils;
 
   factory Utils() => _utils ??= Utils._();
+  static AudioCache _cache = AudioCache();
 
-  Utils._();
+  Utils._(){
+      _cache.disableLog();  
+  }
 
   static const String _timeFormat = 'h:mm a';
   static const String _dfShort = 'M/d/yy';
   static const String _dfLong = 'yMMMMd';
   static const String _dfLongTime = 'M/d/yy h:mm a';
-
-  static AudioCache _cache = AudioCache();
 
   getUserModelFromMsg(Map<String, dynamic> map) {
     return UserModel.fromJson(map);
@@ -101,7 +102,11 @@ class Utils {
   }
 
   playSound(String mp3) {
-    _cache.play(mp3);
+    _cache.play(mp3,isNotification: true);
+  }
+
+  clearSoundCache() {
+    _cache.clearCache();
   }
 
   showToast(

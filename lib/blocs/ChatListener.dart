@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:chatapp/blocs/ChatBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/database/DBConstants.dart';
-import 'package:chatapp/database/SembastChat.dart';
-import 'package:chatapp/database/SembastUserLastChat.dart';
+import 'package:chatapp/database/OfflineDBChat.dart';
+import 'package:chatapp/database/OfflineDBUserLastChat.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:chatapp/utils.dart';
@@ -33,7 +33,7 @@ class ChatListener {
   }
 
   openFirebaseListener(String id) async {
-    ChatModel lastChat = await SembastUserLastChat().getLastUserChat(id);
+    ChatModel lastChat = await OfflineDBUserLastChat().getLastUserChat(id);
     int lastId = 0;
     if (null != lastChat && null != lastChat.id) {
       if (lastChat.isD || lastChat.delStat == ChatModel.READ_BY_USER) {
@@ -63,9 +63,9 @@ class ChatListener {
             if (null != cm.delStat || '' == cm.delStat) {
               cm.delStat = ChatModel.DELIVERED_TO_SERVER;
             }
-            SembastUserLastChat().upsertUserLastChat(cm);
+            OfflineDBUserLastChat().upsertUserLastChat(cm);
           } else if (change.type == DocumentChangeType.modified) {
-            SembastUserLastChat().upsertUserLastChat(cm);
+            OfflineDBUserLastChat().upsertUserLastChat(cm);
           }
         });
       }));
@@ -111,14 +111,13 @@ class ChatListener {
         .listen((data) {
       data.documentChanges.forEach((change) {
         ChatModel cm = ChatModel.fromDocumentSnapshot(change.document);
-        print('got new added / updated chat '+cm.id.toString());
         if (change.type == DocumentChangeType.added) {
           
           if (null != cm.delStat || '' == cm.delStat) {
             cm.delStat = ChatModel.DELIVERED_TO_SERVER;
           }
         } else if (change.type == DocumentChangeType.modified) {
-          SembastChat()
+          OfflineDBChat()
               .upsertInChatStore(cm, 'newAddedChat / updated / deleted chat');
         }
       });
@@ -137,7 +136,7 @@ class ChatListener {
             : chatLimit;
     List<ChatModel> completeList = List();
     completeList =
-        await SembastChat().getChatsForUserFromSembast(toUserId, chatLimit);
+        await OfflineDBChat().getChatsForUserFromOfflineDB(toUserId, chatLimit);
     if (null != completeList && completeList.length > 0) {
       return ChatBloc().setInitList(completeList, toUserId);
     }

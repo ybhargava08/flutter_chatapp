@@ -63,8 +63,6 @@ class ImageEnlargedView extends StatelessWidget with BaseEnlargedView{
                           placeholder: (context, url) =>
                               Image.asset('assets/images/blur_image.jpg'),
                           errorWidget: (context, url, error) {
-                            /*print('error occured while loading dp ' +
-                                error.toString());*/
                             return Image.asset('assets/images/blur_image.jpg');
                           },
                           imageUrl: baseModel.user.photoUrl,
@@ -84,7 +82,6 @@ class ImageEnlargedView extends StatelessWidget with BaseEnlargedView{
     }
 
     Widget getAppBarChat() {
-      //print('date is '+date);
       return AppBar(
           backgroundColor: Colors.black.withOpacity(0.3),
           leading: IconButton(
@@ -141,6 +138,7 @@ class ImageEnlargedView extends StatelessWidget with BaseEnlargedView{
               bottom: 0,
               left: 0,
               child: showMediaPickerButton?layoutFileWithAddCaption(baseModel.chat,context):
+              null!=baseModel && null!=baseModel.chat && 
               !Utils().isStringEmpty(baseModel.chat.chat)?layoutFileWithShowCaption(baseModel.chat, context):
               Container(width: 0,height: 0,),
             ),

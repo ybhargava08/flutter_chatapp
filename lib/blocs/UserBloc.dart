@@ -1,10 +1,6 @@
 import 'dart:async';
 
-import 'package:chatapp/blocs/UserListener.dart';
-import 'package:chatapp/firebase/Firebase.dart';
-import 'package:chatapp/login/LoginHandler.dart';
 import 'package:chatapp/model/UserModel.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserBloc {
   static UserBloc _userBloc;
@@ -36,13 +32,11 @@ class UserBloc {
 
   _addInUserController(List<UserModel> list) {
     if (_controller != null && !_controller.isClosed) {
-      //print('adding user list to user sink ' + list.toString());
       _controller.sink.add(list);
     }
   }
 
   List<UserModel> _setInitList(List<UserModel> list, bool isAddController) {
-    //print('setting init list is  ' + _list.toString());
     _list = list;
     if (isAddController) {
       _addInUserController(_list);
@@ -52,7 +46,6 @@ class UserBloc {
   }
 
   addUpdateUser(UserModel user) {
-    //print('adding user ' + user.toString() + ' list is  ' + _list.toString());
     int index = _list.indexWhere((item) => item.id == user.id);
 
     if (index < 0) {

@@ -40,7 +40,6 @@ class ChatDeleteBloc {
   }
 
   clearChatDeleteList(bool addToController) {
-    print('clearChatDeleteList triggered');
     if (_deleteList.length > 0) {
       _deleteList.clear();
       if (addToController) {
@@ -66,7 +65,6 @@ class ChatDeleteBloc {
   closeController() {
     if (!isControllerClosed()) {
       _streamController.close();
-      print('chat delete close controoller triggered');
       clearChatDeleteList(false);
     }
   }

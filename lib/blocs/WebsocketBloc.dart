@@ -4,7 +4,7 @@ import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/blocs/UserLatestChatBloc.dart';
 import 'package:chatapp/database/ChatReceiptDB.dart';
-import 'package:chatapp/database/SembastChat.dart';
+import 'package:chatapp/database/OfflineDBChat.dart';
 import 'package:chatapp/model/UserLatestChatModel.dart';
 import 'package:chatapp/model/WebSocModel.dart';
 import 'package:http/http.dart' as http;
@@ -44,7 +44,6 @@ class WebsocketBloc {
       _addInStreamController(WebSocModel.fromJson(data));
     });
     socket.on(WebSocModel.RECEIPT_DEL, (data) {
-      print('got data from socket io ' + data.toString());
       if (data is List) {
         data.forEach((item) {
           doOnChatReceiptsReceived(item, socket);
@@ -71,7 +70,7 @@ class WebsocketBloc {
 
   doOnChatReceiptsReceived(Map<String, dynamic> data, SocketIO socket) async {
     WebSocModel model = WebSocModel.fromJson(data);
-    SembastChat()
+    OfflineDBChat()
         .updateDeliveryReceipt(model.chatId, model.value)
         .then((isUpdated) {
       if (isUpdated) {

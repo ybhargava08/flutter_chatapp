@@ -3,8 +3,9 @@ import 'dart:async';
 import 'package:chatapp/blocs/ChatUpdateBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/database/DBConstants.dart';
-import 'package:chatapp/database/SembastChat.dart';
+import 'package:chatapp/database/OfflineDBChat.dart';
 import 'package:chatapp/model/ChatModel.dart';
+import 'package:chatapp/utils.dart';
 
 class ChatBloc {
   static ChatBloc _chatBloc;
@@ -79,9 +80,13 @@ class ChatBloc {
     if (!checkIfChatControllerClosed()) {
       int index = _oneToOneList.indexWhere((item) => item.id == cm.id);
       if (index < 0) {
-        print('will add complete list');
         _oneToOneList.insert(0, cm);
         _chatController.sink.add(_oneToOneList);
+        if (cm.fromUserId.compareTo(UserBloc().getCurrUser().id) == 0) {
+          Utils().playSound('sounds/send_msg.mp3');
+        } else {
+          Utils().playSound('sounds/incoming_msg.mp3');
+        }
       } else {
         _oneToOneList[index] = cm;
         ChatUpdateBloc().addToChatUpdateController(cm);
@@ -103,7 +108,7 @@ class ChatBloc {
   }
 
   getMoreData(String toUserId) async {
-    List<ChatModel> list = await SembastChat()
+    List<ChatModel> list = await OfflineDBChat()
         .getChatsLessThanId(_minChatId, DBConstants.DATA_RETREIVE_COUNT);
     if (null != list && list.length > 0) {
       setMoreData(list);

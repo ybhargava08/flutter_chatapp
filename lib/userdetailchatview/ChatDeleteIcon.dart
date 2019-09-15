@@ -1,5 +1,4 @@
 import 'package:chatapp/blocs/ChatDeleteBloc.dart';
-import 'package:chatapp/blocs/UserBloc.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/model/ChatDeleteModel.dart';
 import 'package:chatapp/model/ChatModel.dart';
@@ -35,7 +34,6 @@ class ChatDeleteIcon extends StatelessWidget {
       stream: ChatDeleteBloc().getStreamController().stream,
       initialData: [],
       builder: (BuildContext context, AsyncSnapshot<List<ChatModel>> snap) {
-        print('delete list length ' + snap.data.length.toString());
         if (snap != null && snap.hasData && snap.data.length > 0) {
           return IconButton(
             icon: Icon(Icons.delete),

@@ -18,6 +18,7 @@ class ChatModel {
   int localChatId = 0;
   bool isD = false;
   int ts;
+  bool doDeleteAnimation = false;
 
   static const String CHAT = "c";
   static const String IMAGE = "i";
@@ -213,7 +214,8 @@ class ChatModel {
         ' ' +
         delSta +
         ' ' +
-        isD.toString();
+        isD.toString()+
+        ' dodelAnim ' + doDeleteAnimation.toString();    
   }
 
   bool operator ==(dynamic other) {

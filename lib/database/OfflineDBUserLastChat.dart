@@ -1,17 +1,17 @@
 import 'package:chatapp/blocs/ChatListener.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
-import 'package:chatapp/database/SembastDatabase.dart';
+import 'package:chatapp/database/OfflineDBDatabase.dart';
 import 'package:chatapp/model/ChatModel.dart';
 import 'package:sembast/sembast.dart';
 import 'package:synchronized/synchronized.dart';
 
-class SembastUserLastChat {
-  static SembastUserLastChat _sembastUserLastChat;
+class OfflineDBUserLastChat {
+  static OfflineDBUserLastChat _sembastUserLastChat;
 
-  factory SembastUserLastChat() =>
-      _sembastUserLastChat ??= SembastUserLastChat._();
+  factory OfflineDBUserLastChat() =>
+      _sembastUserLastChat ??= OfflineDBUserLastChat._();
 
-  SembastUserLastChat._();
+  OfflineDBUserLastChat._();
 
   static const USER_LAST_CHAT_STORE = 'lastchatStore';
 
@@ -22,7 +22,7 @@ class SembastUserLastChat {
   Future<ChatModel> getLastUserChat(String toUserId) async {
     final finder = Finder(filter: Filter.equals('toUserId', toUserId));
     RecordSnapshot rs = await _userLastChatStore
-        .findFirst(await SembastDatabase().getDatabase(), finder: finder);
+        .findFirst(await OfflineDBDatabase().getDatabase(), finder: finder);
     if (rs != null && rs['id'] != null) {
       return ChatModel.fromRecordSnapshot(rs);
     }
@@ -37,7 +37,7 @@ class SembastUserLastChat {
       if (chat.isD) {
         final finder = Finder(filter: Filter.equals('id', chat.id));
         _userLastChatStore
-            .update(await SembastDatabase().getDatabase(),
+            .update(await OfflineDBDatabase().getDatabase(),
                 chat.toDeleteJson(chat.ts,chat.chatDate, false),
                 finder: finder)
             .then((count) {
@@ -53,7 +53,7 @@ class SembastUserLastChat {
         ]));
         int key;
         RecordSnapshot rs = await _userLastChatStore
-            .findFirst(await SembastDatabase().getDatabase(), finder: finder);
+            .findFirst(await OfflineDBDatabase().getDatabase(), finder: finder);
         if (rs != null) {
           key = rs.key;
           if (chat.chatDate.compareTo(rs['chatDate']) < 0) {
@@ -64,7 +64,7 @@ class SembastUserLastChat {
         }
         _userLastChatStore
             .record(key)
-            .put(await SembastDatabase().getDatabase(), chat.toJson())
+            .put(await OfflineDBDatabase().getDatabase(), chat.toJson())
             .then((map) {
           ChatListener().addToController(toUserId, chat);
         });
@@ -74,20 +74,20 @@ class SembastUserLastChat {
 
   Future deleteAllLastChats() async {
     return await _userLastChatStore
-        .delete(await SembastDatabase().getDatabase());
+        .delete(await OfflineDBDatabase().getDatabase());
   }
 
   Future updateLastChatDelivery(int chatId, String value) async {
     final finder = Finder(filter: Filter.equals('id', chatId));
     RecordSnapshot rs = await _userLastChatStore
-        .findFirst(await SembastDatabase().getDatabase(), finder: finder);
+        .findFirst(await OfflineDBDatabase().getDatabase(), finder: finder);
     if (null != rs) {}
 
     if (rs != null &&
         (rs['delStat'] == null ||
             (rs['delStat'] != null && value.compareTo(rs['delStat']) > 0))) {
       await _userLastChatStore.update(
-          await SembastDatabase().getDatabase(), {'delStat': value},
+          await OfflineDBDatabase().getDatabase(), {'delStat': value},
           finder: finder);
     }
   }

@@ -1,7 +1,7 @@
 import 'package:chatapp/RouteConstants.dart';
 import 'package:chatapp/blocs/ChatDeleteBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
-import 'package:chatapp/database/SembastChat.dart';
+import 'package:chatapp/database/OfflineDBChat.dart';
 import 'package:chatapp/enlargedview/ImageEnlargedView.dart';
 import 'package:chatapp/enlargedview/MediaEnlargedView.dart';
 import 'package:chatapp/firebase/FirebaseStorageUtil.dart';
@@ -33,7 +33,7 @@ class CustomMediaPicker extends StatelessWidget {
           if(null!=val.chat) {
                 val.chat.firebaseStorage = null;
           //print('upserting to sembast ' + val.chat.id.toString() + ' ' + val.chat.chatType);
-          SembastChat().upsertInChatStore(val.chat,'addImage');
+          OfflineDBChat().upsertInChatStore(val.chat,'addImage');
           } 
           
         } else {
@@ -59,7 +59,7 @@ class CustomMediaPicker extends StatelessWidget {
         if (val != null && val is BaseModel && val.chat!=null) {
           val.chat.thumbnailPath = await FirebaseStorageUtil().createThumbnail(val.chat);
           val.chat.firebaseStorage = null;
-          SembastChat().upsertInChatStore(val.chat,'addVideo');
+          OfflineDBChat().upsertInChatStore(val.chat,'addVideo');
         } else {
           getVideo(context, toUser, source);
         }

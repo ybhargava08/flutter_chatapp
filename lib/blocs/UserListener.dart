@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:chatapp/blocs/UserBloc.dart';
-import 'package:chatapp/database/SembastDatabase.dart';
-import 'package:chatapp/database/SembastUser.dart';
+import 'package:chatapp/database/OfflineDBUser.dart';
 import 'package:chatapp/firebase/Firebase.dart';
 import 'package:chatapp/model/UserModel.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -40,7 +39,6 @@ class UserListener {
             if (change.type == DocumentChangeType.added ||
                 change.type == DocumentChangeType.modified) {
               UserModel newUser = UserModel.fromDocSnapShot(data.documents[0]);
-              //print('got user added in listen for user activity '+newUser.toString());
               checkUserInContactList(newUser);
             }
           });
@@ -58,7 +56,6 @@ class UserListener {
             if (change.type == DocumentChangeType.added ||
                 change.type == DocumentChangeType.modified) {
               UserModel newUser = UserModel.fromDocSnapShot(data.documents[0]);
-              //print('got user added in listen for user activity '+newUser.toString());
               checkUserInContactList(newUser);
             }
           });
@@ -74,13 +71,11 @@ class UserListener {
         withThumbnails: false);
     if (contacts != null && contacts.length > 0) {
       contacts.forEach((contact) {
-        //print('in contact list found user with name ' + contact.displayName);
         user.name = contact.displayName;
         addToController(user.id, user);
       });
     } else {
-      //print('did not find user in contact '+user.toString());
-      SembastUser().deleteContactFromUserContactStore(user);
+      OfflineDBUser().deleteContactFromUserContactStore(user);
     }
     }
     
@@ -94,13 +89,9 @@ class UserListener {
   }
 
   addToController(String id, UserModel user) {
-    /*print('adding to single user bloc controller ' +
-        id +
-        ' status ' +
-        _isControllerClosed(id).toString());*/
     UserBloc().addUpdateUser(user);
     openController(id);
-    SembastUser().upsertInUserContactStore(user, null);
+    OfflineDBUser().upsertInUserContactStore(user, null);
     _map[id].sink.add(user);
   }
 

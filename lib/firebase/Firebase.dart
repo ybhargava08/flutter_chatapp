@@ -1,8 +1,8 @@
 import 'package:chatapp/blocs/ChatBloc.dart';
 import 'package:chatapp/blocs/NotificationBloc.dart';
 import 'package:chatapp/blocs/UserBloc.dart';
-import 'package:chatapp/database/SembastChat.dart';
-import 'package:chatapp/database/SembastUser.dart';
+import 'package:chatapp/database/OfflineDBChat.dart';
+import 'package:chatapp/database/OfflineDBUser.dart';
 import 'package:chatapp/firebase/FirebaseRealtimeDB.dart';
 import 'package:chatapp/firebase/FirebaseStorageUtil.dart';
 import 'package:chatapp/model/ChatDeleteModel.dart';
@@ -20,7 +20,7 @@ class Firebase {
 
   factory Firebase() => _firebase ??= Firebase._internal();
   Firebase._internal() {
-    _firestore.settings(persistenceEnabled: true);
+    _firestore.settings(persistenceEnabled: false);
   }
 
   addUpdateUser(UserModel user) async {
@@ -65,7 +65,7 @@ class Firebase {
             ChatModel.DELIVERED_TO_LOCAL,
             false,chat.ts);
         ChatBloc().addInChatController(localChat);
-        SembastChat().upsertInChatStore(localChat, 'addUpdateChatBefore');
+        OfflineDBChat().upsertInChatStore(localChat, 'addUpdateChatBefore');
       }
 
       if (shouldUpdateCount) {
@@ -82,16 +82,16 @@ class Firebase {
           String userSearchId = (chat.fromUserId == UserBloc().getCurrUser().id)
               ? chat.toUserId
               : chat.fromUserId;
-          SembastUser().upsertInUserContactStore(
+          OfflineDBUser().upsertInUserContactStore(
               UserBloc().findUser(userSearchId), {'lastActivityTime': time});
           if (null != localChat) {
             localChat.delStat = ChatModel.DELIVERED_TO_SERVER;
             NotificationBloc().addToNotificationController(
                 localChat.id, ChatModel.DELIVERED_TO_SERVER);
-            SembastChat()
+            OfflineDBChat()
                 .upsertInChatStore(localChat, 'addUpdateChatAfterFBPersist');
           } else {
-            SembastChat()
+            OfflineDBChat()
                 .upsertInChatStore(chat, 'addUpdateChatAfterFBPersist');
             NotificationBloc().addToNotificationController(
                 chat.id, ChatModel.DELIVERED_TO_SERVER);
@@ -110,7 +110,6 @@ class Firebase {
         });
       }
     } catch (e) {
-      //print('exception while add / update chat in FB ' + e.toString());
     }
   }
 
@@ -118,7 +117,7 @@ class Firebase {
     if (list != null && list.length > 0) {
       WriteBatch batch = _firestore.batch();
       list.forEach((chatDelModel) {
-        SembastChat().upsertInChatStore(chatDelModel.chat, 'markChatAsDeleted');
+        OfflineDBChat().upsertInChatStore(chatDelModel.chat, 'markChatAsDeleted');
         DocumentReference _reference = getChatCollectionRef(
                 Utils().getChatCollectionId(chatDelModel.chat.fromUserId, chatDelModel.chat.toUserId),
                 Firebase.CHAT_COL_COMPLETE)
