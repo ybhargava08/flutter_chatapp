@@ -23,7 +23,8 @@ This project is an attempt to create a chat and media sharing system using Flutt
  - Realtime Photo , Video sharing
  - Delete multiple message / photo / video 
  - Realtime Read receipt and delivery notification
- - Push Notification on receive of new message / photio / video 
+ - Push Notification on receive of new message / photio / video
+ - Show unread chat count from other user
  - Add caption to photo / video while sharing
  - Auto play videos on selection
  - Change profile picture
