@@ -1,7 +1,8 @@
 # chatapp
 
 This project is an attempt to create a chat and media sharing system using Flutter framework
-Some Screenshots in chatapp_screenshots folder
+
+- Some Screenshots in chatapp_screenshots folder
 
 ## Design
 
