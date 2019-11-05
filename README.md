@@ -18,7 +18,7 @@ This project is an attempt to create a chat and media sharing system using Flutt
  
  ## App Features
  
- - One to One chat (will have group chat in teh future)
+ - One to One chat (will have group chat in the future)
  - Realtime Text message sharing
  - Realtime Photo , Video sharing
  - Delete multiple message / photo / video 
