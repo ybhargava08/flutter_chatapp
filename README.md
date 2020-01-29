@@ -2,7 +2,14 @@
 
 This project is an attempt to create a chat and media sharing system using Flutter framework
 
-- Some Screenshots in chatapp_screenshots folder
+ ## App Screenshots
+ 
+ https://github.com/ybhargava08/flutter_chatapp/blob/master/chatapp_screenshots/Screenshot_20191104-183352.jpg
+ https://github.com/ybhargava08/flutter_chatapp/blob/master/chatapp_screenshots/Screenshot_20191104-184856.jpg
+ https://github.com/ybhargava08/flutter_chatapp/blob/master/chatapp_screenshots/Screenshot_20191104-191312.jpg
+ https://github.com/ybhargava08/flutter_chatapp/blob/master/chatapp_screenshots/Screenshot_20191104-191440.jpg
+ https://github.com/ybhargava08/flutter_chatapp/blob/master/chatapp_screenshots/Screenshot_20191104-191458.jpg
+ https://github.com/ybhargava08/flutter_chatapp/blob/master/chatapp_screenshots/Screenshot_20191104-191600.jpg
 
 ## Design
 
@@ -29,9 +36,3 @@ This project is an attempt to create a chat and media sharing system using Flutt
  - Auto play videos on selection
  - Change profile picture
  - Back up chats on button click (will be automatic in future)
- 
- ## App Screenshots
- 
- https://github.com/ybhargava08/flutter_chatapp/blob/master/chatapp_screenshots/Screenshot_20191104-183352.jpg
- 
- 
