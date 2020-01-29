@@ -30,5 +30,8 @@ This project is an attempt to create a chat and media sharing system using Flutt
  - Change profile picture
  - Back up chats on button click (will be automatic in future)
  
+ ## App Screenshots
+ 
+ https://github.com/ybhargava08/flutter_chatapp/blob/master/chatapp_screenshots/Screenshot_20191104-183352.jpg
  
  
